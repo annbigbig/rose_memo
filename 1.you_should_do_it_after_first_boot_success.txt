@@ -1,0 +1,521 @@
+
+
+1.網路設定
+	1.1 網路參數設定檔/etc/network/interfaces
+	1.2 本機防火牆設定/etc/network/if-up.d/firewall
+	1.3 常用網路指令
+
+2.主機名稱
+	2.1 修改/etc/hostname
+	2.2 修改/etc/hosts
+
+3.系統時間
+	3.1 設定Timezone
+	3.2 更新系統時間(一次性)
+	3.3 讓系統自動每日校時一次
+
+4.語言
+	4.1 設定目前的locale為zh_TW
+
+5.用戶
+	5.1 重新設置root用戶密碼
+	5.2 新增超級使用者labasky
+	5.3 移除預設的用戶linaro
+
+6.自動登入
+	6.1 取消root自動登入於tty1
+	6.2 取消自動登入LXDE
+
+7.安裝必要軟體
+	7.1 安裝build-essential
+	7.2 安裝manpages
+	7.3 安裝git
+	7.4 安裝svn
+
+8.Fix some bla bla bla
+
+
+
+
+====================================================================================================================
+1.1 網路參數設定檔/etc/network/interfaces
+====================================================================================================================
+# interfaces(5) file used by ifup(8) and ifdown(8)
+# Include files from /etc/network/interfaces.d:
+#source-directory /etc/network/interfaces.d
+
+# ---
+auto lo
+iface lo inet loopback
+
+# --- enable eth0 with dhcp ---
+auto eth0
+iface eth0 inet dhcp
+#  dns-nameservers 8.8.8.8 8.8.4.4 168.95.1.1 168.95.192.1
+
+注意上面的DNS Server的指定，我是注解掉的(也就是失效)
+因為我的路由器上運行的DHCP Server會把DNS設定一併Push給DHCP client端
+如果你的DHCP Server沒有這個功能，就把這一行前面的#去掉，讓它生效
+
+====================================================================================================================
+1.2 本機防火牆設定/etc/network/if-up.d/firewall
+====================================================================================================================
+安裝iptables套件
+# apt-get update
+# apt-get install iptables
+
+確認一下真的安裝完成了
+# which iptables
+
+終端機會回答
+/sbin/iptables
+
+產生空白的/etc/network/if-up.d/firewall檔案
+並設定權限
+編輯它
+# touch /etc/network/if-up.d/firewall
+# chmod +x /etc/network/if-up.d/firewall
+# vi /etc/network/if-up.d/firewall
+
+內容如下
+#!/bin/sh
+# ============ Set your network parameters here ===================================================
+iptables=/sbin/iptables
+loopback=127.0.0.1
+local="$(/sbin/ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
+#local=10.1.1.170
+lan=10.1.1.0/24
+vpn=10.8.0.0/24
+# =================================================================================================
+$iptables -t filter -F
+$iptables -t filter -A INPUT -i lo -s $loopback -d $loopback -p all -j ACCEPT
+$iptables -t filter -A INPUT -i eth0 -s $local -d $local -p all -j ACCEPT
+$iptables -t filter -A INPUT -i eth0 -s $lan -d $local -p all -j ACCEPT
+$iptables -t filter -A INPUT -d $local -p tcp --dport 36000 --syn -m state --state NEW -j ACCEPT
+$iptables -t filter -A INPUT -s $lan -p tcp --dport 36000 --syn -m state --state NEW -j ACCEPT
+$iptables -t filter -A INPUT -d $local -p tcp --dport 80 --syn -m state --state NEW -m limit --limit 10/s --limit-burst 40 -j ACCEPT
+$iptables -t filter -A INPUT -d $local -p tcp --dport 80 --syn -m state --state NEW -j DROP
+$iptables -t filter -A INPUT -d $local -p tcp --dport 443 --syn -m state --state NEW -m limit --limit 10/s --limit-burst 40 -j ACCEPT
+$iptables -t filter -A INPUT -d $local -p tcp --dport 443 --syn -m state --state NEW -j DROP
+$iptables -t filter -A INPUT -s $lan -d $local -p icmp -j ACCEPT
+$iptables -t filter -A INPUT -s $vpn -d $local -p icmp -j ACCEPT
+$iptables -t filter -A INPUT -p icmp --icmp-type 8 -m limit --limit 10/s -j ACCEPT
+$iptables -t filter -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+$iptables -t filter -P INPUT DROP
+$iptables -t filter -L -n --line-number
+# =================================================================================================
+
+
+====================================================================================================================
+1.3 常用網路指令
+====================================================================================================================
+查看網路接口狀態
+# ifconfig
+
+關掉eth0網卡 (從/etc/network/interfaces讀取網路設定參數)
+# ifdown eth0
+
+啟動eth0網卡 (從/etc/network/interfaces讀取網路設定參數)
+# ifup eth0
+
+發送測試的icmp封包到某個IP看是否有回應？
+通常會試ping到匣道路由器，某個public IP，然後是domain name
+像這樣
+# ping 10.1.1.1
+# ping 8.8.8.8
+# ping www.google.com.tw
+
+查看路由表
+# route -n
+
+查看現在使用的DNS resolver (從DHCP Server得到的參數)
+# cat /etc/resolv.conf
+
+查看目前的iptables防火牆規則
+# iptables -L -n --line-number
+
+
+
+====================================================================================================================
+2.1 修改/etc/hostname
+====================================================================================================================
+
+原來的內容就只有一行
+linaro-alip
+
+改成你想要的主機名稱，例如
+rose01
+
+
+====================================================================================================================
+2.2 修改/etc/hosts
+====================================================================================================================
+
+原來的內容
+127.0.0.1	localhost
+::1		localhost ip6-localhost ip6-loopback
+fe00::0		ip6-localnet
+ff00::0		ip6-mcastprefix
+ff02::1		ip6-allnodes
+ff02::2		ip6-allrouters
+127.0.1.1       linaro-alip
+
+如果你決定把主機名稱改成rose01，把最後一行改成
+127.0.1.1       rose01
+
+改完要重新開機之後，新的主機名稱才會生效
+
+
+====================================================================================================================
+3.1 設定Timezone
+====================================================================================================================
+
+先查看目前的時間
+# date
+
+終端機輸出
+Mon Sep 21 12:53:05 UTC 2015
+
+可是其實現在的時間應該是2015年的9/21的20:53才對
+早了整整八個小時
+
+執行
+# dpkg-reconfigure tzdata
+
+進入GUI之後
+先選Asia再選Taipei
+
+再查看一次目前的時間
+# date
+
+終端機輸出了
+Mon Sep 21 20:55:56 CST 2015
+
+
+====================================================================================================================
+3.2 更新系統時間(一次性)
+====================================================================================================================
+
+開機的時候，如果網路接口eth0有取得IP，網路連線正常的話
+則/etc/network/if-up.d/ntpdate會自動執行一次校時
+
+如果你要手動執行它的話
+就
+# ntpdate ntp.ubuntu.com
+
+
+====================================================================================================================
+3.3 讓系統自動每日校時一次
+====================================================================================================================
+
+產生一個ntpdate的shell script放在/etc/cron.daily目錄裡面
+
+# touch /etc/cron.daily/ntpdate
+# chmod 755 /etc/cron.daily/ntpdate
+# echo '#!/bin/sh' >> /etc/cron.daily/ntpdate
+# echo 'ntpdate ntp.ubuntu.com' >> /etc/cron.daily/ntpdate
+# cat /etc/cron.daily/ntpdate 
+
+檔案內容如下
+
+#!/bin/sh
+ntpdate ntp.ubuntu.com
+
+如果覺得每日校時一次不夠，也可以把這個shell script放在/etc/cron.hourly目錄下面
+每個小時都會校時一次，不過沒必要啦
+
+====================================================================================================================
+4.1 設定目前的locale為zh_TW
+====================================================================================================================
+
+參考資料
+https://help.ubuntu.com/community/Locale
+
+查看目前系統上支援的locale有那些
+# locale -a
+
+終端機輸出了
+C
+C.UTF-8
+POSIX
+
+列出目前的locale設定值
+# locale
+
+終端機輸出了
+LANG=C.UTF-8
+LANGUAGE=
+LC_CTYPE="C.UTF-8"
+LC_NUMERIC="C.UTF-8"
+LC_TIME="C.UTF-8"
+LC_COLLATE="C.UTF-8"
+LC_MONETARY="C.UTF-8"
+LC_MESSAGES="C.UTF-8"
+LC_PAPER="C.UTF-8"
+LC_NAME="C.UTF-8"
+LC_ADDRESS="C.UTF-8"
+LC_TELEPHONE="C.UTF-8"
+LC_MEASUREMENT="C.UTF-8"
+LC_IDENTIFICATION="C.UTF-8"
+LC_ALL=
+
+原來系統預設的
+# cat /etc/default/locale
+
+終端機輸出了
+LANG=C.UTF-8
+
+
+安裝漢語language-pack-zh-*
+# apt-get update
+# apt-get install language-pack-zh-*
+
+安裝中文字型
+# apt-get install fonts-wqy-zenhei
+
+安裝完漢語支援包後，再次查看系統現在支援什麼locale
+# locale -a
+
+終端機輸出了
+C
+C.UTF-8
+POSIX
+zh_CN.utf8
+zh_HK.utf8
+zh_SG.utf8
+zh_TW.utf8
+
+修改
+# vi /etc/default/locale 
+
+只有一行，改成這樣
+LANG=zh_TW.UTF-8
+
+產生/var/lib/locales/supported.d目錄下的檔案
+# locale-gen
+
+重新開機
+# sync
+# reboot
+
+開機完成後，再次看
+# locale
+
+終端機輸出了
+LANG=zh_TW.UTF-8
+LANGUAGE=
+LC_CTYPE="zh_TW.UTF-8"
+LC_NUMERIC="zh_TW.UTF-8"
+LC_TIME="zh_TW.UTF-8"
+LC_COLLATE="zh_TW.UTF-8"
+LC_MONETARY="zh_TW.UTF-8"
+LC_MESSAGES="zh_TW.UTF-8"
+LC_PAPER="zh_TW.UTF-8"
+LC_NAME="zh_TW.UTF-8"
+LC_ADDRESS="zh_TW.UTF-8"
+LC_TELEPHONE="zh_TW.UTF-8"
+LC_MEASUREMENT="zh_TW.UTF-8"
+LC_IDENTIFICATION="zh_TW.UTF-8"
+LC_ALL=
+
+這個時候LXDE的圖形介面裡已經是繁體中文了
+
+
+====================================================================================================================
+5.1 重新設置root用戶密碼
+====================================================================================================================
+
+現在我是誰
+# whoami
+
+終端機回答
+root
+
+修改密碼
+# passwd
+
+
+====================================================================================================================
+5.2 新增超級使用者labasky
+====================================================================================================================
+
+新增用戶
+(交互式的文字操作介面，回答一些簡單的問題，並設定好用戶的密碼)
+# adduser labasky
+
+修改/etc/sudoers之前，此刻設定檔裡沒有新用戶labasky的存在
+也就是說，他還不能使用sudo -i指令，就快樂變成root用戶
+# cat /etc/sudoers | grep labasky
+
+修改/etc/sudoers
+注意這裡是用visudo指令
+# visudo
+
+剛才的新用戶labasky的權限
+被安排在這個區塊，像這樣
+# User privilege specification
+root    ALL=(ALL:ALL) ALL
+labasky ALL=(ALL:ALL) ALL
+
+編輯完成之後，按ESC再:wq離開vi文字編輯器
+這個時候再看一次/etc/sudoers檔案
+# cat /etc/sudoers | grep labasky
+
+終端機回答
+labasky	ALL=(ALL:ALL) ALL
+
+試著從另一台電腦(筆電)的終端機，連線到主機rose01
+$ ssh labasky@10.1.1.170
+
+以用戶labasky登入ssh server成功之後
+labasky@rose01:~$ whoami
+labasky
+labasky@rose01:~$ sudo -i
+[sudo] password for labasky: 
+root@rose01:~# 
+
+可以成功變成最高用戶root
+不過還是要輸入用戶labasky的密碼
+如果你希望用戶labasky可以直接在執行sudo -i之後就變成最高用戶root
+
+剛才在visudo裡
+把
+labasky ALL=(ALL:ALL) ALL
+這一行拿掉
+然後在檔案的最下面一行，加入
+labasky ALL=(ALL) NOPASSWD: ALL
+
+參考資料
+http://askubuntu.com/questions/147241/execute-sudo-without-password
+
+
+====================================================================================================================
+5.3 移除預設的用戶linaro
+====================================================================================================================
+
+執行
+# userdel -r linaro
+
+確認一下是不是真的移除了？
+# cat /etc/passwd|grep linaro
+# cat /etc/shadow|grep linaro
+# cat /etc/group|grep linaro
+
+====================================================================================================================
+6.1 取消root自動登入於tty1
+====================================================================================================================
+
+# mv /etc/init/openvt.conf /etc/init/openvt.conf.not.working
+
+
+====================================================================================================================
+6.2 取消自動登入LXDE
+====================================================================================================================
+
+查看一下LXDE相關設定檔裡面關於autologin=的這一行設定值
+# cat /etc/lxdm/default.conf | grep autologin=
+
+終端機輸出
+autologin=linaro
+
+使用vi文字編輯器修改此設定檔
+# vi /etc/lxdm/default.conf
+
+把剛才那行直接註解掉，變成下面這樣，
+我順便把linaro換成了labasky
+日後如果需要autologin就去掉最前面的#號就可以了
+#autologin=labasky
+
+====================================================================================================================
+7.1 安裝build-essential
+====================================================================================================================
+
+# apt-get install build-essential
+
+安裝完後，確認一下gcc的存在
+# which gcc
+
+終端機回應
+/usr/bin/gcc
+
+也可以執行這個指令來確認gcc的版本號
+# gcc -version
+
+====================================================================================================================
+7.2 安裝manpages
+====================================================================================================================
+
+這個rootfs沒有/usr/bin/man這個東西的，所以我得手動裝上它
+# apt-get install man manpages
+
+看看到底安裝好了嗎？
+# which man
+
+隨便看個man page
+# man passwd
+
+====================================================================================================================
+7.3 安裝git
+====================================================================================================================
+
+安裝git
+# apt-get install git-core
+
+切換成用戶labasky
+# exit
+
+我是誰？
+$ whoami
+
+終端機回答
+labasky
+
+設定user.name和user.email
+(你的用戶名和電子郵件肯定和我不同，請改成你自已的)
+$ git config --global user.name "KunAn Hsu"
+$ git config --global user.email annbigbig@gmail.com
+
+剛才的設定放在家目錄下的.gitconfig檔案裡
+你可以這樣確認
+$ cat ~/.gitconfig 
+
+終端機輸出了
+[user]
+	name = KunAn Hsu
+	email = annbigbig@gmail.com
+
+把你github用的那把ssh private key
+複製到/home/labasky/.ssh/id_rsa
+(以下的操作是在筆記型電腦10.1.1.90的終端機，把私鑰id_rsa複製到10.1.1.170主機的/tmp目錄下)
+$ cd /home/anntony/.ssh
+$ scp ./id_rsa labasky@10.1.1.170:/tmp
+
+再回到了小板板的終端機
+$ cd /home/labasky/.ssh
+$ cp /tmp/id_rsa ./
+$ chmod 600 ./id_rsa
+
+到github上面new一個測試用的空的repo (過程略)
+然後在本地端(小板板)產生一個目錄，git init後，提交內容，試著push到github
+$ mkdir testrepo1
+$ cd testrepo1/
+$ echo "# testX01" >> README.md
+$ git init
+$ git add -A
+$ git commit -m "first commit"
+$ git remote add origin git@github.com:annbigbig/testX01.git
+$ git push -u origin master
+$ git log --oneline --graph --decorate --all
+
+切換到/tmp目錄，把剛才的repo再拉下來瞧瞧
+$ cd /tmp
+$ git clone git@github.com:annbigbig/testX01.git
+
+如果上面的git push和git clone都沒有錯誤訊息的話
+就是git安裝並設定正確了
+將來rootfs要包給別人用的時候，記得把/home/labasky/.ssh/id_rsa這個你個人的私鑰檔案刪掉
+不然每個拿了你rootfs使用的人，都可以提交到你的github repo，是很可怕的事
+
+====================================================================================================================
+7.4 安裝svn
+====================================================================================================================
