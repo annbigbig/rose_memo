@@ -1,0 +1,75 @@
+3.安裝v11vnc，且將它設定成開機後自動啟動的系統服務
+
+網路環境
+10.1.1.90	Lenovo B590筆記型電腦x86_64，安裝了作業系統Linux Mint 17.1，角色是 vnc client
+10.1.1.170 ARM小板板 - 開機的rootfs是Ubuntu linaro 14.04，角色是vnc server 
+
+參考資料
+https://help.ubuntu.com/community/VNC/Servers#Have_x11vnc_automatically_start_in_Ubuntu
+https://wiki.archlinux.org/index.php/X11vnc#LXDM
+https://prismsoul.wordpress.com/2014/06/11/installing-and-configuring-x11vnc-on-ubuntu-14-04/
+http://c-nergy.be/blog/?p=5870
+
+安裝x11vnc
+# apt-get install x11vnc
+
+安裝完成之後，檢查一下x11vnc執行檔的完整路徑在？
+# which x11vnc
+
+終端機回應
+/usr/bin/x11vnc
+
+如果很閒，可以順便看一下man page
+# man x11vnc
+
+產生vnc password密碼檔
+注意我是切換回用戶labasky
+$ x11vnc -storepasswd
+Enter VNC password: 
+Verify password:    
+Write password to /home/labasky/.vnc/passwd?  [y]/n y
+Password written to: /home/labasky/.vnc/passwd
+
+
+剛才把vnc password密碼檔存在了/home/labasky/.vnc/passwd
+所以你現在可以使用這樣的指令，啟動你的x11vnc服務
+$ x11vnc -display :0 -auth /var/run/lxdm/lxdm-\:0.auth -forever -loop -noxdamage -repeat -rfbauth /home/labasky/.vnc/passwd -rfbport 5900 -shared
+
+切到筆記型電腦上，我的作業系統Linux Mint 17.1上面安裝的vnc用戶端連線軟體是Vinagre 3.10.2
+啟動後，按左上角的「連線」然後對著小板板的vnc服務的IP:port，也就是10.1.1.170:5900連線
+看到小板板的LXDE桌面，也可以正常操作的話，就是成功了
+不過這是一次性的，如果你把剛才終端機咬住的x11vnc指令用Ctrl+C中斷
+那麼vnc連線就會斷掉，而且現在如果重新開機，也沒有自動啟動x11vnc為系統服務
+
+要啟動x11vnc為系統服務
+你可以使用/etc/init/x11vnc.conf設定檔
+切換回用戶root
+$ sudo -i
+
+然後執行
+# touch /etc/init/x11vnc.conf
+# vi /etc/init/x11vnc.conf
+
+設定檔/etc/init/x11vnc.conf內容如下
+# description "Start x11vnc at boot"
+
+description "x11vnc"
+
+start on runlevel [2345]
+stop on runlevel [^2345]
+
+console log
+
+respawn
+respawn limit 20 5
+
+exec /usr/bin/x11vnc -display :0 -auth /var/run/lxdm/lxdm-\:0.auth -forever -loop -noxdamage -repeat -rfbauth /home/labasky/.vnc/passwd -rfbport 5900 -shared
+
+
+重新開機之後，查看x11vnc運行的tcp port 5900是否有在Listening？
+root@rose01:~# netstat -anp|grep 5900
+tcp        0      0 0.0.0.0:5900            0.0.0.0:*               LISTEN      1329/x11vnc     
+tcp6       0      0 :::5900                 :::*                    LISTEN      1329/x11vnc
+
+到筆記型電腦上，使用vnc用戶端Vinagre對小板板的IP:port也就是10.1.1.170:5900發起vnc連線
+如果成功，就恭喜你了
