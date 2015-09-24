@@ -32,15 +32,17 @@
 	7.3 安裝git
 	7.4 安裝svn
 
-8.系統監測
-	8.1 top
-	8.2 htop
-	8.3 Smartmontools (硬碟檢測)
-	8.4 badblocks (SD卡檢測)
+8.加掛swap space
 
-9.Fix some bla bla bla
+9.系統監測
+	9.1 top
+	9.2 htop
+	9.3 Smartmontools (硬碟檢測)
+	9.4 badblocks (SD卡檢測)
 
-
+10.Fix some bla bla bla
+	10.1 修正Press F to attempt to fix the errors ...(一定要你按F才繼續boot process)
+	10.2 在vi文字編輯器裡的上下左右，變成ABCD
 
 
 ====================================================================================================================
@@ -536,7 +538,165 @@ $ git clone git@github.com:annbigbig/testX01.git
 # rm -rf ./trunk
 
 ====================================================================================================================
-8.1 top
+8.加掛swap space
+====================================================================================================================
+參考資料
+https://www.digitalocean.com/community/tutorials/how-to-add-swap-on-ubuntu-14-04
+
+檢查目前系統是否已經加掛了swap space？
+# swapon -s
+
+如果終端機只有回應這樣，表示系統沒有掛上swap
+Filename				Type		Size	Used	Priority
+
+也可以這樣檢查
+# free -m
+
+基本上加掛swap space可以有兩種方式
+一個是分配一個partition給系統當swap，不過會更動到整個系統的partition table，工程浩大
+所以這裡採取比較簡單的方式，在已經存在的分割區上面，分配一個空白檔案當成swap file
+
+首先檢查rootfs還剩多少磁碟空間？
+# df -h
+
+檔案系統        容量  已用  可用 已用% 掛載點
+/dev/mmcblk0p2  7.1G  994M  5.7G   15% /
+none            4.0K     0  4.0K    0% /sys/fs/cgroup
+udev             10M  4.0K   10M    1% /dev
+none             75M  336K   75M    1% /run
+none            5.0M     0  5.0M    0% /run/lock
+none            375M     0  375M    0% /run/shm
+none            100M     0  100M    0% /run/user
+tmpfs           375M     0  375M    0% /dev/shm
+
+上面終端機說，我的rootfs掛載在/dev/mmcblk0p2，也就是SD卡的第二個分割區
+目前用掉了994M，還有5.7G可以使用
+配置swap space大小的原則，是根據你系統的RAM容量大小，乘以一或是乘以二
+不要問我為什麼，上面的洋人說的，我就照著這個大小分配而已
+小板板上面有1G RAM，所以我的swap file也配個1G大小差不多
+
+建立swap file
+操作dd指令時請小心，最好是複製貼上我下面的dd指令到終端機執行，dd指令的of參數打錯會產生毀滅性的結果
+# cd /
+# dd if=/dev/zero of=./swapfile bs=1M count=1024
+
+經過幾分鐘後，終端機輸出了
+輸入 1024+0 個紀錄
+輸出 1024+0 個紀錄
+複製了 1073741824 個位元組 (1.1 GB), 101.96 s, 10.5 MB/s
+
+這個時候看看剛才產生的/swapfile檔案的大小
+# ls -lh /swapfile
+
+終端機的回應
+-rw-r--r-- 1 root root 1.0G  9月 24 16:55 /swapfile
+
+修改swapfile的權限值為600，因為除了用戶root不該有任何人可以修改它或讀取它
+# chmod 600 /swapfile
+
+再次檢查/swapfile的權限
+# ls -lh /swapfile
+-rw------- 1 root root 1.0G  9月 24 16:55 /swapfile
+
+執行mkswap
+# mkswap /swapfile
+
+終端機回應了
+設定 swapspace 版本 1, 大小 = 1048572 KiB
+無標籤， UUID=9732e1e9-bfb6-4ace-a089-1a6521bd75c8
+
+然後swapon，把剛才的/swapfile掛載成swap space
+# swapon /swapfile
+
+檢查系統現在有沒有掛上swap space，再一次執行
+# swapon -s
+
+終端機回應了
+Filename				Type		Size	Used	Priority
+/swapfile                               file		1048572	0	-1
+
+也可以這樣檢查
+# free -m
+
+到剛才為止，我們雖然掛上了/swapfile當成我們系統的swap space
+不過只要你執行reboot指令重新開機
+你剛才的/swapfile並不會自動掛載為swap space
+你必須修改/etc/fstab這個檔案才行
+# vi /etc/fstab
+
+在檔案的最後面加上這一行
+/swapfile   none    swap    sw    0   0
+
+重新開機之後
+# reboot
+
+再次檢查swap space是否有掛載上去？
+# swapon -s
+
+如果有掛載上swap space
+終端機應該會這樣回應你
+Filename				Type		Size	Used	Priority
+/swapfile                               file		1048572	0	-1
+
+或是執行
+# free -m
+
+終端機會這樣回應
+             total       used       free     shared    buffers     cached
+Mem:           748        127        620          0          7         41
+-/+ buffers/cache:         78        670
+置換：       1023          0       1023
+
+以上就作完swap space的設置
+但是後面你可以再作一些優化的動作
+
+首先查看swappiness參數的值
+# cat /proc/sys/vm/swappiness
+
+終端機回應了
+60
+
+這個swappiness的值，範圍在0到100
+愈靠近100，表示系統傾向於將愈多的資料放置在swap space，然後盡量空出RAM的空間
+如果愈靠近0就是剛好相反，最好是設定成0，這表示除非萬不得已，才使用swap space(較慢)
+
+修改/etc/sysctl.conf
+# vi /etc/sysctl.conf
+
+在最後一行，加上
+vm.swappiness=0
+改完存檔離開
+
+接著再查看另一個系統參數
+# cat /proc/sys/vm/vfs_cache_pressure
+
+終端機回應了
+100
+
+這是從快取裡移除inode資訊的速度，太快了，我們可以設定一個較為保守的值，例如50
+(我也看不懂，我只是照著翻譯而已，原文是：)
+our system removes inode information from the cache too quickly.
+We can set this to a more conservative setting like 50 by typing:
+
+一樣是修改剛才的/etc/sysctl.conf
+然後把這一行加到檔案的最後面
+vm.vfs_cache_pressure = 50
+
+改好離開vi文字編輯器
+然後重新開機
+# reboot
+
+重新開機之後
+試著
+# cat /proc/sys/vm/swappiness
+終端機應該要輸出0
+還有試著
+# cat /proc/sys/vm/vfs_cache_pressure
+終端機應該要輸出50才對
+這是剛才在/etc/sysctl.conf設定檔裡設定的值
+
+====================================================================================================================
+9.1 top
 ====================================================================================================================
 
 系統預設已經有安裝top了
@@ -552,7 +712,7 @@ $ git clone git@github.com:annbigbig/testX01.git
 按q可以離開
 
 ====================================================================================================================
-8.2 htop
+9.2 htop
 ====================================================================================================================
 
 安裝htop
@@ -564,7 +724,7 @@ $ git clone git@github.com:annbigbig/testX01.git
 一樣是按q離開
 
 ====================================================================================================================
-8.3 Smartmontools
+9.3 Smartmontools (硬碟檢測)
 ====================================================================================================================
 參考資料
 https://help.ubuntu.com/community/Smartmontools
@@ -606,7 +766,7 @@ SMART support is: Enabled
 
 
 ====================================================================================================================
-8.4 badblocks (SD卡檢測)
+9.4 badblocks (SD卡檢測)
 ====================================================================================================================
 參考資料
 http://help.endian.com/entries/21397216-Verify-if-the-micro-SD-card-is-corrupt
@@ -621,11 +781,50 @@ http://help.endian.com/entries/21397216-Verify-if-the-micro-SD-card-is-corrupt
 檢查是否有bad blocks?
 # badblocks -n -v /dev/sdb
 
+測試結果
+Checking for bad blocks in non-destructive read-write mode
+From block 0 to 7715839
+Testing with random pattern: Pass completed, 0 bad blocks found. (0/0/0 errors)
+
+沒有壞掉的block，很快樂
 
 ====================================================================================================================
+10.1 修正Press F to attempt to fix the errors ...(一定要你按F才繼續boot process)
+====================================================================================================================
+參考資料
+http://askubuntu.com/questions/460651/how-to-deal-with-errors-were-found-while-checking-the-disk-drive-for-in-a-se
+http://askubuntu.com/questions/151025/how-can-i-make-fsck-run-non-interactively-at-boot-time
 
+插入SD卡開機的時候
+大約有50%以上的機率
+會遇到這個問題，你會看到開機程序卡在這裡，跳出了這個訊息
 
-加掛swapfile
-https://www.digitalocean.com/community/tutorials/how-to-add-swap-on-ubuntu-14-04
+Errors were found while checking the disk drive for /.
+Press F to attempt to fix the errors, I to ignore, S to skip mounting or M for manual recovery
 
+強制你一定要按下F來修正錯誤之後，才能繼續boot process
+這個問題可以如下解決
 
+列出/etc/default/rcS設定檔裡關於FSCKFIX的這一行
+# cat /etc/default/rcS | grep FSCKFIX
+
+終端機回應了
+#FSCKFIX=no
+
+打開vi文字編輯器，修改它
+# vi /etc/default/rcS 
+
+把剛才那一行，改成這樣
+FSCKFIX=yes
+
+改好之後，按下ESC然後:wq存檔，離開vi文字編輯器
+重新開機之後，不會再被系統強制一定要按下F或I或S或M才能繼續boot process
+
+====================================================================================================================
+10.2 在vi文字編輯器裡的上下左右，變成ABCD
+====================================================================================================================
+
+安裝vim就能解決上下左右變ABCD的問題
+# apt-get install vim
+
+====================================================================================================================
