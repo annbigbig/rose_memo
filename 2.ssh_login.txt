@@ -1,0 +1,237 @@
+2.SSH (Secure Shell)
+
+網路環境
+SSH Server : 10.1.1.170 Ubuntu linaro 14.04
+SSH Client : 10.1.1.90 Linux Mint 17.1
+
+常用的操作如下
+======================================================================================================================
+2.1 login with username and password using default service port 22
+2.2 how to generate ssh key pair ?
+2.3 append the public key to the end of /home/labasky/.ssh/authorized_keys at ssh server
+2.4 login with username and private key using custom service port 36000
+2.5 ssh tunnel
+2.6 SFTP (limited user)
+2.7 git push (limited user)
+2.8 Turn off the password authentication
+======================================================================================================================
+
+
+
+======================================================================================================================
+2.1 login with username and password using default service port 22
+======================================================================================================================
+
+連線指令是
+$ ssh labasky@10.1.1.170
+
+然後輸入用戶labasky的密碼，沒啥好講
+
+======================================================================================================================
+2.2 how to generate ssh key pair ?
+======================================================================================================================
+參考資料
+https://help.github.com/articles/generating-ssh-keys/
+
+以下操作是在將來要當SSH Client端的筆記型電腦上，也就是10.1.1.90
+產生key pair之前先看一下家目錄下的.ssh子目錄裡，有沒有其他key pair的存在？
+$ cd /home/anntony/.ssh
+$ ls -al
+
+只是看一下而已(因為好奇)
+可能在這個目錄裡你會看到id_rsa和id_rsa.pub
+它們分別是私鑰和公鑰，是一對的，也許因為某些理由，像是你已經產生過一次key pair
+所以它們就已經存在了
+
+現在來產生一對新的key pair
+$ cd ~
+$ ssh-keygen -t rsa -b 4096 -C "annbigbig@gmail.com"
+
+
+anntony@anntony-Lenovo-B590 ~ $ ssh-keygen -t rsa -b 4096 -C "annbigbig@gmail.com"
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/anntony/.ssh/id_rsa): /home/anntony/.ssh/labasky@10.1.1.170
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /home/anntony/.ssh/labasky@10.1.1.170.
+Your public key has been saved in /home/anntony/.ssh/labasky@10.1.1.170.pub.
+The key fingerprint is:
+37:8e:cf:3a:b7:17:fd:d7:57:6d:c1:db:af:10:c6:f8 annbigbig@gmail.com
+The key's randomart image is:
++--[ RSA 4096]----+
+|                 |
+|                 |
+|              .  |
+|           o   o |
+|        S + +.  =|
+|         + +....=|
+|        . . E. o+|
+|        .o. ..  *|
+|        .++o  ..o|
++-----------------+
+
+看一下剛才產生的key pair
+$ ls -al /home/anntony/.ssh/ | grep labasky@10
+
+終端機回應了
+-rw-------   1 anntony anntony 3243  9月 25 16:54 labasky@10.1.1.170
+-rw-r--r--   1 anntony anntony  745  9月 25 16:54 labasky@10.1.1.170.pub
+
+這是剛才的指令產生的key pair，包含公鑰和私鑰
+
+======================================================================================================================
+2.3 append the public key to the end of /home/labasky/.ssh/authorized_keys at ssh server
+======================================================================================================================
+把剛在才SSH client機 (筆記型電腦)產生的public key複製到SSH Server(小板板)的/tmp目錄下
+現在還是在SSH client的終端機裡，執行
+$ scp /home/anntony/.ssh/labasky@10.1.1.170.pub labasky@10.1.1.170:/tmp
+
+終端機提示
+labasky@10.1.1.170's password:
+
+輸入用戶labasky的密碼之後，成功將public key複製到10.1.1.170機器的/tmp目錄下
+在10.1.1.170的終端機下，檢查
+labasky@rose01:~$ ls -al /tmp | grep pub
+-rw-r--r--  1 labasky labasky  745  9月 25 21:17 labasky@10.1.1.170.pub
+
+產生用戶labasky的authorized_keys檔案
+$ cd /home/labasky/.ssh
+$ touch ./authorized_keys
+$ chmod 600 ./authorized_keys
+
+把剛才複製到/tmp目錄的public key添加到authorized_keys檔案的最後面
+$ cat /tmp/labasky\@10.1.1.170.pub >> /home/labasky/.ssh/authorized_keys
+
+查看一下authorized_keys檔案的內容
+$ cat /home/labasky/.ssh/authorized_keys
+
+應該會看到像這樣的內容
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDwF1SoWmkdV9bFZa/B7A8cz74dHJCtfrYqc3bnTDDJMEqFvpmqWDFUjKpZKtt43cBhTG5Gtq1w9PiXONdNJzl7RmKZjOp+A/IJD70Qiliz5X+U8KyuAll/H2BuwjENKtR6tFHsYhYSylx/e2/HmNFtF14VCesfX0Rgp9ycHFvZGOTaEDU/4inzZ+MXw+25JBv/KoNJw/O2d1SsDyQb4PH1FD6uFEAFhn0gJQ7nDKM76v4F+afVnKcE6LonPM3ZQZ779k9+mt0HbiSVyWArQdFxJPskI9VFNNs3X9UGxiyx3Hagucr04F9bKtZUpse4lx8Bwu9BPVkePr3IMRAv9OxZ5Q6ZP7wDxw8tiFbZL9zqqD0g0nNJqhf1KZasLF5FOYZoy7C5jy1WXNAPjcbT9JI0ldK8fL+hrmO4CsJNRmhhF6HwOIgmQybqtBL+ZRt4wIP5I9SLp4XfwAY/hhRajdC+11VcNPRayp8k7aho2Ghjj6XJYHX1NzrYHzd+nhM+nJn0t09jDu0tA6Am4ip7fyxOl40O1hrH75YBpK4jRUjgoppFWrubWHYlC45T2gwZqeva2PXynbGMH5Or4gD/meEs4wyupD7h97eyeASltTK6k6UdAyYYE3Vc8xz/MdOEgsA1M3ch4ITguR+NlwL5K7+HWhAkZTeyM0mupN+FlDCD9w== annbigbig@gmail.com
+
+======================================================================================================================
+2.4 login with username and private key using custom service port 36000
+======================================================================================================================
+回到筆記型電腦10.1.1.90的終端機
+用剛才產生的private key試連一下
+$ ssh -i /home/anntony/.ssh/labasky@10.1.1.170 labasky@10.1.1.170
+
+如果ssh登入成功，表示可以用private key連入10.1.1.170的標準SSH服務的port 22
+不過我想要自定義SSH的service port，從原來的22換成36000
+
+修改設定之前先存檔一份
+# cp /etc/ssh/sshd_config /etc/ssh/sshd_config.default
+
+查看原來的設定檔
+# cat /etc/ssh/sshd_config|grep Port
+
+終端機打印了
+Port 22
+
+把這一行改成
+Port 36000
+
+重新啟動服務之前，查看一下sshd使用的tcp port是？
+# netstat -anp|grep ssh
+
+終端機回應了，當然是預設的port 22，因為你還沒重新啟動SSH Server
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      1256/sshd       
+tcp        0      0 10.1.1.170:22           10.1.1.90:43896         ESTABLISHED 1415/sshd: labasky 
+tcp6       0      0 :::22                   :::*                    LISTEN      1256/sshd       
+
+重新啟動它，指令是
+# service ssh restart
+
+再次查看現在sshd使用的tcp port是？
+# netstat -anp|grep ssh
+
+終端機回應了
+tcp        0      0 0.0.0.0:36000           0.0.0.0:*               LISTEN      1479/sshd       
+tcp        0      0 10.1.1.170:22           10.1.1.90:43896         ESTABLISHED 1415/sshd: labasky 
+tcp6       0      0 :::36000                :::*                    LISTEN      1479/sshd      
+
+現在sshd啟動在tcp port 36000，不過有保留著剛才其中一條已經建立到tcp port 22的連線
+現在退出ssh session
+# exit;exit
+
+回到了筆記型電腦10.1.1.90的終端機
+然後再次使用private key，對SSH Server的10.1.1.170的tcp port 36000進行連線
+$ ssh -p36000 -i /home/anntony/.ssh/labasky@10.1.1.170 labasky@10.1.1.170
+
+連線成功
+不過每次都要這樣下這麼長的指令，很麻煩，指定port號，指定private key的完整路徑，再指定 用戶名@SSH SERVER 的IP
+所以現在請到10.1.1.90的終端機下
+編輯/home/anntony/.ssh/config
+
+$ cd /home/anntony/.ssh
+$ vi ./config
+
+在檔案的最後面加上一個區塊，內容是
+Host rose01
+  HostName 10.1.1.170
+  User labasky
+  Port 36000
+  IdentityFile /home/anntony/.ssh/labasky@10.1.1.170
+
+然後現在還是在10.1.1.90的終端機下
+可以這樣下指令直接對10.1.1.170進行ssh連線
+$ ssh rose01
+
+======================================================================================================================
+2.5 ssh tunnel
+======================================================================================================================
+如果你在10.1.1.170有某些服務，是只運行於本機127.0.0.1介面上的
+假設是x11vnc好了
+
+查看一下關於tcp port 5900
+# netstat -anp|grep 5900
+
+終端機回應了
+tcp        0      0 127.0.0.1:5900          0.0.0.0:*               LISTEN      1325/x11vnc     
+tcp6       0      0 :::5900                 :::*                    LISTEN      1325/x11vnc     
+
+這個時候，我們在ssh client的10.1.1.90
+可以使用ssh tunnel
+把10.1.1.170這個IP上運行的127.0.0.1:5900
+和10.1.1.90這個IP的127.0.0.1:5900作對接
+就好像是蟲洞的概念，建立ssh tunnel之後，VNC client只要對著自已本機的127.0.0.1:5900要求VNC連線
+就可以連到VNC Server去
+
+怎麼設定？現在來到10.1.1.90的終端機
+編輯/home/anntony/.ssh/config
+
+在檔案的最後面加上一個區塊，內容是
+Host rose01vnc
+  HostName 10.1.1.170
+  User labasky
+  Port 36000
+  IdentityFile /home/anntony/.ssh/labasky@10.1.1.170
+  LocalForward 5900 127.0.0.1:5900
+
+現在還是在10.1.1.90 (筆記型電腦)的終端機
+建立ssh tunnel之前，先看一下本機5900埠有在Listening嗎？
+$ sudo netstat -anp | grep 5900
+
+終端機什麼都沒回應，也就是5900埠沒有在Listening
+現在建立10.1.1.90和10.1.1.70之間的ssh tunnel
+把兩個IP上的127.0.0.1:5900作對接
+執行
+$ ssh rose01vnc
+
+成功連入ssh之後
+在10.1.1.90上面再開一個終端機，執行
+$ sudo netstat -anp | grep 5900
+
+終端機回應了
+tcp        0      0 127.0.0.1:5900          0.0.0.0:*               LISTEN      4897/ssh        
+tcp6       0      0 ::1:5900                :::*                    LISTEN      4897/ssh   
+
+這個時候你在10.1.1.90(筆記型電腦)
+打開VNC Client軟體vinagre
+連線的VNC Server的IP:port就換成127.0.0.1:5900
+這樣就會連到10.1.1.170那台機器的127.0.0.1:5900了
+
+如果以後有其他服務，像是運行於tcp port 3306的MySQL或MariaDB
+也可以這樣子讓它們運行於127.0.0.1:3306
+再建立ssh tunnel來連
+
+======================================================================================================================

@@ -73,3 +73,10 @@ tcp6       0      0 :::5900                 :::*                    LISTEN      
 
 到筆記型電腦上，使用vnc用戶端Vinagre對小板板的IP:port也就是10.1.1.170:5900發起vnc連線
 如果成功，就恭喜你了
+
+優化：如果你希望x11vnc服務只啟動於127.0.0.1:5900
+請修改/etc/init/x11vnc.conf設定檔
+最後一行的部分要改成這樣
+exec /usr/bin/x11vnc -localhost -display :0 -auth /var/run/lxdm/lxdm-\:0.auth -forever -loop -noxdamage -repeat -rfbauth /home/labasky/.vnc/passwd -rfbport 5900 -shared
+
+這樣比較安全，因為你只能在建立ssh tunnel之後，才能連到VNC Server的127.0.0.1:5900埠的服務
