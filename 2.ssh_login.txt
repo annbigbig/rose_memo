@@ -11,7 +11,7 @@ SSH Client : 10.1.1.90 Linux Mint 17.1
 2.3 append the public key to the end of /home/labasky/.ssh/authorized_keys at ssh server
 2.4 login with username and private key using custom service port 36000
 2.5 ssh tunnel
-2.6 SFTP (limited user)
+2.6 SFTP
 2.7 git push (limited user)
 2.8 Turn off the password authentication
 ======================================================================================================================
@@ -235,3 +235,55 @@ tcp6       0      0 ::1:5900                :::*                    LISTEN      
 再建立ssh tunnel來連
 
 ======================================================================================================================
+2.6 SFTP
+======================================================================================================================
+SSH服務已經可以正常使用了，所以也可以把10.1.1.70當成檔案伺服器來用
+在用戶端10.1.1.90的筆記型電腦上，已經安裝好了Filezilla
+打開它，匯入稍早前產生的private key
+進入FileZilla軟體的操作介面，在Menu選「編輯(E)」->「設定(S)」
+跳出了「設定」對話框，在左邊的「連線」->「SFTP」按下「加入金鑰檔案(A)...」
+選擇稍早前產生的private key
+完整路徑是 /home/anntony/.ssh/labasky@10.1.1.170
+然後按下「開啟(O)」按鈕
+這時候再跳出一個對話框「轉換金鑰檔案」
+詢問
+檔案 "/home/anntony/.ssh/labasky@10.1.1.170" 並非為 FileZilla 支援的格式.
+您想將其轉換成支援的格式?
+請按「是(Y)」
+然後在上方的「名稱」輸入轉換後ppk格式的金鑰要存放的完整路徑
+我輸入了
+/home/anntony/.ssh/labasky@10.1.1.170.filezilla.ppk
+按下「儲存(S)」
+回到了「設定」 對話框，再按下「確認」
+
+
+
+
+10.1.1.170
+$ git init --bare site.git
+
+
+10.1.1.90
+$ cd /tmp
+$ git clone rose01:/home/labasky/site.git ./working-repo
+$ cd working-repo/
+
+anntony@anntony-Lenovo-B590 /tmp/working-repo $ echo 'hello pikachu' >> README.md
+anntony@anntony-Lenovo-B590 /tmp/working-repo $ git add -A
+anntony@anntony-Lenovo-B590 /tmp/working-repo $ git commit -m "init commit"
+[master (root-commit) d8c07be] init commit
+ 1 file changed, 1 insertion(+)
+ create mode 100644 README.md
+anntony@anntony-Lenovo-B590 /tmp/working-repo $ git remote -v
+origin	rose01:/home/labasky/site.git (fetch)
+origin	rose01:/home/labasky/site.git (push)
+anntony@anntony-Lenovo-B590 /tmp/working-repo $ git push origin master
+Counting objects: 3, done.
+Writing objects: 100% (3/3), 226 bytes | 0 bytes/s, done.
+Total 3 (delta 0), reused 0 (delta 0)
+To rose01:/home/labasky/site.git
+ * [new branch]      master -> master
+anntony@anntony-Lenovo-B590 /tmp/working-repo $ 
+
+
+

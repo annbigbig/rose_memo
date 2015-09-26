@@ -39,6 +39,7 @@
 	9.2 htop
 	9.3 Smartmontools (硬碟檢測)
 	9.4 badblocks (SD卡檢測)
+	9.5 memtester (RAM檢測)
 
 10.Fix some bla bla bla
 	10.1 修正Press F to attempt to fix the errors ...(一定要你按F才繼續boot process)
@@ -787,6 +788,77 @@ From block 0 to 7715839
 Testing with random pattern: Pass completed, 0 bad blocks found. (0/0/0 errors)
 
 沒有壞掉的block，很快樂
+
+====================================================================================================================
+9.5 memtester (RAM檢測)
+====================================================================================================================
+參考資料
+http://www.ehow.com/how_8187353_test-ram-linux.html
+
+安裝memtester
+# apt-get install memtester
+
+看一下指令安裝在那裡？
+# which memtester
+
+終端機回答了
+/usr/sbin/memtester
+
+現在執行檢測指令(以root用戶身分)，1024是我小板板的記憶體容量MB數，5是重複測5次
+# memtester 1024 5
+
+沒隔多久(幾秒的時間)就再次回到#提示符
+memtester version 4.3.0 (32-bit)
+Copyright (C) 2001-2012 Charles Cazabon.
+Licensed under the GNU General Public License version 2 (only).
+
+pagesize is 4096
+pagesizemask is 0xfffff000
+want 1024MB (1073741824 bytes)
+got  1024MB (1073741824 bytes), trying mlock ...已砍掉
+root@rose01:~#
+
+然後執行這個指令來查看exit code
+# echo $?
+
+終端機回答了
+137
+
+WTF？
+我爬了一下文，關鍵字 「memtest exit code 137」還有看了我的/var/log/syslog
+得到exit code 137的原因好像是因為記憶體被寫滿了？？？？？(覺得很怪，板子上1G記憶體所以我參數下1024M有錯嗎？)
+
+然後我再改上面的測試指令，這次改成
+# memtester 512 5
+
+這次看起來有在測試
+終端機被咬住了，輸出了一些訊息(略)
+我再ssh進去10.1.1.170取得了另一個shell
+執行
+# htop
+
+其中和Memory有關的那一行變成這樣
+Mem[|||||||||||||||||||||||||||||||||||||||||||588/748MB]
+所以我在想我剛才下memtester 1024 5的時候整個超過了(1024 > 748)
+但是這個輸出說明，現在正在記憶體測試，可是卻有160MB空著(748-588=160)
+所以我剛才應該下
+# memtester 672 5
+
+是這樣的意思嗎？
+等到咬住的終端機再把#提示符交還之後
+執行
+# echo $?
+
+終端機輸出了
+0
+
+這代表可喜可賀，有測試的部分都是正常的
+exit code代表的意思請參考這裡
+
+0 : 一切正常
+x01: Error allocating or locking memory, or invocation error
+x02: Error during stuck address test
+x04: Error during one of the other tests.
 
 ====================================================================================================================
 10.1 修正Press F to attempt to fix the errors ...(一定要你按F才繼續boot process)
