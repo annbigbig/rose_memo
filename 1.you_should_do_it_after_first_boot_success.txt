@@ -40,6 +40,7 @@
 	9.3 Smartmontools (硬碟檢測)
 	9.4 badblocks (SD卡檢測)
 	9.5 memtester (RAM檢測)
+	9.6 network bandwidth monitor (網路流量監測)
 
 10.Fix some bla bla bla
 	10.1 修正Press F to attempt to fix the errors ...(一定要你按F才繼續boot process)
@@ -859,6 +860,86 @@ exit code代表的意思請參考這裡
 x01: Error allocating or locking memory, or invocation error
 x02: Error during stuck address test
 x04: Error during one of the other tests.
+
+====================================================================================================================
+9.6 network bandwidth monitor (網路流量監測)
+====================================================================================================================
+參考資料
+http://www.binarytides.com/linux-commands-monitor-network/
+
+搜尋關鍵字「linux network traffic monitor」
+
+以下列出18種工具指令
+9.6.1 nload
+安裝 # apt-get install nload
+使用 # nload
+結束：按q離開
+
+9.6.2 iftop
+安裝 # apt-get install iftop
+使用 # iftop -n
+結束：按q離開
+
+9.6.3 iptraf
+安裝 # apt-get install iptraf iptraf-ng
+使用 # iptraf
+結束：按X再選擇Exit離開
+
+9.6.4 nethogs
+安裝 # apt-get install nethogs
+使用 # nethogs
+結束：按q離開
+
+9.6.5 bmon
+安裝 # apt-get install bmon
+使用 # bmon (進入操作介面選eth0，按下d和i之後可顯示更進階的訊息)
+結束：按q再選y離開
+
+9.6.6 slurm
+安裝 # apt-get install slurm
+使用 #  slurm -s -i eth0
+結束：按q離開
+
+9.6.7 tcptrack
+安裝 # apt-get install tcptrack
+使用 # tcptrack -i eth0 (進入操作介面還要按一次Enter才有東西會跑出來)
+結束：按q離開
+
+9.6.8 vnstat
+安裝 # apt-get install vnstat
+查看是否vnstat daemon正在背景執行？
+# service vnstat status
+終端機輸出了
+* vnStat daemon is running
+設定檔路徑 /etc/vnstat.conf
+裡面可以看到一行設定
+DatabaseDir "/var/lib/vnstat"
+(儲存歷史網路流量資訊的目錄)
+查看自vnstat daemon開始運行之後，網路頻寬使用的總報表(每日、每月…)
+# vnstat
+查看網路流量即時狀態
+# vnstat -l -i eth0
+結束：按Ctrl+C離開
+
+9.6.9 bwm-ng
+安裝 # apt-get install bwm-ng
+使用 # bwm-ng
+結束：按q離開
+
+9.6.10 cbm
+安裝 # apt-get install cbm
+使用 # cbm
+結束：按q離開
+
+9.6.11 speedometer
+安裝 # apt-get install speedometer
+使用 # speedometer -r eth0 -t eth0
+結束：按q離開
+
+9.6.12
+安裝 #  apt-get install pktstat
+使用 # pktstat -i eth0 -nt (按方向鍵上或下可以切換單位bps或Bps)
+結束：按q離開
 
 ====================================================================================================================
 10.1 修正Press F to attempt to fix the errors ...(一定要你按F才繼續boot process)
