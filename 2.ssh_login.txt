@@ -12,7 +12,7 @@ SSH Client : 10.1.1.90 Linux Mint 17.1
 2.4 login with username and private key using custom service port 36000
 2.5 ssh tunnel
 2.6 SFTP
-2.7 git push (limited user)
+2.7 Initiate a bare repo for holding my project's source codes
 2.8 Turn off the password authentication
 ======================================================================================================================
 
@@ -237,6 +237,9 @@ tcp6       0      0 ::1:5900                :::*                    LISTEN      
 ======================================================================================================================
 2.6 SFTP
 ======================================================================================================================
+＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+Step1. 將剛才的private key轉換成FileZilla專用的ppk格式，並匯入FileZilla
+＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
 SSH服務已經可以正常使用了，所以也可以把10.1.1.70當成檔案伺服器來用
 在用戶端10.1.1.90的筆記型電腦上，已經安裝好了Filezilla
 打開它，匯入稍早前產生的private key
@@ -257,33 +260,82 @@ SSH服務已經可以正常使用了，所以也可以把10.1.1.70當成檔案�
 回到了「設定」 對話框，再按下「確認」
 
 
+＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+Step2. 在FileZilla的「站台管理員」裡新增一個站台，然後連線到SSH Server
+＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+在FileZilla裡，上面的Menu選「檔案(F)」>「站台管理員(S)...」
+跳出的「站台管理員」對話框，左邊中間按下「新增站台(N)」
+新站台取名為「labasky@10.1.1.170」
+右邊面板的設定
+主機(H)：10.1.1.170
+連接埠(P)：36000
+協定(T)：SFTP - SSH File Transfer Protocol
+登入型式(L)：一般
+使用者(U)：labasky
+密碼(W)：不要填任何東西
+設定完成後，按下「連線(C)」按鈕
 
+然後你會發現已經登入SSH Server
+並看到你在/home/labasky目錄裡面
+接著就隨你高興，上傳或是下載，應該不用再詳述了
 
-10.1.1.170
+======================================================================================================================
+2.7 Initiate a bare repo for holding my project's source codes
+======================================================================================================================
+在10.1.1.170的終端機，用戶labasky家目錄下產生一個bare repo，名稱是site.git
+$ cd /home/labasky
 $ git init --bare site.git
 
-
-10.1.1.90
+到10.1.1.90的終端機，切換到/tmp目錄下
 $ cd /tmp
+
+拉下剛才產生的repo
 $ git clone rose01:/home/labasky/site.git ./working-repo
+
+也可以這樣拉
+$ git clone rose01:site.git ./working-repo
+
+進入剛才拉下的repo目錄
 $ cd working-repo/
 
-anntony@anntony-Lenovo-B590 /tmp/working-repo $ echo 'hello pikachu' >> README.md
-anntony@anntony-Lenovo-B590 /tmp/working-repo $ git add -A
-anntony@anntony-Lenovo-B590 /tmp/working-repo $ git commit -m "init commit"
-[master (root-commit) d8c07be] init commit
- 1 file changed, 1 insertion(+)
- create mode 100644 README.md
-anntony@anntony-Lenovo-B590 /tmp/working-repo $ git remote -v
+查看一下remote倉庫？
+$ git remote -vv
+
+終端機回應了
 origin	rose01:/home/labasky/site.git (fetch)
 origin	rose01:/home/labasky/site.git (push)
-anntony@anntony-Lenovo-B590 /tmp/working-repo $ git push origin master
-Counting objects: 3, done.
-Writing objects: 100% (3/3), 226 bytes | 0 bytes/s, done.
-Total 3 (delta 0), reused 0 (delta 0)
-To rose01:/home/labasky/site.git
- * [new branch]      master -> master
-anntony@anntony-Lenovo-B590 /tmp/working-repo $ 
 
+新增README.md檔案，然後作一個init commit，然後push到遠端的origin倉庫，再查看目前倉庫狀態
+$ echo 'hello pikachu' >> README.md
+$ git add -A
+$ git commit -m "init commit"
+$ git push origin master
+$ git log --oneline --graph --decorate --all
+
+還是在10.1.1.90的終端機裡
+砍了剛才的/tmp/working-repo
+$ cd /tmp
+$ rm -rf ./working-repo/
+
+現在本地端working-repo消失了
+再次確認
+$ ls -al | grep working
+終端機沒有回應任何東西
+
+再一次把10.1.1.170的repo拉到本地端
+$ git clone rose01:/home/labasky/site.git ./working-repo
+
+進入working-repo，再一次確認倉庫裡的狀態
+$ cd ./working-repo/
+$ git log --oneline --graph --decorate --all
+$ ls -al
+$ cat ./README.md 
+
+這就你稍早之前git push到10.1.1.170機器的/home/labasky/site.git裸倉庫的東西啊
+在本地端的倉庫working-repo裡面git commit然後git push之後
+會更新10.1.1.170機器上的site.git裸倉庫，所以可以拿它來存你的代碼，多一個備份地點
+大概是這樣
+
+======================================================================================================================
 
 
