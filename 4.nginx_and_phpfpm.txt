@@ -1,0 +1,93 @@
+4.安裝nginx和php-fpm
+
+工作列表
+=========================================================================================================================
+4.1 安裝好nginx並設定成開機後自動執行的服務
+4.2 安裝好php-fpm並設定成開機後自動執行的服務
+
+
+=========================================================================================================================
+4.1 安裝好nginx並設定成開機後自動執行的服務
+=========================================================================================================================
+
+切換成root用戶好方便作事
+$ sudo -i
+
+我是誰？
+# whoami
+
+終端機回答
+root
+
+更新套件庫
+# apt-get update
+
+安裝libtool
+# apt-get install libtool
+
+安裝完成，可以這樣檢視剛才安裝的libtool套件
+# dpkg -l | grep libtool
+
+切換目錄，待會兒下載的tar.gz都會放在這裡
+# cd /usr/local/src
+
+下載zlib、pcre、openssl原始碼的tar.gz包，然後解壓縮
+# wget http://zlib.net/zlib-1.2.8.tar.gz
+# tar -zxvf ./zlib-1.2.8.tar.gz
+# chown -R root:root ./zlib-1.2.8
+
+# wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.37.tar.gz
+# tar -zxvf ./pcre-8.37.tar.gz
+# chown -R root:root ./pcre-8.37
+
+# https://www.openssl.org/source/openssl-1.0.2d.tar.gz
+# tar -zxvf ./openssl-1.0.2d.tar.gz
+# chown -R root:root ./openssl-1.0.2d
+
+下載nginx的原始碼tar.gz，解壓縮之後，進入nginx-1.9.5目錄
+# wget http://nginx.org/download/nginx-1.9.5.tar.gz
+# tar -zxvf ./nginx-1.9.5.tar.gz
+# chown -R root:root ./nginx-1.9.5
+# cd ./nginx-1.9.5
+
+查看一下有什麼configure options
+# ./configure --help
+
+然後./configure
+# ./configure --prefix=/usr/local/nginx-1.9.5 \
+--user=www-data \
+--group=www-data \
+--with-http_ssl_module \
+--with-pcre=/usr/local/src/pcre-8.37 \
+--with-zlib=/usr/local/src/zlib-1.2.8 \
+--with-openssl=/usr/local/src/openssl-1.0.2d
+
+如果沒有問題，終端機會這樣回應(只附上最後一小段)
+Configuration summary
+  + using PCRE library: /usr/local/src/pcre-8.37
+  + using OpenSSL library: /usr/local/src/openssl-1.0.2d
+  + md5: using OpenSSL library
+  + sha1: using OpenSSL library
+  + using zlib library: /usr/local/src/zlib-1.2.8
+
+  nginx path prefix: "/usr/local/nginx-1.9.5"
+  nginx binary file: "/usr/local/nginx-1.9.5/sbin/nginx"
+  nginx configuration prefix: "/usr/local/nginx-1.9.5/conf"
+  nginx configuration file: "/usr/local/nginx-1.9.5/conf/nginx.conf"
+  nginx pid file: "/usr/local/nginx-1.9.5/logs/nginx.pid"
+  nginx error log file: "/usr/local/nginx-1.9.5/logs/error.log"
+  nginx http access log file: "/usr/local/nginx-1.9.5/logs/access.log"
+  nginx http client request body temporary files: "client_body_temp"
+  nginx http proxy temporary files: "proxy_temp"
+  nginx http fastcgi temporary files: "fastcgi_temp"
+  nginx http uwsgi temporary files: "uwsgi_temp"
+  nginx http scgi temporary files: "scgi_temp"
+
+
+編譯
+# make
+
+安裝
+# make install
+
+
