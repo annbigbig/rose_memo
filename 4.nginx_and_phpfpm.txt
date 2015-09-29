@@ -90,4 +90,96 @@ Configuration summary
 安裝
 # make install
 
+安裝好的nginx binary在路徑/usr/local/nginx-1.9.5
+# cd /usr/local
+# ls -al|grep nginx
 
+終端機回應了
+drwxr-xr-x  6 root root 4096  9月 28 18:26 nginx-1.9.5
+
+修改一下/usr/local/nginx-1.9.5
+包含的所有子目錄和檔案的擁有人、群組和權限值
+# chown -R root:www-data ./nginx-1.9.5
+# chmod -R g+w ./nginx-1.9.5
+
+最後作一個Symbolic Link
+# ln -s nginx-1.9.5 nginx
+
+在啟動nginx之前，先給它搞一個啟動腳本，也就是init script
+搜尋關鍵字
+「ubuntu 14.04 nginx init script」
+參考資料
+https://github.com/JasonGiedymin/nginx-init-ubuntu
+
+從github把這個repo拉下來
+# cd /tmp
+# git clone https://github.com/JasonGiedymin/nginx-init-ubuntu.git
+# cd nginx-init-ubuntu/
+
+把init script複製到/etc/init.d/目錄裡面，修改擁有人、群組和權限值
+# cp ./nginx /etc/init.d/
+# chown root:root /etc/init.d/nginx
+# chmod 755 /etc/init.d/nginx
+
+現在開始你可以這樣控制nginx服務
+# service nginx status  (查看服務狀態)
+# service nginx start  (啟動)
+# service nginx stop  (停止)
+# service nginx restart (重新啟動)
+
+然後我啟動了nginx服務
+# service nginx start
+
+接著看一下有沒有在跑？
+# service nginx status
+
+終端機回答了
+* Nginx Server... found running with processes:  4079 4078
+
+看看tcp port 80有沒有在Listening？
+# netstat -anp|grep nginx
+
+終端機回答了
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      4078/nginx.conf 
+unix  3      [ ]         STREAM     CONNECTED     23638    4078/nginx.conf     
+unix  3      [ ]         STREAM     CONNECTED     23639    4078/nginx.conf     
+
+現在nginx服務運行於本機(10.1.1.170)的tcp port 80
+到筆記型電腦上(10.1.1.90)打開瀏覽器，連到
+http://10.1.1.170
+
+可以看到瀏覽器顯示了網頁
+Welcome to nginx!
+
+If you see this page, 
+the nginx web server is successfully installed and working. 
+Further configuration is required.
+巴拉巴拉巴拉
+這個預設的nginx首頁的路徑放在/usr/local/nginx/html/index.html
+
+現在nginx服務可以手動啟動了
+接下來要設定開機的時候自動啟動nginx服務（第一次執行update-rc.d指令）
+# update-rc.d -f nginx defaults
+
+順便一提如果要讓nginx取消開機自動執行，指令是： 
+# update-rc.d -f nginx disable
+
+然後再打開就是
+# update-rc.d -f nginx enable
+
+設定好開機自動啟動nginx服務，現在重新開機
+# reboot
+
+再次檢查nginx服務有沒有跑起來？
+# netstat -anp | grep nginx
+
+如果看到終端機這樣回應
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      1380/nginx.conf 
+unix  3      [ ]         STREAM     CONNECTED     8223     1380/nginx.conf     
+unix  3      [ ]         STREAM     CONNECTED     8224     1380/nginx.conf  
+
+恭喜你，完成了第一個工作，可喜可賀
+
+=========================================================================================================================
+4.2 安裝好php-fpm並設定成開機後自動執行的服務
+=========================================================================================================================
