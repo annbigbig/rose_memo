@@ -183,3 +183,119 @@ unix  3      [ ]         STREAM     CONNECTED     8224     1380/nginx.conf
 =========================================================================================================================
 4.2 安裝好php-fpm並設定成開機後自動執行的服務
 =========================================================================================================================
+
+參考資料
+http://www.linuxfromscratch.org/blfs/view/svn/general/php.html
+
+安裝依賴套件
+# apt-get update
+# apt-get install libxml2-dev libssl-dev libbz2-dev libcurl4-openssl-dev libdb5.1-dev libjpeg-dev libpng12-dev
+# apt-get install libXpm-dev libfreetype6-dev libt1-dev libgmp3-dev libc-client2007e-dev libldap2-dev libmcrypt-dev libmhash-dev
+# apt-get install freetds-dev zlib1g-dev libmysqlclient-dev libncurses5-dev libpcre3-dev unixODBC-dev 
+# apt-get install libsqlite0-dev libaspell-dev libreadline6-dev librecode-dev libsnmp-dev libtidy-dev libxslt1-dev libt1-dev
+
+下載需要的tar.gz並解開它們
+剛才安裝Nginx服務器的時候，openssl和zlib已經下載過了就不用再下載
+# cd /usr/local/src
+# wget http://in1.php.net/distributions/php-5.6.13.tar.gz
+# wget http://sourceforge.net/projects/mcrypt/files/MCrypt/2.6.8/mcrypt-2.6.8.tar.gz
+
+編譯openssl並安裝
+# cd /usr/local/src/openssl-1.0.2d
+# ./config --prefix=/usr/local/openssl-1.0.2d
+# make
+# make test
+# make install
+# ln -s /usr/local/openssl-1.0.2d /usr/local/openssl
+
+編譯zlib並安裝
+# cd /usr/local/src
+# cd ./zlib-1.2.8
+# ./configure –prefix=/usr/local/zlib-1.2.8
+# make
+# make check
+# make install
+# ln -s /usr/local/zlib-1.2.8 /usr/local/zlib
+
+編譯mcrypt並安裝
+# cd /usr/local/src
+# tar -zxvf ./mcrypt-2.6.8.tar.gz
+# chown -R root:root ./mcrypt-2.6.8
+# chmod -R go-w ./mcrypt-2.6.8
+# cd ./mcrypt-2.6.8
+# ./configure --prefix=/usr/local/mcrypt-2.6.8 –disable-posix-threads
+# make
+# make check
+# make install
+# ln -s /usr/local/mcrypt-2.6.8 /usr/local/mcrypt
+
+重要的連結檔gmp.h
+# ln -s /usr/include/arm-linux-gnueabihf/gmp.h /usr/include/gmp.h
+
+下載(Bug 65398)補丁於/tmp目錄
+# cd /tmp
+# wget -O fpm-race-condition.patch 'https://bugs.php.net/patch-display.php?bug_id=65398&patch=fpm-race-condition.patch&revision=1375772074&download=1' -4
+
+解開php-5.6.13.tar.gz
+# cd /usr/local/src
+# tar -zxvf ./php-5.6.13.tar.gz
+# chown -R root:root ./php-5.6.13
+
+打上補丁
+# patch -d php-5.6.13 -p0 < /tmp/fpm-race-condition.patch
+
+編譯php-fpm並安裝
+# cd ./php-5.6.13
+# ./configure -h
+# ./configure --prefix=/usr/local/php-5.6.13 \ 
+> --enable-opcache --enable-fpm \ 
+> --with-mysql --with-mysqli --with-pdo-mysql --with-mysql-sock=/run/mysqld/mysqld.sock \ 
+> --with-openssl --with-openssl-dir=/usr/local/openssl-1.0.2d --with-kerberos \ 
+> --with-mhash --with-mcrypt=/usr/local/mcrypt-2.6.8 --enable-bcmath --with-gmp \ 
+> --enable-shmop --enable-sockets --enable-sysvmsg --enable-sysvsem --enable-sysvshm \ 
+> --enable-soap --enable-wddx --with-xmlrpc --with-readline --enable-calendar \ 
+> --with-gettext --enable-mbstring \ 
+> --with-zlib --with-zlib-dir=/usr/local/zlib-1.2.8 \ 
+> --with-bz2 --enable-zip --enable-exif --with-gd 
+# make
+
+
+編譯完成
+終端機出現訊息(只取最後2行)
+Build complete.
+Don't forget to run 'make test'.
+
+但是在上面幾行的地方，出現了
+PEAR package PHP_Archive not installed: generated phar will require PHP's phar extension be enabled.
+
+把這一串訊息輸入google搜尋，得到了
+參考資料
+http://forums.devshed.com/php-development-5/install-pear-php-5-3-8-a-850520.html
+http://www.5ienet.com/note/html/stlamp6/index.shtml
+
+解決方法就是下載go-pear.phar然後用php執行它
+先跑完測試，先安裝完再來解決這個問題
+# make test
+# make install
+
+回到剛才的pear的問題
+# cd /tmp
+# wget http://pear.php.net/go-pear.phar
+# /usr/local/php-5.6.13/bin/php /tmp/go-pear.phar
+
+接下來會進入一個交談式的介面，按下Enter一次，完成pear的安裝
+(輸出訊息略)
+
+建立Symbolic Link
+複製設定檔到正確的路徑
+設定php-fpm執行檔的權限
+# ln -s /usr/local/php-5.6.13 /usr/local/php
+# cp /usr/local/src/php-5.6.13/php.ini-development /usr/local/php/lib/php.ini
+# cp /usr/local/php/etc/php-fpm.conf.default /usr/local/php/etc/php-fpm.conf
+# cp /usr/local/php/sbin/php-fpm /usr/local/sbin/
+# chown root:root /usr/local/sbin/php-fpm
+# chmod a+x /usr/local/sbin/php-fpm
+
+
+
+
