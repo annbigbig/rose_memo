@@ -296,6 +296,103 @@ http://www.5ienet.com/note/html/stlamp6/index.shtml
 # chown root:root /usr/local/sbin/php-fpm
 # chmod a+x /usr/local/sbin/php-fpm
 
+設定php.ini
+# cp /usr/local/php/lib/php.ini /usr/local/php/lib/php.ini.default
+# vi /usr/local/php/lib/php.ini
 
+我只列出有更動的部分，或是雖然沒更動但是很重要的部分，請你改成和我一樣，如下
+(如果要查看完整的php.ini，請在這個repo的conf子目錄下可以找到)
+cgi.fix_pathinfo=0
+default_charset = "UTF-8"
+date.timezone = Asia/Taipei
+date.default_latitude = 25.259240
+date.default_longitude = 121.501834
+mysqli.default_port = 3306
+mysqli.default_socket = /run/mysqld/mysqld.sock
+mysqli.default_host = localhost
+pdo_mysql.default_socket = /run/mysqld/mysqld.sock
 
+設定php-fpm.conf
+# vi /usr/local/php/etc/php-fpm.conf
 
+一樣只列出更動後的部分，請你改成這樣
+user = www-data
+group = www-data
+pid = run/php-fpm.pid
+
+第一次準備啟動php-fpm，再次確認binary執行的位置
+# which php-fpm
+
+終端機回應了
+/usr/local/sbin/php-fpm
+
+執行php-fpm
+# php-fpm
+
+然後看看有沒有真的跑起來？
+# netstat -anp|grep php
+
+終端機回應了
+tcp        0      0 127.0.0.1:9000          0.0.0.0:*               LISTEN      2736/php-fpm.conf)
+unix  3      [ ]         STREAM     CONNECTED     13921    2736/php-fpm.conf)  
+unix  3      [ ]         STREAM     CONNECTED     13922    2736/php-fpm.conf)  
+
+有耶，真的跑起來了
+現在已經可以啟動php-fpm了，先殺掉剛才啟動的php-fpm程序
+我們待會給它弄一個init script
+我殺
+# kill 2736
+# netstat -anp|grep php
+# 
+
+複製init script並設定權限值
+# cp /usr/local/src/php-5.6.13/sapi/fpm/init.d.php-fpm.in /etc/init.d/php-fpm
+# chown root:root /etc/init.d/php-fpm 
+# chmod 755 /etc/init.d/php-fpm
+
+修改/etc/init.d/php-fpm
+# vi /etc/init.d/php-fpm
+
+把原來的這5行
+prefix=@prefix@ 
+exec_prefix=@exec_prefix@ 
+php_fpm_BIN=@sbindir@/php-fpm 
+php_fpm_CONF=@sysconfdir@/php-fpm.conf 
+php_fpm_PID=@localstatedir@/run/php-fpm.pid
+
+改成這樣，然後存檔離開
+#prefix=@prefix@ 
+#exec_prefix=@exec_prefix@ 
+php_fpm_BIN=/usr/local/sbin/php-fpm 
+php_fpm_CONF=/usr/local/php/etc/php-fpm.conf 
+php_fpm_PID=/usr/local/php/var/run/php-fpm.pid 
+
+現在你可以使用這樣的指令，操作php-fpm服務 
+(啟動、停止、重新啟動，查看服務狀態)
+# /etc/init.d/php-fpm start
+# /etc/init.d/php-fpm stop
+# /etc/init.d/php-fpm restart
+# /etc/init.d/php-fpm status
+
+或是這樣也可以，和上面同樣意思的指令
+# service php-fpm start
+# service php-fpm stop
+# service php-fpm restart
+# service php-fpm status
+
+最後是把php-fpm設定成開機後自動啟動的服務
+然後重新開機，看看php-fpm有沒有真的自動啟動？
+# update-rc.d php-fpm defaults
+# reboot
+
+重新開機之後，執行下列指令檢查
+# netstat -anp|grep php
+
+如果終端機這樣回應
+tcp        0      0 127.0.0.1:9000          0.0.0.0:*               LISTEN      1410/php-fpm.conf)
+unix  3      [ ]         STREAM     CONNECTED     1946     1410/php-fpm.conf)  
+unix  3      [ ]         STREAM     CONNECTED     1947     1410/php-fpm.conf)  
+
+恭喜你，這樣就確認php-fpm是開機後自動啟動的服務了
+
+=========================================================================================================================
