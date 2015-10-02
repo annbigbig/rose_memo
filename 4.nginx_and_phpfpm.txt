@@ -9,7 +9,7 @@
 4.5 用戶端/etc/hosts設定
 4.6 準備網站根目錄並設定好權限
 4.7 加入一個VirtualHost設定www.marumaru.com.tw運行於tcp port 80與443
-
+4.8 重導所有http流量到https
 
 =========================================================================================================================
 4.1 安裝好nginx並設定成開機後自動執行的服務
@@ -676,5 +676,71 @@ https://www.marumaru.com.tw/
 也就是
 welcome!
 index page of www.marumaru.com.tw
+
+=========================================================================================================================
+4.8 重導所有http流量到https
+=========================================================================================================================
+搜尋關鍵字
+nginx rewrite http to https
+
+參考資料
+http://serverfault.com/questions/67316/in-nginx-how-can-i-rewrite-all-http-requests-to-https-while-maintaining-sub-dom
+
+修改虛擬主機www.marumaru.com.tw的設定檔
+# cd /usr/local/nginx/conf/vhosts/
+# vi ./www.marumaru.com.tw.conf
+
+把內容改成這樣
+# testing virtual host - www.marumaru.com.tw 
+    server {
+      server_name www.marumaru.com.tw; 
+      listen 80;
+      return 301 https://$server_name$request_uri;
+    }
+
+    server { 
+      server_name www.marumaru.com.tw; 
+      listen 443 ssl; 
+      ssl_certificate /usr/local/nginx/ssl/www.marumaru.com.tw.crt; 
+      ssl_certificate_key /usr/local/nginx/ssl/www.marumaru.com.tw.key; 
+      root /home/labasky/website-marumaru; 
+      access_log  logs/marumaru.access.log combined; 
+      error_log   logs/marumaru.error.log; 
+      
+      location / { 
+         index index.php index.html index.htm; 
+      }  
+      
+       # follow the PHP official website's instructions 
+      location ~* \.php$ { 
+           fastcgi_index   index.php; 
+           fastcgi_pass    127.0.0.1:9000; 
+           include         fastcgi_params; 
+           fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name; 
+           fastcgi_param   SCRIPT_NAME        $fastcgi_script_name; 
+      }    
+    }
+
+存檔離開vi文字編輯器
+現在測試一下nginx.conf設定檔的文法是否正確？
+# cd /usr/local/nginx
+# sbin/nginx -t -c conf/nginx.conf
+
+如果設定檔正確，終端機會說
+nginx: the configuration file /usr/local/nginx-1.9.5/conf/nginx.conf syntax is ok
+nginx: configuration file /usr/local/nginx-1.9.5/conf/nginx.conf test is successful
+
+然後就重新啟動Nginx服務器
+# service nginx status
+# service nginx restart
+# service nginx status
+
+重新啟動nginx之後，到筆記型電腦10.1.1.90打開瀏覽器
+然後連線到URL
+http://www.marumaru.com.tw/
+你會發現會被強制重導向到
+https://www.marumaru.com.tw/
+
+這樣就成功了
 
 =========================================================================================================================
