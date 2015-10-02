@@ -4,7 +4,9 @@
 =========================================================================================================================
 4.1 安裝好nginx並設定成開機後自動執行的服務
 4.2 安裝好php-fpm並設定成開機後自動執行的服務
-
+4.3 預設站台http://localhost設定
+4.4 自簽SSL證書
+4.5 用戶端/etc/hosts設定
 
 =========================================================================================================================
 4.1 安裝好nginx並設定成開機後自動執行的服務
@@ -394,5 +396,165 @@ unix  3      [ ]         STREAM     CONNECTED     1946     1410/php-fpm.conf)
 unix  3      [ ]         STREAM     CONNECTED     1947     1410/php-fpm.conf)  
 
 恭喜你，這樣就確認php-fpm是開機後自動啟動的服務了
+
+=========================================================================================================================
+4.3 預設站台http://localhost設定
+=========================================================================================================================
+剛才安裝了php-fpm，現在我們可以解釋php網頁了
+不過要修改nginx.conf設定檔然後重新啟動Nginx服務器才行
+# vi /usr/local/nginx/conf/nginx.conf
+
+把這一行
+worker_processes  1;
+改成這樣 (因為小板板是4核心)
+worker_processes  4;
+
+還有這一行
+#charset koi8-r;
+改成這樣
+charset utf-8;
+而且記得這一行最好是放在http{}區塊裡，而不是server{}區塊裡
+我把它放在http{}區塊裡的第4行
+在default_type  application/octet-stream;這一行的下面
+
+接下來，找到這個區塊
+	location / { 
+            root   html; 
+            index  index.html index.htm; 
+	}
+
+改成這樣
+	location / { 
+            root   html; 
+            index  index.html index.htm index.php; 
+	}
+
+然後緊跟著剛才的location / { … } 區塊，再加上這個區塊
+	location ~* \.php$ {
+                fastcgi_index   index.php;
+                fastcgi_pass    127.0.0.1:9000;
+                include         fastcgi_params;
+                fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+                fastcgi_param   SCRIPT_NAME        $fastcgi_script_name;
+	}
+
+按Esc鍵然後:wq存檔離開vi文字編輯器
+測試一下nginx.conf設定檔
+# cd /usr/local/nginx
+# sbin/nginx -t -c conf/nginx.conf
+
+如果你看到終端機回應
+nginx: the configuration file /usr/local/nginx-1.9.5/conf/nginx.conf syntax is ok
+nginx: configuration file /usr/local/nginx-1.9.5/conf/nginx.conf test is successful
+這樣就表示你的nginx.conf設定檔沒有問題
+
+產生index.php
+# echo "<?php phpinfo(); ?>" >> /usr/local/nginx/html/index.php
+
+重新啟動Nginx服務器
+# service nginx status
+# service nginx restart
+# service nginx status
+# netstat -anp | grep nginx
+# ps aux |grep nginx
+
+現在到筆記型電腦10.1.1.90上打開瀏覽器
+連線到這個網址
+http://10.1.1.170/index.php
+
+會看到phpinfo()的這個php測試網頁
+
+=========================================================================================================================
+4.4 自簽SSL證書
+=========================================================================================================================
+先查看現在的openssl是用那一個路徑的？那一個版本？
+# which openssl
+
+終端機回應了
+/usr/bin/openssl
+
+# openssl version
+
+終端機回應了
+OpenSSL 1.0.1i-dev xx XXX xxxx
+
+這是rootfs上面舊的1.0.1i版的
+稍早前因為安裝php-fpm，又自已build了一個openssl-1.0.2d的新一點的版本
+就拿它來產生自簽的SSL證書，再次確認它的版本號
+# cd /usr/local/openssl-1.0.2d/bin
+# ./openssl version
+
+終端機回應了
+OpenSSL 1.0.2d 9 Jul 2015
+
+產生自簽的SSL證書的指令是這樣
+# cd /usr/local/nginx
+# mkdir ssl
+# cd ssl
+# /usr/local/openssl-1.0.2d/bin/openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./www.marumaru.com.tw.key -out ./www.marumaru.com.tw.crt
+# chown -R root:www-data /usr/local/nginx/ssl
+# chmod 644 www.marumaru.com.tw.crt
+# chmod 440 www.marumaru.com.tw.key
+
+實際產生key和crt的時候
+要回答一些問題，如下 (我放在這個repo的output子目錄下)
+https://github.com/annbigbig/rose_memo/tree/master/ouput/php-5.6.13/generate_ssl_certificate.txt
+
+看一下產生的key和crt
+# ls -al|grep maru
+
+終端機回應了
+-rw-r--r--  1 root www-data 1472 10月  2 15:22 www.marumaru.com.tw.crt
+-r--r-----  1 root www-data 1708 10月  2 15:22 www.marumaru.com.tw.key
+
+=========================================================================================================================
+4.5 用戶端/etc/hosts設定
+=========================================================================================================================
+參考資料
+https://en.wikipedia.org/wiki/Private_network#IPv4
+https://en.wikipedia.org/wiki/List_of_DNS_record_types
+https://en.wikipedia.org/wiki/Hosts_(file)
+
+因為我們的服務器的IP是10.1.1.170
+是在家裡的Private IP網段 10.1.1.0/24
+10.1.1.170它沒有辦法注冊到任何一台實際存在於地球上的DNS服務器裡成為一條合法的A record
+(它們只能作domain name和public IP的對應)
+所以在這裡你需要設定瀏覽器用戶端10.1.1.90這台機器上的/etc/hosts
+讓它可以把
+www.marumaru.com.tw
+這個我臨時唬爛的域名
+和我們的private IP
+10.1.1.170
+作映射
+
+在10.1.1.90 (筆記型電腦)的終端機下
+修改/etc/hosts之前，先實驗一下
+# ping www.marumaru.com.tw
+
+終端機回答了
+ping: unknown host www.marumaru.com.tw
+它根本就不認識域名www.marumaru.com.tw
+
+接著打開vi文字編輯器修改/etc/hosts
+就加入一行
+10.1.1.170          www.marumaru.com.tw
+修改完存檔離開
+
+接著在終端機下執行
+# ping www.marumaru.com.tw
+
+終端機回應了
+PING www.marumaru.com.tw (10.1.1.170) 56(84) bytes of data.
+64 bytes from www.marumaru.com.tw (10.1.1.170): icmp_seq=1 ttl=64 time=0.821 ms
+64 bytes from www.marumaru.com.tw (10.1.1.170): icmp_seq=2 ttl=64 time=0.726 ms
+64 bytes from www.marumaru.com.tw (10.1.1.170): icmp_seq=3 ttl=64 time=0.743 ms
+^C
+--- www.marumaru.com.tw ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 1999ms
+rtt min/avg/max/mdev = 0.726/0.763/0.821/0.047 ms
+
+這表示10.1.1.90 (筆記型電腦)可以認得域名www.marumaru.com.tw就是10.1.1.170
+
+=========================================================================================================================
 
 =========================================================================================================================

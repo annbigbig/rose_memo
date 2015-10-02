@@ -1,0 +1,38 @@
+root@rose01:/usr/local/nginx# cd ssl
+root@rose01:/usr/local/nginx/ssl# /usr/local/openssl-1.0.2d/bin/openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./www.marumaru.com.tw.key -out ./www.marumaru.com.tw.crt
+Generating a 2048 bit RSA private key
+.....+++
+....................................+++
+writing new private key to './www.marumaru.com.tw.key'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]:TW
+State or Province Name (full name) [Some-State]:Taipei
+Locality Name (eg, city) []:Sanzi
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:KunAn Hsu,Inc.
+Organizational Unit Name (eg, section) []:Development
+Common Name (e.g. server FQDN or YOUR name) []:www.marumaru.com.tw
+Email Address []:annbigbig@gmail.com
+root@rose01:/usr/local/nginx/ssl# ls -al
+總計 16
+drwxr-xr-x  2 root root     4096 10月  2 15:22 .
+drwxrwxr-x 12 root www-data 4096 10月  2 15:10 ..
+-rw-r--r--  1 root root     1472 10月  2 15:22 www.marumaru.com.tw.crt
+-rw-r--r--  1 root root     1708 10月  2 15:22 www.marumaru.com.tw.key
+root@rose01:/usr/local/nginx/ssl# chown -R root:www-data /usr/local/nginx/ssl
+root@rose01:/usr/local/nginx/ssl# chmod 644 /usr/local/nginx/ssl/www.marumaru.com.tw.crt
+root@rose01:/usr/local/nginx/ssl# chmod 440 /usr/local/nginx/ssl/www.marumaru.com.tw.key
+root@rose01:/usr/local/nginx/ssl# ls -al
+總計 16
+drwxr-xr-x  2 root www-data 4096 10月  2 15:22 .
+drwxrwxr-x 12 root www-data 4096 10月  2 15:10 ..
+-rw-r--r--  1 root www-data 1472 10月  2 15:22 www.marumaru.com.tw.crt
+-r--r-----  1 root www-data 1708 10月  2 15:22 www.marumaru.com.tw.key
+root@rose01:/usr/local/nginx/ssl# 
+
