@@ -7,6 +7,9 @@
 4.3 預設站台http://localhost設定
 4.4 自簽SSL證書
 4.5 用戶端/etc/hosts設定
+4.6 準備網站根目錄並設定好權限
+4.7 加入一個VirtualHost設定www.marumaru.com.tw運行於tcp port 80與443
+
 
 =========================================================================================================================
 4.1 安裝好nginx並設定成開機後自動執行的服務
@@ -556,5 +559,122 @@ rtt min/avg/max/mdev = 0.726/0.763/0.821/0.047 ms
 這表示10.1.1.90 (筆記型電腦)可以認得域名www.marumaru.com.tw就是10.1.1.170
 
 =========================================================================================================================
+4.6 準備網站根目錄並設定好權限
+=========================================================================================================================
+# cd /home/labasky
+# mkdir website-marumaru
+# cd website-marumaru/
+# echo 'welcome!<br>index page of www.marumaru.com.tw' >> ./index.html
+# chown -R labasky:labasky /home/labasky/website-marumaru/
+
+查看目前群組labasky裡有那些用戶？
+# getent group labasky
+
+終端機回答了
+labasky:x:1002:
+
+把用戶www-data加到labasky群組
+# usermod -a -G labasky www-data
+
+用戶www-data是nginx worker process執行的身分 (可執行ps aux | grep nginx確認一下)
+而labasky是網站根目錄持有人的身分
+
+再次查看目前群組labasky裡有那些用戶？
+# getent group labasky
+
+終端機回答了
+labasky:x:1002:www-data
+
+查看用戶www-data參加了那些群組？
+# id www-data
+
+終端機回答了
+uid=33(www-data) gid=33(www-data) 群組=33(www-data),1002(labasky)
+
+=========================================================================================================================
+4.7 加入一個VirtualHost設定www.marumaru.com.tw運行於tcp port 80與443
+=========================================================================================================================
+修改nginx.conf設定檔
+# vi /usr/local/nginx/conf/nginx.conf
+
+找到http區塊
+大概是這個地方
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    charset utf-8;
+
+硬插一行進去
+這一行會把vhosts子目錄下所有的.conf設定檔案包含進來
+http {
+    include       mime.types;
+    include       vhosts/*.conf;
+    default_type  application/octet-stream;
+    charset utf-8;
+
+改好就按Esc鍵:wq離開vi文字編輯器
+建立該vhosts子目錄
+# cd /usr/local/nginx/conf
+# mkdir vhosts
+# chown root:www-data vhosts
+# chmod 770 vhosts
+
+產生虛擬主機www.marumaru.com.tw的設定檔
+# cd vhosts/
+# touch ./www.marumaru.com.tw.conf
+# chown root:www-data ./www.marumaru.com.tw.conf
+# chmod 640 ./www.marumaru.com.tw.conf
+# vi ./www.marumaru.com.tw.conf 
+
+內容如下
+# testing virtual host - www.marumaru.com.tw
+    server {
+      server_name www.marumaru.com.tw;
+      listen 80;
+      listen 443 ssl;
+      ssl_certificate /usr/local/nginx/ssl/www.marumaru.com.tw.crt;
+      ssl_certificate_key /usr/local/nginx/ssl/www.marumaru.com.tw.key;
+      root /home/labasky/website-marumaru;
+      access_log  logs/marumaru.access.log combined;
+      error_log   logs/marumaru.error.log;
+
+      location / {
+         index index.php index.html index.htm;
+      }
+
+       # follow the PHP official website's instructions
+      location ~* \.php$ {
+           fastcgi_index   index.php;
+           fastcgi_pass    127.0.0.1:9000;
+           include         fastcgi_params;
+           fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+           fastcgi_param   SCRIPT_NAME        $fastcgi_script_name;
+      }
+    }
+
+
+存檔離開vi文字編輯器
+現在測試一下nginx.conf設定檔的文法是否正確？
+# cd /usr/local/nginx
+# sbin/nginx -t -c conf/nginx.conf
+
+終端機回答了
+nginx: the configuration file /usr/local/nginx-1.9.5/conf/nginx.conf syntax is ok
+nginx: configuration file /usr/local/nginx-1.9.5/conf/nginx.conf test is successful
+
+看起來沒問題的樣子
+那就重新啟動Nginx服務器
+# service nginx status
+# service nginx restart
+# service nginx status
+
+到筆記型電腦10.1.1.90打開瀏覽器
+然後分別連線到URL
+http://www.marumaru.com.tw/
+https://www.marumaru.com.tw/
+確認有沒有看到剛才我們網站根目錄裡預設的首頁index.html
+也就是
+welcome!
+index page of www.marumaru.com.tw
 
 =========================================================================================================================
