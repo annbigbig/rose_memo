@@ -1,0 +1,93 @@
+5.安裝MariaDB
+
+工作列表
+=========================================================================================================================
+5.1 安裝MariaDB並設定為開機後自動啟動的服務
+
+
+
+
+
+=========================================================================================================================
+5.1 安裝MariaDB並設定為開機後自動啟動的服務
+=========================================================================================================================
+參考資料
+http://www.linuxfromscratch.org/blfs/view/svn/server/mariadb.html
+http://stackoverflow.com/questions/25244606/completely-remove-mysql-ubuntu-14-04-lts
+https://cmake.org/install/
+
+移除mysql-common、mysql-server、mysql-client
+因為會和MariaDB衝突，移除這三個套件之後
+如果/etc/mysql還活著，就手動砍掉它
+
+移除指令是
+# dpkg --get-selections | grep -v deinstall | grep mysql
+# apt-get remove --purge mysql-server mysql-client mysql-common
+# apt-get autoremove
+# apt-get autoclean
+# rm -rf /etc/mysql/
+
+新增mysql用戶和群組
+# groupadd -g 400 mysql
+# useradd -c "MySQL Server" -d /srv/mysql -g mysql -s /bin/false -u 400 mysql
+
+安裝依賴函式庫
+# apt-get install libncurses5-dev bison libevent-dev
+
+安裝CMake
+# cd /usr/local/src
+# wget https://cmake.org/files/v3.3/cmake-3.3.2.tar.gz
+# tar -zxvf ./cmake-3.3.2.tar.gz
+# chown -R root:root ./cmake-3.3.2
+# cd ./cmake-3.3.2
+# ./bootstrap
+# make
+# ln -s /usr/local/src/cmake-3.3.2/bin/cmake /usr/local/sbin/cmake
+# ln -s /usr/local/src/cmake-3.3.2/bin/ctest /usr/local/sbin/ctest
+# ln -s /usr/local/src/cmake-3.3.2/bin/cpack /usr/local/sbin/cpack
+
+下載源碼tar.gz包
+# cd /usr/local/src
+# wget https://downloads.mariadb.org/interstitial/mariadb-10.0.21/source/mariadb-10.0.21.tar.gz
+
+使用md5sum檢查下載的tar.gz檔案是否有被竄改？
+# md5sum ./mariadb-10.0.21.tar.gz
+
+終端機打印了
+956561f3798d1fe8dfbe4b665287a87a  ./mariadb-10.0.21.tar.gz
+MariaDB官網下載頁
+https://downloads.mariadb.org/mariadb/10.0.21/
+揭示的956561f3798d1fe8dfbe4b665287a87a
+是一致的，所以這個tar.gz檔案是安全的，沒有被竄改
+
+解開它，變更目錄權限值，並進入該目錄
+# tar -zxvf ./mariadb-10.0.21.tar.gz
+# chown -R root:root ./mariadb-10.0.21
+# cd ./mariadb-10.0.21
+
+修正 sql/CMakeLists.txt
+# sed -i "s@data/test@\${INSTALL_MYSQLTESTDIR}@g" sql/CMakeLists.txt
+
+編譯、測試、安裝
+# cmake -DCMAKE_BUILD_TYPE=Release \
+> -DCMAKE_INSTALL_PREFIX=/usr/local/mariadb-10.0.21 \
+> -DINSTALL_DOCDIR=share/doc/mariadb-10.0.21 \
+> -DINSTALL_DOCREADMEDIR=share/doc/mariadb-10.0.21 \
+> -DINSTALL_MANDIR=share/man \
+> -DINSTALL_MYSQLSHAREDIR=share/mysql \
+> -DINSTALL_MYSQLTESTDIR=share/mysql/test \
+> -DINSTALL_PLUGINDIR=lib/mysql/plugin \
+> -DINSTALL_SBINDIR=sbin \
+> -DINSTALL_SCRIPTDIR=bin \
+> -DINSTALL_SQLBENCHDIR=share/mysql/bench \
+> -DINSTALL_SUPPORTFILESDIR=share/mysql \
+> -DMYSQL_DATADIR=/srv/mysql \
+> -DMYSQL_UNIX_ADDR=/run/mysqld/mysqld.sock \
+> -DWITH_EXTRA_CHARSETS=complex \
+> -DWITH_EMBEDDED_SERVER=ON \
+> -DTOKUDB_OK=0
+# make
+# make test
+# make install
+
+

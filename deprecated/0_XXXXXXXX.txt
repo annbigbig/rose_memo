@@ -173,5 +173,8 @@ root@rose01:/etc/lxdm# cat default.conf | grep auto
 root@rose01:/etc/lxdm# 
 
 
+this is for nginx and tomcat
+search key word : nginx tomcat context path
 
-
+http://stackoverflow.com/questions/19866203/nginx-configuration-to-pass-site-directly-to-tomcat-webapp-with-context
+https://confluence.atlassian.com/display/CONFKB/How+to+use+NGINX+to+proxy+requests+for+Confluence

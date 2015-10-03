@@ -1,0 +1,16 @@
+root@rose01:/usr/local/src# cd ./mariadb-10.0.21
+root@rose01:/usr/local/src/mariadb-10.0.21# cp sql/CMakeLists.txt /tmp
+root@rose01:/usr/local/src/mariadb-10.0.21# cp sql/CMakeLists.txt /tmp/CMakeLists.txt.before
+root@rose01:/usr/local/src/mariadb-10.0.21# cd /tmp
+root@rose01:/tmp# sed -i "s@data/test@\${INSTALL_MYSQLTESTDIR}@g" ./CMakeLists.txt
+root@rose01:/tmp# mv ./CMakeLists.txt ./CMakeLists.txt.after
+root@rose01:/tmp# diff ./CMakeLists.txt.before ./CMakeLists.txt.after
+317c317
+< # Copy db.opt into data/test/
+---
+> # Copy db.opt into ${INSTALL_MYSQLTESTDIR}/
+319c319
+< INSTALL(FILES ${DBOPT_FILE} DESTINATION data/test COMPONENT DataFiles)
+---
+> INSTALL(FILES ${DBOPT_FILE} DESTINATION ${INSTALL_MYSQLTESTDIR} COMPONENT DataFiles)
+root@rose01:/tmp# 
