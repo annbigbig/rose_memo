@@ -1,0 +1,121 @@
+root@rose01:/usr/local/src/mariadb-10.0.21# make test
+Running tests...
+Test project /usr/local/src/mariadb-10.0.21
+      Start  1: pcre_test
+ 1/56 Test  #1: pcre_test ........................   Passed    3.57 sec
+      Start  2: pcre_grep_test
+ 2/56 Test  #2: pcre_grep_test ...................   Passed    3.19 sec
+      Start  3: strings
+ 3/56 Test  #3: strings ..........................   Passed    0.08 sec
+      Start  4: simple
+ 4/56 Test  #4: simple ...........................   Passed    1.11 sec
+      Start  5: skip
+ 5/56 Test  #5: skip .............................   Passed    0.01 sec
+      Start  6: todo
+ 6/56 Test  #6: todo .............................   Passed    0.01 sec
+      Start  7: skip_all
+ 7/56 Test  #7: skip_all .........................   Passed    0.01 sec
+      Start  8: no_plan
+ 8/56 Test  #8: no_plan ..........................   Passed    0.01 sec
+      Start  9: bitmap
+ 9/56 Test  #9: bitmap ...........................   Passed    0.98 sec
+      Start 10: base64
+10/56 Test #10: base64 ...........................   Passed    0.17 sec
+      Start 11: my_vsnprintf
+11/56 Test #11: my_vsnprintf .....................   Passed    0.04 sec
+      Start 12: my_atomic
+12/56 Test #12: my_atomic ........................   Passed    0.11 sec
+      Start 13: my_rdtsc
+13/56 Test #13: my_rdtsc .........................   Passed    0.03 sec
+      Start 14: lf
+14/56 Test #14: lf ...............................   Passed    0.19 sec
+      Start 15: my_malloc
+15/56 Test #15: my_malloc ........................   Passed    0.06 sec
+      Start 16: ma_dyncol
+16/56 Test #16: ma_dyncol ........................   Passed    0.19 sec
+      Start 17: my_decimal
+17/56 Test #17: my_decimal .......................   Passed    0.06 sec
+      Start 18: my_apc
+18/56 Test #18: my_apc ...........................   Passed    7.66 sec
+      Start 19: explain_filename
+19/56 Test #19: explain_filename .................   Passed    0.35 sec
+      Start 20: pfs_instr_class
+20/56 Test #20: pfs_instr_class ..................   Passed    0.08 sec
+      Start 21: pfs_instr_class-oom
+21/56 Test #21: pfs_instr_class-oom ..............   Passed    0.07 sec
+      Start 22: pfs_instr
+22/56 Test #22: pfs_instr ........................   Passed    0.24 sec
+      Start 23: pfs_instr-oom
+23/56 Test #23: pfs_instr-oom ....................   Passed    0.08 sec
+      Start 24: pfs_account-oom
+24/56 Test #24: pfs_account-oom ..................   Passed    0.05 sec
+      Start 25: pfs_host-oom
+25/56 Test #25: pfs_host-oom .....................   Passed    0.08 sec
+      Start 26: pfs_timer
+26/56 Test #26: pfs_timer ........................   Passed   25.11 sec
+      Start 27: pfs_user-oom
+27/56 Test #27: pfs_user-oom .....................   Passed    0.07 sec
+      Start 28: pfs
+28/56 Test #28: pfs ..............................   Passed    0.06 sec
+      Start 29: pfs_misc
+29/56 Test #29: pfs_misc .........................   Passed    0.08 sec
+      Start 30: ma_control_file
+30/56 Test #30: ma_control_file ..................   Passed    0.19 sec
+      Start 31: trnman
+31/56 Test #31: trnman ...........................   Passed    0.57 sec
+      Start 32: ma_test_loghandler
+32/56 Test #32: ma_test_loghandler ...............   Passed   36.11 sec
+      Start 33: ma_test_loghandler_multigroup
+33/56 Test #33: ma_test_loghandler_multigroup ....   Passed    0.05 sec
+      Start 34: ma_test_loghandler_multithread
+34/56 Test #34: ma_test_loghandler_multithread ...   Passed   16.85 sec
+      Start 35: ma_test_loghandler_pagecache
+35/56 Test #35: ma_test_loghandler_pagecache .....   Passed    0.18 sec
+      Start 36: ma_test_loghandler_long
+36/56 Test #36: ma_test_loghandler_long ..........   Passed    0.63 sec
+      Start 37: ma_test_loghandler_noflush
+37/56 Test #37: ma_test_loghandler_noflush .......   Passed    0.14 sec
+      Start 38: ma_test_loghandler_first_lsn
+38/56 Test #38: ma_test_loghandler_first_lsn .....   Passed    0.14 sec
+      Start 39: ma_test_loghandler_max_lsn
+39/56 Test #39: ma_test_loghandler_max_lsn .......   Passed    2.30 sec
+      Start 40: ma_test_loghandler_purge
+40/56 Test #40: ma_test_loghandler_purge .........   Passed    4.00 sec
+      Start 41: ma_test_loghandler_readonly
+41/56 Test #41: ma_test_loghandler_readonly ......   Passed    0.11 sec
+      Start 42: ma_test_loghandler_nologs
+42/56 Test #42: ma_test_loghandler_nologs ........   Passed    4.48 sec
+      Start 43: ma_pagecache_single_1k
+43/56 Test #43: ma_pagecache_single_1k ...........   Passed    0.90 sec
+      Start 44: ma_pagecache_single_8k
+44/56 Test #44: ma_pagecache_single_8k ...........   Passed    0.05 sec
+      Start 45: ma_pagecache_single_64k
+45/56 Test #45: ma_pagecache_single_64k ..........   Passed    0.05 sec
+      Start 46: ma_pagecache_consist_1k
+46/56 Test #46: ma_pagecache_consist_1k ..........   Passed    0.06 sec
+      Start 47: ma_pagecache_consist_64k
+47/56 Test #47: ma_pagecache_consist_64k .........   Passed    0.05 sec
+      Start 48: ma_pagecache_consist_1kHC
+48/56 Test #48: ma_pagecache_consist_1kHC ........   Passed    0.06 sec
+      Start 49: ma_pagecache_consist_64kHC
+49/56 Test #49: ma_pagecache_consist_64kHC .......   Passed    0.05 sec
+      Start 50: ma_pagecache_consist_1kRD
+50/56 Test #50: ma_pagecache_consist_1kRD ........   Passed    0.62 sec
+      Start 51: ma_pagecache_consist_64kRD
+51/56 Test #51: ma_pagecache_consist_64kRD .......   Passed   77.24 sec
+      Start 52: ma_pagecache_consist_1kWR
+52/56 Test #52: ma_pagecache_consist_1kWR ........   Passed    1.84 sec
+      Start 53: ma_pagecache_consist_64kWR
+53/56 Test #53: ma_pagecache_consist_64kWR .......   Passed  122.08 sec
+      Start 54: ma_pagecache_rwconsist_1k
+54/56 Test #54: ma_pagecache_rwconsist_1k ........   Passed    0.06 sec
+      Start 55: ma_pagecache_rwconsist2_1k
+55/56 Test #55: ma_pagecache_rwconsist2_1k .......   Passed    0.05 sec
+      Start 56: dbug
+56/56 Test #56: dbug .............................   Passed    0.16 sec
+
+100% tests passed, 0 tests failed out of 56
+
+Total Test time (real) = 316.96 sec
+root@rose01:/usr/local/src/mariadb-10.0.21# 
+

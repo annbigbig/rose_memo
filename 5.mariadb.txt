@@ -16,6 +16,15 @@ http://www.linuxfromscratch.org/blfs/view/svn/server/mariadb.html
 http://stackoverflow.com/questions/25244606/completely-remove-mysql-ubuntu-14-04-lts
 https://cmake.org/install/
 
+注意事項
+-------------------------------------------------------------------------------------------------------------------------------
+編譯時1G的RAM不夠使用，會跳出這裡討論的Error Messages
+https://github.com/cloudfoundry/cf-mysql-release/issues/62
+解決方法是使用swapfile補足硬體RAM不足的部分，swap space我加到了3500MB
+然後也調整了/etc/sysctl.conf設定檔裡的vm.swappiness=0
+把它改成vm.swappiness=50
+-------------------------------------------------------------------------------------------------------------------------------
+
 移除mysql-common、mysql-server、mysql-client
 因為會和MariaDB衝突，移除這三個套件之後
 如果/etc/mysql還活著，就手動砍掉它
@@ -90,4 +99,99 @@ https://downloads.mariadb.org/mariadb/10.0.21/
 # make test
 # make install
 
+安裝完成，作個Symbolic Link
+# cd /usr/local
+# chmod -R g+w ./mariadb-10.0.21/
+# chown -R mysql:mysql ./mariadb-10.0.21/
+# ln -s /usr/local/mariadb-10.0.21 /usr/local/mariadb
 
+接下來產生/etc/my.cnf設定檔
+並設定一下擁有人、群組及權限
+# touch /etc/my.cnf
+# chown root:root /etc/my.cnf
+# chmod 644 /etc/my.cnf
+# vi /etc/my.cnf
+
+/etc/my.cnf的內容請參考這裡
+https://github.com/annbigbig/rose_memo/tree/master/conf/mariadb-10.0.21/etc/my.cnf
+
+存檔之後按Esc鍵:wq離開vi文字編輯器
+接下來我們要為MariaDB產生系統資料庫
+# cd /usr/local/mariadb/bin/
+# ./mysql_install_db --basedir=/usr/local/mariadb --datadir=/srv/mysql --user=mysql
+
+實際的終端機輸出貼在這裡
+https://github.com/annbigbig/rose_memo/tree/master/output/mariadb-10.0.21/mysql_install_db.txt
+
+看一下剛才產生的/srv/mysql目錄
+# cd /srv/mysql
+# ls -al
+
+現在可以準備啟動MariaDB了
+先啟動，待會兒才可以執行mysql_secure_installation腳本
+首先把init script拷貝到/etc/init.d並設定一下擁有人、群組及權限值
+# cd /usr/local/src/mariadb-10.0.21/support-files/
+# cp ./mysql.server /etc/init.d/mysql
+# cd /etc/init.d
+# chmod 755 /etc/init.d/mysql
+# chown root:root /etc/init.d/mysql
+
+
+第一次啟動MariaDB，很緊張
+# service mysql status
+# service mysql start
+# service mysql status
+
+檢查一下是否mysql服務運行於127.0.0.1的3306端口？
+# netstat -anp|grep mysql
+
+如果看到終端機這樣的訊息，就是啟動成功了
+tcp        0      0 127.0.0.1:3306          0.0.0.0:*               LISTEN      5688/mysqld     
+unix  2      [ ACC ]     STREAM     LISTENING     18822    5688/mysqld         /run/mysqld/mysqld.sock
+
+啟動之後，可以看一下log檔裡面有沒有什麼奇怪的錯誤訊息？
+你可以用這兩個指令檢查一下你的MariaDB服務器的log檔
+# cat /srv/mysql/error.log
+# cat /srv/mysql/general.log
+
+接下來我們要執行一次mysql_secure_installation
+這個腳本會為我們設定root密碼，移除掉test資料庫和anonymous用戶
+讓我們的MariaDB服務器更安全
+# cd /usr/local/mariadb/bin
+# ./mysql_secure_installation
+
+執行mysql_secure_installation腳本時
+終端機會問你一些問題，如果你懶得看，全部都回答y
+我是有看一下他問什麼啦，看一下比較好，終端機輸出的訊息在這裡：
+https://github.com/annbigbig/rose_memo/tree/master/output/mariadb-10.0.21/mysql_secure_installation.txt
+
+為了要執行mysql的command line client（命令列用戶端）
+我們要先把/usr/local/mariadb/bin這個目錄加到環境變數PATH裡
+# cd /etc/profile.d
+# touch ./add_mariadb_binary_path.sh
+# chmod 644 ./add_mariadb_binary_path.sh
+# chown root:root ./add_mariadb_binary_path.sh
+# echo 'export PATH=$PATH:/usr/local/mariadb/bin' >> ./add_mariadb_binary_path.sh
+
+看一下現在PATH環境變數的值
+# echo $PATH
+
+終端機回答了
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+執行source指令，一次性更新PATH環境變數
+# source /etc/profile.d/add_mariadb_binary_path.sh
+
+看一下現在PATH環境變數的值
+# echo $PATH
+
+終端機回答了
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/mariadb/bin
+可以發現/usr/local/mariadb/bin這個路徑被添加到PATH環境變數裡
+重新開機之後，再查看PATH環境變數也會得到上面的結果
+
+詢問一下系統現在mysql指令(這是mysql command line client，命令列用戶端程式)的完整路徑
+# which mysql
+
+終端機回答了
+/usr/local/mariadb/bin/mysql

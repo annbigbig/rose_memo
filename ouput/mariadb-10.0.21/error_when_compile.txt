@@ -1,0 +1,36 @@
+/usr/local/src/mariadb-10.0.21/storage/mroonga/vendor/groonga/lib/expr.c:6671:13: note: in expansion of macro \u2018GRN_UINT32_POP\u2019
+             GRN_UINT32_POP(&but_stack, npbut);
+             ^
+/usr/local/src/mariadb-10.0.21/storage/mroonga/vendor/groonga/lib/expr.c: In function \u2018grn_expr_snip_add_conditions\u2019:
+/usr/local/src/mariadb-10.0.21/storage/mroonga/vendor/groonga/lib/expr.c:509:14: warning: cast increases required alignment of target type [-Wcast-align]
+     value = *(grn_obj **)(GRN_BULK_CURR(obj));\
+              ^
+/usr/local/src/mariadb-10.0.21/storage/mroonga/vendor/groonga/lib/expr.c:6706:7: note: in expansion of macro \u2018GRN_PTR_POP\u2019
+       GRN_PTR_POP(&keywords, keyword);
+       ^
+/usr/local/src/mariadb-10.0.21/storage/mroonga/vendor/groonga/lib/expr.c:509:14: warning: cast increases required alignment of target type [-Wcast-align]
+     value = *(grn_obj **)(GRN_BULK_CURR(obj));\
+              ^
+/usr/local/src/mariadb-10.0.21/storage/mroonga/vendor/groonga/lib/expr.c:6716:7: note: in expansion of macro \u2018GRN_PTR_POP\u2019
+       GRN_PTR_POP(&keywords, keyword);
+       ^
+cc: internal compiler error: \u5df2\u780d\u6389 (program cc1)
+Please submit a full bug report,
+with preprocessed source if appropriate.
+See <file:///usr/share/doc/gcc-4.8/README.Bugs> for instructions.
+make[2]: *** [storage/mroonga/vendor/groonga/lib/CMakeFiles/libgroonga.dir/expr.c.o] Error 4
+make[1]: *** [storage/mroonga/vendor/groonga/lib/CMakeFiles/libgroonga.dir/all] Error 2
+make: *** [all] Error 2
+root@rose01:/usr/local/src/mariadb-10.0.21# 
+
+
+參考資料
+https://mariadb.atlassian.net/browse/MDEV-7076
+
+好像是因為RAM不夠，2G也不夠，3G才夠編譯groonga
+
+參考資料
+https://github.com/cloudfoundry/cf-mysql-release/issues/62
+
+這裡居然說要加到4G
+
