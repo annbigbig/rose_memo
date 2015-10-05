@@ -3,7 +3,7 @@
 工作列表
 =========================================================================================================================
 5.1 安裝MariaDB並設定為開機後自動啟動的服務
-
+5.2 常用的MariaDB管理指令
 
 
 
@@ -195,3 +195,93 @@ https://github.com/annbigbig/rose_memo/tree/master/output/mariadb-10.0.21/mysql_
 
 終端機回答了
 /usr/local/mariadb/bin/mysql
+
+現在要把MariaDB設定成開機後自動啟動的服務
+# update-rc.d mysql defaults
+
+如果想要取消MariaDB的開機後自動啟動的服務，就執行
+# update-rc.d mysql disable
+
+再次打開MariaDB的開機後自動啟動的服務，請執行
+# update-rc.d mysql enable
+
+重新開機
+# reboot
+
+然後查看mysql是否在開機後有自動啟動
+# netstat -anp|grep mysql
+
+如果有，可以使用這個指令來取得MariaDB提示符
+(按下Enter後輸入MariaDB的root用戶密碼)
+# mysql -h localhost --port 3306 -u root -p
+
+=========================================================================================================================
+5.2 常用的MariaDB管理指令
+=========================================================================================================================
+以下#開頭為bash shell下root用戶執行的指令
+>開頭為MariaDB提示符執行的指令
+
+查看mysqld運行狀態
+# /etc/init.d/mysql status
+# service mysql status
+# netstat -anp|grep mysql
+# ps aux |grep mysql
+
+啟動、重啟、停止、重載mysqld、設定檔語法測試
+可以這樣
+# service mysql start
+# service mysql restart
+# service mysql stop
+# service mysql reload
+# service mysql configtest
+
+或是這樣
+# /etc/init.d/mysql start
+# /etc/init.d/mysql restart
+# /etc/init.d/mysql stop
+# /etc/init.d/mysql reload
+# /etc/init.d/mysql configtest
+
+查看log檔
+# cat /srv/mysql/error.log
+# cat /srv/mysql/general.log
+
+進入MariaDB[(none)]>提示符，使用MariaDB的root用戶登入服務器
+# mysql -h localhost --port 3306 -u root -p
+
+列出目前所有資料庫用戶名稱
+> show databases;
+> use mysql;
+> show tables;
+> describe user;
+> select User,Host,Password from user;
+
+查看某一位用戶的權限 (這裡假設是root用戶)
+> show grants for 'root'@'localhost';
+> show grants for 'root'@'127.0.0.1';
+> show grants for 'root'@'::1';
+
+新增用戶並同時設定密碼
+> CREATE USER 'tony'@'localhost' IDENTIFIED BY 'tonypassword';
+> CREATE USER 'tony'@'127.0.0.1' IDENTIFIED BY 'tonypassword';
+> CREATE USER 'spiderman'@'%' IDENTIFIED BY 'spidermanpassword';
+> CREATE USER 'hulk'@'10.1.1.90' IDENTIFIED BY 'hulkpassword';
+> CREATE USER 'rogers'@'10.1.1.%' IDENTIFIED BY 'rogerspassword';
+> CREATE USER 'thor'@'10.1.1.0/255.255.255.0' IDENTIFIED BY 'thorpassword';
+> CREATE USER 'romanoff'@'host1.example.net' IDENTIFIED BY 'romanoffpassword';
+
+給予權限 (注意用戶tony會變成超級使用者，有root那麼大的權限 *.* 表示所有資料庫裡的所有資料表)
+> GRANT ALL ON *.* TO 'tony'@'localhost' WITH GRANT OPTION;
+> GRANT ALL ON *.* TO 'tony'@'127.0.0.1' WITH GRANT OPTION;
+> GRANT SELECT,INSERT,UPDATE,DELETE ON testdb1.* TO 'hulk'@'10.1.1.90';
+> GRANT ALL ON testdb2.* TO 'rogers'@'10.1.1.%';
+> GRANT SELECT ON testdb3.* TO 'thor'@'10.1.1.0/255.255.255.0' WITH GRANT OPTION;
+> flush privileges;
+
+收回權限
+
+
+刪除用戶
+
+
+變更用戶密碼
