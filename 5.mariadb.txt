@@ -250,16 +250,16 @@ https://github.com/annbigbig/rose_memo/tree/master/output/mariadb-10.0.21/mysql_
 # mysql -h localhost --port 3306 -u root -p
 
 列出目前所有資料庫用戶名稱
-> show databases;
-> use mysql;
-> show tables;
-> describe user;
-> select User,Host,Password from user;
+> SHOW DATABASES;
+> USE mysql;
+> SHOW TABLES;
+> DESCRIBE user;
+> SELECT User,Host,Password FROM user;
 
 查看某一位用戶的權限 (這裡假設是root用戶)
-> show grants for 'root'@'localhost';
-> show grants for 'root'@'127.0.0.1';
-> show grants for 'root'@'::1';
+> SHOW GRANTS FOR 'root'@'localhost';
+> SHOW GRANTS FOR 'root'@'127.0.0.1';
+> SHOW GRANTS FOR 'root'@'::1';
 
 新增用戶並同時設定密碼
 > CREATE USER 'tony'@'localhost' IDENTIFIED BY 'tonypassword';
@@ -279,9 +279,93 @@ https://github.com/annbigbig/rose_memo/tree/master/output/mariadb-10.0.21/mysql_
 > flush privileges;
 
 收回權限
-
+> REVOKE SELECT,GRANT OPTION ON testdb3.* FROM 'thor'@'10.1.1.0/255.255.255.0';
+> REVOKE ALL ON testdb2.* FROM 'rogers'@'10.1.1.%';
+> REVOKE SELECT,INSERT,UPDATE,DELETE ON testdb1.* FROM 'hulk'@'10.1.1.90';
+> FLUSH PRIVILEGES;
 
 刪除用戶
+> DROP USER 'spiderman'@'%';
+> DROP USER 'romanoff'@'host1.example.net';
 
+變更用戶密碼 (一般用戶rogers)
+> SET PASSWORD FOR 'rogers'@'10.1.1.%' = PASSWORD('captainpassword');
 
-變更用戶密碼
+變更用戶密碼 (超級使用者tony)
+> USE mysql;
+> UPDATE user set Password=PASSWORD("starkpassword") where User='tony';
+> FLUSH PRIVILEGES;
+
+變更用戶密碼 (最高使用者root)
+> USE mysql;
+> UPDATE user set Password=PASSWORD("rootpassword") where User='root';
+> FLUSH PRIVILEGES;
+(注意：換密碼後一定要執行一次FLUSH PRIVILEGES;不然新密碼不會生效)
+
+列出所有資料庫名稱
+> SHOW DATABASES;
+
+新增資料庫
+> CREATE DATABASE testdb1;
+> CREATE DATABASE IF NOT EXISTS testdb2;
+> CREATE DATABASE testdb3;
+
+刪除資料庫
+> DROP DATABASE testdb2;
+> DROP DATABASE IF EXISTS testdb3;
+
+選定一個資料庫 (選定mysql資料庫)
+> USE mysql;
+
+列出目前選定資料庫內所有資料表名稱
+> SHOW TABLES;
+
+查看資料表結構 (查看user表的結構)
+> DESCRIBE user;
+
+在資料庫testdb1裡新增一個employees資料表
+> USE testdb1;
+> CREATE TABLE employees (
+    -> id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    -> surname VARCHAR(100),
+    -> givenname VARCHAR(100),
+    -> pref_name VARCHAR(50),
+    -> birthday DATE
+    -> );
+> SHOW TABLES;
+
+查看生成這個表的CREATE TABLE敘述
+> SHOW CREATE TABLE employees\G
+
+刪除資料庫testdb1裡的employees資料表
+> USE testdb1;
+> SHOW TABLES;
+> DROP TABLE employees;
+> SHOW TABLES;
+
+檢查資料表，若有問題則嘗試自動修復 (可自行查閱man mysqlcheck)
+$ which mysqlcheck
+$ mysqlcheck -u root -p testdb1
+$ mysqlcheck -u root -p testdb1 employees
+$ mysqlcheck -u root -p --all-databases
+
+在employees表格裡，新增欄位username，插在欄位pref_name的後面
+> USE testdb1;
+> SHOW TABLES;
+> DESCRIBE employees;
+> ALTER TABLE employees ADD username varchar(20) AFTER pref_name;
+> DESCRIBE employees;
+
+在employees表格裡，修改欄位pref_name的長度 (原來是50個字元改成25個)
+> USE testdb1;
+> SHOW TABLES;
+> DESCRIBE employees;
+> ALTER TABLE employees MODIFY pref_name varchar(25);
+> DESCRIBE employees;
+
+在employees表格裡，刪除欄位username
+> USE testdb1;
+> SHOW TABLES;
+> DESCRIBE employees;
+> ALTER TABLE employees DROP username;
+> DESCRIBE employees;
