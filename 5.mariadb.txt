@@ -369,3 +369,91 @@ $ mysqlcheck -u root -p --all-databases
 > DESCRIBE employees;
 > ALTER TABLE employees DROP username;
 > DESCRIBE employees;
+
+在employees表格裡，新增共6筆記錄列
+> USE testdb1;
+> SHOW TABLES;
+> SELECT * FROM employees;
+> INSERT INTO employees (surname,givenname) VALUES
+-> ("Picachu","Kenny"),
+-> ("Narudo","Tony"),
+-> ("Sabastin","Landy");
+> INSERT INTO employees (pref_name,givenname,surname,birthday) VALUES ("Chakura","Chakura Bom","Charky","1975-02-03");
+> INSERT employees (surname) VALUE ("RcLond");
+> INSERT INTO employees VALUES (NULL,"Duran","Jin-Duran",NULL,NULL);
+> SELECT * FROM employees;
+
+在employees表格裡，修改記錄列
+> USE testdb1;
+> SHOW TABLES;
+> SELECT * FROM employees;
+> UPDATE employees SET pref_name = "Pika Pika", birthday = "1950-11-23" 
+-> WHERE surname = "Picachu" and givenname = "Kenny";
+> UPDATE employees SET pref_name = "Utsumaki", birthday = "1990-03-15"
+-> WHERE surname = "Narudo";
+> UPDATE employees SET birthday = "1966-04-12" WHERE surname = "Sabastin";
+> SELECT * FROM employees;
+
+在employees表格裡，刪除主鍵id=6的記錄列
+> USE testdb1;
+> SHOW TABLES;
+> SELECT * FROM employees;
+> DELETE FROM employees WHERE id = 6;
+> SELECT * FROM employees;
+
+列出employees表格裡的記錄列 (單表查詢)
+> SELECT * FROM employees;
+> SELECT id,pref_name,surname FROM employees;
+> SELECT * FROM employees WHERE birthday > '1970-01-01';
+> SELECT * FROM employees ORDER BY surname;
+> SELECT * FROM employees WHERE surname LIKE "Pic%";
+
+接下來演示SQL Join(多表查詢)
+準備兩個資料表分別是department和employee，兩個表是一對多的關係 (1個部門對應多個員工)
+並匯入一些測試用的記錄列，請匯入我準備的example.sql，在這裡
+https://github.com/annbigbig/rose_memo/tree/master/sql_join/example.sql
+
+匯入的指令 (我假設你已經先把example.sql放在/tmp目錄裡了)
+> USE testdb1;
+> SOURCE /tmp/example.sql
+
+CROSS JOIN (笛卡兒乘積)
+> SELECT * FROM employee CROSS JOIN department;
+
+INNER JOIN (顯式用法)
+> SELECT * FROM employee INNER JOIN department ON employee.DepartmentID = department.DepartmentID;
+
+INNER JOIN (隱式用法)
+> SELECT * FROM employee,department WHERE employee.DepartmentID = department.DepartmentID;
+
+INNER JOIN (SQL-92規範的用法)
+> SELECT * FROM employee INNER JOIN department USING(DepartmentID);
+
+INNER JOIN (Natural join用法 - 不建議使用)
+> SELECT * FROM employee NATURAL JOIN department;
+
+LEFT OUTER JOIN (完整保留employee表的每一筆記錄)
+> SELECT * FROM employee LEFT OUTER JOIN department ON employee.DepartmentID = department.DepartmentID;
+
+LEFT OUTER JOIN (完整保留department表的每一筆記錄)
+> SELECT * FROM department LEFT OUTER JOIN employee ON department.DepartmentID = employee.DepartmentId;
+
+RIGHT OUTER JOIN (完整保留employee表的每一筆記錄)
+> SELECT * FROM department RIGHT OUTER JOIN employee ON employee.DepartmentID = department.DepartmentID;
+
+RIGHT OUTER JOIN (完整保留department表的每一筆記錄)
+> SELECT * FROM employee RIGHT OUTER JOIN department ON employee.DepartmentID = department.DepartmentID;
+
+FULL OUTER JOIN (將LEFT OUTER JOIN和RIGHT OUTER JOIN作UNION運算，F = L UNION R)
+> SELECT * FROM employee LEFT OUTER JOIN department ON employee.DepartmentID = department.DepartmentID
+-> UNION
+-> SELECT * FROM employee RIGHT OUTER JOIN department ON employee.DepartmentID = department.DepartmentID;
+
+終端機輸出在這裡：
+https://github.com/annbigbig/rose_memo/tree/master/sql_join/CROSS_JOIN.txt
+https://github.com/annbigbig/rose_memo/tree/master/sql_join/INNER_JOIN.txt
+https://github.com/annbigbig/rose_memo/tree/master/sql_join/LEFT_OUTER_JOIN.txt
+https://github.com/annbigbig/rose_memo/tree/master/sql_join/RIGHT_OUTER_JOIN.txt
+https://github.com/annbigbig/rose_memo/tree/master/sql_join/FULL_OUTER_JOIN.txt
+
+=========================================================================================================================
