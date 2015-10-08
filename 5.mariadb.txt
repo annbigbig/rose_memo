@@ -4,9 +4,7 @@
 =========================================================================================================================
 5.1 安裝MariaDB並設定為開機後自動啟動的服務
 5.2 常用的MariaDB管理指令
-
-
-
+5.3 安裝PhpMyAdmin並設定開機後自動運行於127.0.0.1:9080
 
 =========================================================================================================================
 5.1 安裝MariaDB並設定為開機後自動啟動的服務
@@ -411,7 +409,7 @@ $ mysqlcheck -u root -p --all-databases
 接下來演示SQL Join(多表查詢)
 準備兩個資料表分別是department和employee，兩個表是一對多的關係 (1個部門對應多個員工)
 並匯入一些測試用的記錄列，請匯入我準備的example.sql，在這裡
-https://github.com/annbigbig/rose_memo/tree/master/sql_join/example.sql
+https://github.com/annbigbig/rose_memo/tree/master/output/sql_join/example.sql
 
 匯入的指令 (我假設你已經先把example.sql放在/tmp目錄裡了)
 > USE testdb1;
@@ -444,16 +442,113 @@ RIGHT OUTER JOIN (完整保留employee表的每一筆記錄)
 RIGHT OUTER JOIN (完整保留department表的每一筆記錄)
 > SELECT * FROM employee RIGHT OUTER JOIN department ON employee.DepartmentID = department.DepartmentID;
 
-FULL OUTER JOIN (將LEFT OUTER JOIN和RIGHT OUTER JOIN作UNION運算，F = L UNION R)
+FULL OUTER JOIN (將LEFT OUTER JOIN和RIGHT OUTER JOIN的結果作UNION運算，F = L UNION R)
 > SELECT * FROM employee LEFT OUTER JOIN department ON employee.DepartmentID = department.DepartmentID
 -> UNION
 -> SELECT * FROM employee RIGHT OUTER JOIN department ON employee.DepartmentID = department.DepartmentID;
 
+演示SELF JOIN之前再匯入一個表格tb_employee
+表定義的example002.sql在這裡 
+https://github.com/annbigbig/rose_memo/tree/master/output/sql_join/example002.sql
+
+(假設你已經複製到/tmp/example002.sql)
+> USE testdb1;
+> SOURCE /tmp/example002.sql
+
+SELF JOIN (2個country欄位相同的員工，編成一條記錄列)
+> SELECT f.id,f.name,s.id,s.name,f.country
+-> FROM tb_employee f INNER JOIN tb_employee s ON f.country = s.country
+-> WHERE f.id < s.id ORDER BY f.id,s.id;
+
 終端機輸出在這裡：
-https://github.com/annbigbig/rose_memo/tree/master/sql_join/CROSS_JOIN.txt
-https://github.com/annbigbig/rose_memo/tree/master/sql_join/INNER_JOIN.txt
-https://github.com/annbigbig/rose_memo/tree/master/sql_join/LEFT_OUTER_JOIN.txt
-https://github.com/annbigbig/rose_memo/tree/master/sql_join/RIGHT_OUTER_JOIN.txt
-https://github.com/annbigbig/rose_memo/tree/master/sql_join/FULL_OUTER_JOIN.txt
+https://github.com/annbigbig/rose_memo/tree/master/output/sql_join/CROSS_JOIN.txt
+https://github.com/annbigbig/rose_memo/tree/master/output/sql_join/INNER_JOIN.txt
+https://github.com/annbigbig/rose_memo/tree/master/output/sql_join/LEFT_OUTER_JOIN.txt
+https://github.com/annbigbig/rose_memo/tree/master/output/sql_join/RIGHT_OUTER_JOIN.txt
+https://github.com/annbigbig/rose_memo/tree/master/output/sql_join/FULL_OUTER_JOIN.txt
+https://github.com/annbigbig/rose_memo/tree/master/output/sql_join/SELF_JOIN.txt
+
+備份 (把testdb1資料庫備份到指定的路徑)
+# mysqldump -u root -p testdb1 > /tmp/testdb1.sql
+
+還原之前可以把整個testdb1資料庫砍了，建立一個新的資料庫testdb2
+> DROP DATABASE testdb1;
+> CREATE DATABASE testdb2;
+> SHOW DATABASES;
+
+還原 (在MariaDB提示符裡進行還原)
+> USE testdb2;
+> SOURCE /tmp/testdb1.sql;
+> SHOW TABLES;
+
+還原 (在Bash Shell提示符裡進行還原)
+# mysql -u root -p testdb2 < /tmp/testdb1.sql
+
+=========================================================================================================================
+5.3 安裝PhpMyAdmin並設定開機後自動運行於127.0.0.1:9080
+=========================================================================================================================
+
+下載、解壓縮、設定目錄權限值、移動phpMyAdmin目錄
+# cd /usr/local/src
+# wget https://files.phpmyadmin.net/phpMyAdmin/4.5.0.2/phpMyAdmin-4.5.0.2-all-languages.zip
+# unzip ./phpMyAdmin-4.5.0.2-all-languages.zip
+# chown -R root:www-data ./phpMyAdmin-4.5.0.2-all-languages
+# chmod -R ug+w ./phpMyAdmin-4.5.0.2-all-languages
+# mv ./phpMyAdmin-4.5.0.2-all-languages /usr/local/nginx/phpMyAdmin-4.5.0.2
+# ln -s /usr/local/nginx/phpMyAdmin-4.5.0.2 /usr/local/nginx/phpmyadmin
+
+產生phpMyAdmin的設定檔config.inc.php
+# cd /usr/local/nginx/phpmyadmin/
+# touch ./config.inc.php
+# chown root:www-data ./config.inc.php
+# chmod 644 ./config.inc.php
+
+設定檔config.inc.php內容如下，請參考這裡
+https://github.com/annbigbig/rose_memo/tree/master/conf/phpMyAdmin-4.5.0.2/config.inc.php
+
+phpMyAdmin需要Configuration Storage的設定
+在MariaDB資料庫裡需要新增一個pma@localhost的用戶，並授權他擁有資料庫phpmyadmin某些存取權限
+> CREATE USER 'pma'@'localhost' IDENTIFIED BY 'pmapassword';
+> GRANT SELECT, INSERT, DELETE, UPDATE, ALTER ON phpmyadmin.* TO 'pma'@'localhost';
+> SHOW GRANTS FOR 'pma'@'localhost';
+
+匯入資料庫phpmyadmin
+> SOURCE /usr/local/nginx/phpmyadmin/sql/create_tables.sql
+
+然後可以看看資料庫裡有什麼表格？
+> SHOW DATABASES;
+> USE phpmyadmin;
+> SHOW TABLES;
+
+產生VirtualHost的設定檔
+# cd /usr/local/nginx/conf/vhosts/
+# touch ./127.0.0.1:9080.conf
+# chown root:www-data ./127.0.0.1\:9080.conf
+# chmod 640 ./127.0.0.1\:9080.conf
+
+設定檔/usr/local/nginx/conf/vhosts/127.0.0.1:9080內容如下，請參考這裡
+https://github.com/annbigbig/rose_memo/tree/master/conf/nginx-1.9.5/usr/local/nginx/conf/vhosts/127.0.0.1:9080.conf
+
+檢查一下nginx設定檔語法是否確？
+# cd /usr/local/nginx
+# sbin/nginx -t -c conf/nginx.conf
+
+如果正確，就重新啟動nginx服務器
+# service nginx status
+# service nginx restart
+# service nginx status
+
+看看nginx運行後Listening的端口
+# netstat -anp|grep nginx
+
+如果在終端機有看到一條這樣的輸出
+tcp        0      0 127.0.0.1:9080          0.0.0.0:*               LISTEN      3667/nginx.conf
+
+就是phpMyAdmin已經順利運行於127.0.0.1的9080端口
+可以直接在Server的LXDE打開瀏覽器進入phpMyAdmin管理介面，連線的URL是
+http://127.0.0.1:9080
+登入用戶名和密碼是和用來登入MariaDB資料庫的相同，注意root被我禁止登入了
+你可以用稍早之前建立的MariaDB超級使用者tony和密碼tonypassword登入
+也可以建立ssh tunnel將用戶端127.0.0.1:9080與服務器這邊的127.0.0.1:9080對接，細節不再重複敘述
 
 =========================================================================================================================
