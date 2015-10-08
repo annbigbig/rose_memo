@@ -1,0 +1,27 @@
+MariaDB [testdb2]> SELECT * FROM tb_employee;
++-----+------------+---------------+--------------+
+| id  | name       | country       | DepartmentID |
++-----+------------+---------------+--------------+
+| 123 | Rafferty   | Australia     |           31 |
+| 124 | Jones      | Australia     |           33 |
+| 145 | Heisenberg | Australia     |           33 |
+| 201 | Robinson   | United States |           34 |
+| 305 | Smith      | Germany       |           34 |
+| 306 | Williams   | Germany       |         NULL |
++-----+------------+---------------+--------------+
+6 rows in set (0.02 sec)
+
+MariaDB [testdb2]> SELECT f.id,f.name,s.id,s.name,f.country
+    -> FROM tb_employee f INNER JOIN tb_employee s ON f.country = s.country
+    -> WHERE f.id < s.id ORDER BY f.id,s.id;
++-----+----------+-----+------------+-----------+
+| id  | name     | id  | name       | country   |
++-----+----------+-----+------------+-----------+
+| 123 | Rafferty | 124 | Jones      | Australia |
+| 123 | Rafferty | 145 | Heisenberg | Australia |
+| 124 | Jones    | 145 | Heisenberg | Australia |
+| 305 | Smith    | 306 | Williams   | Germany   |
++-----+----------+-----+------------+-----------+
+4 rows in set (0.01 sec)
+
+MariaDB [testdb2]>

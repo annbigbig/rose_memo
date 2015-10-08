@@ -1,0 +1,98 @@
+6.安裝Apache Tomcat 8
+
+工作列表
+=========================================================================================================================
+6.1 安裝JDK 8
+6.2 安裝Apache Tomcat 8
+
+=========================================================================================================================
+Oracle JDK 8官方下載頁面 (要按下Accept License Agreement才能下載)
+http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+
+md5 checksum在這裡可以查閱
+https://www.oracle.com/webfolder/s/digest/8u60checksum.html
+
+檢查的指令
+# md5sum ./jdk-8u60-linux-arm32-vfp-hflt.tar.gz
+(把終端機產生的md5 checksum和Oracle官網的作比對，如果一致，表示下載回來的tar.gz檔案可以信任)
+
+下載來的檔案檔名是jdk-8u60-linux-arm32-vfp-hflt.tar.gz
+假設你已經放在/usr/local/src目錄裡了，解壓縮之後，移動至/usr/local目錄下
+# cd /usr/local/src
+# tar -zxvf ./jdk-8u60-linux-arm32-vfp-hflt.tar.gz
+# mv ./jdk1.8.0_60/ /usr/local
+# cd /usr/local
+# chown -R root:root /usr/local/jdk1.8.0_60/
+# ln -s /usr/local/jdk1.8.0_60 /usr/local/jdk
+
+產生/etc/profile.d/jdk8_environments.sh
+# cd /etc/profile.d
+# touch ./jdk8_environments.sh
+# chmod 644 ./jdk8_environments.sh
+# chown root:root ./jdk8_environments.sh
+
+內容如下
+export JAVA_HOME=/usr/local/jdk
+export JRE_HOME=$JAVA_HOME/jre 
+export CATALINA_HOME=/usr/local/tomcat 
+export CLASSPATH=.:$JAVA_HOME/lib:$JRE_HOME/lib:$CATALINA_HOME/lib 
+export PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin:$CATALINA_HOME/bin
+
+重新開機之後，打印環境變數
+# echo $PATH; echo $CLASSPATH; echo $CATALINA_HOME
+
+系統上有OpenJDK存在嗎？
+(最好是沒有，如果有，必須執行update-alternatives指令把Oracle JDK的執行順序調整為最優先)
+# dpkg --get-selections | grep -v deinstall | grep jdk
+# dpkg --get-selections | grep -v deinstall | grep java
+
+問卦一下java和javac在那裡？
+# which java; which javac
+
+終端機會回答
+/usr/local/jdk/bin/java
+/usr/local/jdk/bin/javac
+
+查看一下java和javac的版本號
+# java -version; javac -version
+
+如果終端機這樣回應
+java version "1.8.0_60"
+Java(TM) SE Runtime Environment (build 1.8.0_60-b27)
+Java HotSpot(TM) Client VM (build 25.60-b23, mixed mode)
+javac 1.8.0_60
+
+就是JDK安裝成功了
+
+=========================================================================================================================
+6.2 安裝Apache Tomcat 8
+=========================================================================================================================
+到Tomcat官網下載tar.gz
+# cd /usr/local/src
+# wget http://ftp.twaren.net/Unix/Web/apache/tomcat/tomcat-8/v8.0.27/bin/apache-tomcat-8.0.27.tar.gz
+
+檢查md5 checksum
+我下載的是8.0.27應該是a20be33bfb31a2c6e2eca755fb211cb9(官網上可以找到)
+# md5sum ./apache-tomcat-8.0.27.tar.gz
+
+解壓縮，設定目錄權限，移動到/usr/local目錄下
+# tar -zxvf ./apache-tomcat-8.0.27.tar.gz
+# chown -R root:root ./apache-tomcat-8.0.27
+# mv ./apache-tomcat-8.0.27 /usr/local/
+# ln -s /usr/local/apache-tomcat-8.0.27 /usr/local/tomcat
+
+現在可以手動啟動tomcat了
+# cd /usr/local/tomcat/bin
+# ./startup.sh &
+# netstat -anp|grep 8080
+
+如果有成功啟動，終端機可以看到
+tcp6       0      0 :::8080                 :::*                    LISTEN      7012/java
+
+如果要手動關掉tomcat，可以直接kill PID
+# kill 7012
+或是
+# cd /usr/local/tomcat/bin
+# ./shutdown.sh
+
+

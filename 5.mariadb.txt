@@ -461,12 +461,12 @@ SELF JOIN (2個country欄位相同的員工，編成一條記錄列)
 -> WHERE f.id < s.id ORDER BY f.id,s.id;
 
 終端機輸出在這裡：
-https://github.com/annbigbig/rose_memo/tree/master/output/sql_join/CROSS_JOIN.txt
-https://github.com/annbigbig/rose_memo/tree/master/output/sql_join/INNER_JOIN.txt
-https://github.com/annbigbig/rose_memo/tree/master/output/sql_join/LEFT_OUTER_JOIN.txt
-https://github.com/annbigbig/rose_memo/tree/master/output/sql_join/RIGHT_OUTER_JOIN.txt
-https://github.com/annbigbig/rose_memo/tree/master/output/sql_join/FULL_OUTER_JOIN.txt
-https://github.com/annbigbig/rose_memo/tree/master/output/sql_join/SELF_JOIN.txt
+https://github.com/annbigbig/rose_memo/blob/master/output/sql_join/CROSS_JOIN.txt
+https://github.com/annbigbig/rose_memo/blob/master/output/sql_join/INNER_JOIN.txt
+https://github.com/annbigbig/rose_memo/blob/master/ouput/sql_join/LEFT_OUTER_JOIN.txt
+https://github.com/annbigbig/rose_memo/blob/master/ouput/sql_join/RIGHT_OUTER_JOIN.txt
+https://github.com/annbigbig/rose_memo/blob/master/output/sql_join/FULL_OUTER_JOIN.txt
+https://github.com/annbigbig/rose_memo/blob/master/output/sql_join/SELF_JOIN.txt
 
 備份 (把testdb1資料庫備份到指定的路徑)
 # mysqldump -u root -p testdb1 > /tmp/testdb1.sql
