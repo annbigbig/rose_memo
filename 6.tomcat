@@ -4,6 +4,7 @@
 =========================================================================================================================
 6.1 安裝JDK 8
 6.2 安裝Apache Tomcat 8
+6.3 將稍早前作到一半的janjan.war部署到Tomcat
 
 =========================================================================================================================
 Oracle JDK 8官方下載頁面 (要按下Accept License Agreement才能下載)
@@ -95,4 +96,101 @@ tcp6       0      0 :::8080                 :::*                    LISTEN      
 # cd /usr/local/tomcat/bin
 # ./shutdown.sh
 
+=========================================================================================================================
+6.3 將稍早前匯出的janjan.war部署到Tomcat
+=========================================================================================================================
+資料庫部分，要有兩個用戶
+'spring'@'localhost'
+'spring'@'127.0.0.1'
+他們兩個人擁有db_spring這個資料庫的完整權限
+> CREATE USER 'spring'@'localhost' IDENTIFIED BY 'spring';
+> CREATE USER 'spring'@'127.0.0.1' IDENTIFIED BY 'spring';
+> GRANT ALL ON db_spring.* TO 'spring'@'localhost';
+> GRANT ALL ON db_spring.* TO 'spring'@'127.0.0.1';
+> FLUSH PRIVILEGES;
 
+db_spring資料庫裡有5個表
+TB_CATEGORIES
+TB_PRODUCTS
+TB_ROLES
+TB_USERS
+persistent_logins
+資料已備份在db_spring.sql，建立db_spring資料庫之後，直接匯入即可
+> CREATE DATABASE db_spring;
+> USE db_spring;
+> SOURCE /home/labasky/db_spring.sql
+
+Tomcat要作一些設定，確認Tomcat沒有被啟動
+# netstat -anp|grep 8080
+
+修改/usr/local/tomcat/conf/tomcat-users.xml
+讓用戶admin密碼admin可以登入GUI操作畫面
+完整設定檔tomcat-users.xml請參考
+https://github.com/annbigbig/rose_memo/tree/master/conf/tomcat-8.0.27/conf/tomcat-users.xml
+
+修改/usr/local/tomcat/conf/server.xml
+(加入一個Connection Pool的DataSource，還有修改Tomcat只運行於127.0.0.1這個地址)
+完整設定檔server.xml請參考
+https://github.com/annbigbig/rose_memo/tree/master/conf/tomcat-8.0.27/conf/server.xml
+
+修改/usr/local/tomcat/conf/context.xml
+加入ResourceLink指向剛才設定的DataSource
+完整設定檔context.xml請參考
+https://github.com/annbigbig/rose_memo/tree/master/conf/tomcat-8.0.27/conf/context.xml
+
+把MariaDB的jdbc driver複製到/usr/local/tomcat/lib目錄裡
+假設在10.1.1.90的筆記型電腦下載了，可以這樣複製到小板板的10.1.1.170
+$ scp ./mariadb-java-client-1.2.3.jar rose01:/tmp
+在小板板的終端機再執行
+# cp /tmp/mariadb-java-client-1.2.3.jar /usr/local/tomcat/lib
+# cd /usr/local/tomcat/lib
+# chown root:root ./mariadb-java-client-1.2.3.jar
+# chmod 644 ./mariadb-java-client-1.2.3.jar
+
+啟動Tomcat
+# cd /usr/local/tomcat/bin
+# ./startup.sh &
+# netstat -anp|grep 8080
+
+應該會看到終端機輸出
+tcp6       0      0 127.0.0.1:8080          :::*                    LISTEN      4616/java 
+
+還有如果你檢查
+# netstat -anp|grep 3306
+
+終端機應該會有10個已經建立到MariaDB資料庫的連線
+因為我開了Connection Pool，讓tomcat隨時和資料庫至少保持最少10個連線
+像這樣的輸出會看到有10條
+tcp        0      0 127.0.0.1:3306          127.0.0.1:42040         ESTABLISHED 1543/mysqld
+
+登入LXDE打開瀏覽器，連線到
+http://127.0.0.1:8080
+看到Tomcat歡迎首頁後，按下右邊的[ Manager App ]，使用帳號admin密碼admin登入管理介面
+捲下來一點，看到
+Select WAR file to upload
+按下[選擇檔案]
+選擇稍早前從Eclipse EE匯出的janjan.war
+然後按下[ Deploy ]
+
+部署war成功之後
+可以使用瀏覽器，在這裡看到這個Spring Framework寫的小程式
+http://127.0.0.1:8080/janjan/
+
+=========================================================================================================================
+
+
+
+
+待實驗
+location / {
+   rewrite ^(.*)$ /janjan/$1 break;
+   proxy_pass http://127.0.0.1:8080;
+}
+
+搜尋關鍵字
+nginx proxy_pass uri 8080 context path
+
+
+參考資料
+http://stackoverflow.com/questions/19866203/nginx-configuration-to-pass-site-directly-to-tomcat-webapp-with-context
+https://gist.github.com/soheilhy/8b94347ff8336d971ad0
