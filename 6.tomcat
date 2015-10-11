@@ -4,7 +4,8 @@
 =========================================================================================================================
 6.1 安裝JDK 8
 6.2 安裝Apache Tomcat 8
-6.3 將稍早前作到一半的janjan.war部署到Tomcat
+6.3 將稍早前匯出的janjan.war部署到Tomcat
+6.4 將www.mydomain.com.tw對應127.0.0.1:8080/janjan/
 
 =========================================================================================================================
 Oracle JDK 8官方下載頁面 (要按下Accept License Agreement才能下載)
@@ -177,20 +178,53 @@ Select WAR file to upload
 http://127.0.0.1:8080/janjan/
 
 =========================================================================================================================
+6.4 將www.mydomain.com.tw對應127.0.0.1:8080/janjan/
+=========================================================================================================================
+給nginx服務器加一個VirtualHost設定檔
+# cd /usr/local/nginx/conf/vhosts/
+# touch ./www.mydomain.com.tw.conf
+# chown root:www-data ./www.mydomain.com.tw.conf
+# chmod 640 ./www.mydomain.com.tw.conf
 
+完整www.mydomain.com.tw.conf請參考
+https://github.com/annbigbig/rose_memo/tree/master/conf/nginx-1.9.5/usr/local/nginx/conf/vhosts/www.mydomain.com.tw.conf
 
+檢查設定檔語法是否正確？然後重啟nginx服務器
+# cd /usr/local/nginx/
+# sbin/nginx -t -c conf/nginx.conf
+# service nginx status
+# service nginx restart
+# service nginx status
 
+服務器這樣就完成設定了，在http用戶端的10.1.1.90 (筆記型電腦)的/etc/hosts
+加上一個domain name和IP的對應
+10.1.1.170   www.mydomain.com.tw
 
-待實驗
-location / {
-   rewrite ^(.*)$ /janjan/$1 break;
-   proxy_pass http://127.0.0.1:8080;
-}
+在筆電的終端機，測試它是否真的認識域名www.mydomain.com.tw
+# ping www.mydomain.com.tw
+
+如果有看到終端機回你
+PING www.mydomain.com.tw (10.1.1.170) 56(84) bytes of data.
+64 bytes from www.marumaru.com.tw (10.1.1.170): icmp_seq=1 ttl=64 time=0.853 ms
+是的，現在筆記型電腦知道域名www.mydomain.com.tw就是10.1.1.170
+按下Ctrl+C中斷ping指令
+
+然後打開瀏覽器，在網址列輸入
+http://www.mydomain.com.tw
+
+這樣就可以對應到
+http://127.0.0.1:8080/janjan/
+
+=========================================================================================================================
 
 搜尋關鍵字
 nginx proxy_pass uri 8080 context path
 
-
 參考資料
 http://stackoverflow.com/questions/19866203/nginx-configuration-to-pass-site-directly-to-tomcat-webapp-with-context
 https://gist.github.com/soheilhy/8b94347ff8336d971ad0
+http://stackoverflow.com/questions/10429487/context-path-for-tomcat-web-application-fronted-with-nginx-as-reverse-proxy
+https://www.nginx.com/resources/wiki/start/topics/examples/javaservers/
+
+這個有用，真的
+http://stackoverflow.com/questions/18936753/nginx-reverse-proxy-for-tomcat
