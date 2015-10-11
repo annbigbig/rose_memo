@@ -6,6 +6,7 @@
 6.2 安裝Apache Tomcat 8
 6.3 將稍早前匯出的janjan.war部署到Tomcat
 6.4 將www.mydomain.com.tw對應127.0.0.1:8080/janjan/
+6.5 編譯jsvc並將Tomcat設定成開機後自動啟動的服務
 
 =========================================================================================================================
 Oracle JDK 8官方下載頁面 (要按下Accept License Agreement才能下載)
@@ -180,6 +181,18 @@ http://127.0.0.1:8080/janjan/
 =========================================================================================================================
 6.4 將www.mydomain.com.tw對應127.0.0.1:8080/janjan/
 =========================================================================================================================
+搜尋關鍵字
+nginx proxy_pass uri 8080 context path
+
+參考資料
+http://stackoverflow.com/questions/19866203/nginx-configuration-to-pass-site-directly-to-tomcat-webapp-with-context
+https://gist.github.com/soheilhy/8b94347ff8336d971ad0
+http://stackoverflow.com/questions/10429487/context-path-for-tomcat-web-application-fronted-with-nginx-as-reverse-proxy
+https://www.nginx.com/resources/wiki/start/topics/examples/javaservers/
+
+這個有用，真的
+http://stackoverflow.com/questions/18936753/nginx-reverse-proxy-for-tomcat
+
 給nginx服務器加一個VirtualHost設定檔
 # cd /usr/local/nginx/conf/vhosts/
 # touch ./www.mydomain.com.tw.conf
@@ -216,15 +229,49 @@ http://www.mydomain.com.tw
 http://127.0.0.1:8080/janjan/
 
 =========================================================================================================================
-
-搜尋關鍵字
-nginx proxy_pass uri 8080 context path
-
+6.5 編譯jsvc並將Tomcat設定成開機後自動啟動的服務
+=========================================================================================================================
 參考資料
-http://stackoverflow.com/questions/19866203/nginx-configuration-to-pass-site-directly-to-tomcat-webapp-with-context
-https://gist.github.com/soheilhy/8b94347ff8336d971ad0
-http://stackoverflow.com/questions/10429487/context-path-for-tomcat-web-application-fronted-with-nginx-as-reverse-proxy
-https://www.nginx.com/resources/wiki/start/topics/examples/javaservers/
+http://tomcat.apache.org/tomcat-8.0-doc/setup.html
 
-這個有用，真的
-http://stackoverflow.com/questions/18936753/nginx-reverse-proxy-for-tomcat
+編譯前jni_md.h請先作一個Symbolic Link不然編譯會出錯
+# ln -s /usr/local/jdk1.8.0_60/include/linux/jni_md.h /usr/local/jdk1.8.0_60/include/jni_md.h
+# ln -s /usr/local/jdk1.8.0_60/include/linux/jawt_md.h /usr/local/jdk1.8.0_60/include/jawt_md.h
+
+開始編譯
+# echo $CATALINA_HOME
+# cd $CATALINA_HOME/bin
+# tar -zxvf ./commons-daemon-native.tar.gz
+# chown -R root:root ./commons-daemon-1.0.15-native-src/
+# cd ./commons-daemon-1.0.15-native-src/unix/
+# ./configure
+# make
+# cp ./jsvc ../..
+# cd ../..
+# ls -al|grep jsvc
+
+一切順利的話，就會得到一個/usr/local/tomcat/bin/jsvc執行檔
+試著使用jsvc執行檔來啟動Tomcat服務
+# echo $CATALINA_HOME
+# CATALINA_BASE=$CATALINA_HOME
+# echo $CATALINA_BASE
+# cd $CATALINA_HOME
+# ./bin/jsvc \
+> -classpath $CATALINA_HOME/bin/bootstrap.jar:$CATALINA_HOME/bin/tomcat-juli.jar \
+> -outfile $CATALINA_BASE/logs/catalina.out \
+> -errfile $CATALINA_BASE/logs/catalina.err \
+> -Dcatalina.home=$CATALINA_HOME \
+> -Dcatalina.base=$CATALINA_BASE \
+> -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager \
+> -Djava.util.logging.config.file=$CATALINA_BASE/conf/logging.properties \
+> org.apache.catalina.startup.Bootstrap
+
+看看jsvc有沒有啟動Tocmat服務？
+# netstat -anp|grep jsvc
+
+如果有順利啟動Tomcat服務，會看到終端機輸出這些訊息，請參考這裡
+https://github.com/annbigbig/rose_memo/tree/master/ouput/tomcat-8.0.27/jsvc_is_running.txt
+
+先停止Tomcat服務，直接砍PID號 (假設是4699)
+# kill 4699
+

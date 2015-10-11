@@ -1,0 +1,38 @@
+root@rose01:/usr/local/tomcat/bin# echo $CATALINA_BASE
+
+root@rose01:/usr/local/tomcat/bin# CATALINA_BASE=$CATALINA_HOME
+root@rose01:/usr/local/tomcat/bin# echo $CATALINA_BASE
+/usr/local/tomcat
+root@rose01:/usr/local/tomcat/bin# echo $CATALINA_HOME
+/usr/local/tomcat
+root@rose01:/usr/local/tomcat/bin# cd $CATALINA_HOME
+root@rose01:/usr/local/tomcat# cd bin
+root@rose01:/usr/local/tomcat/bin# ls -al|grep jsvc
+-rwxr-xr-x 1 root root 154089 10月 12 00:50 jsvc
+root@rose01:/usr/local/tomcat/bin# cd -
+/usr/local/tomcat
+root@rose01:/usr/local/tomcat# ./bin/jsvc \
+> -classpath $CATALINA_HOME/bin/bootstrap.jar:$CATALINA_HOME/bin/tomcat-juli.jar \
+> -outfile $CATALINA_BASE/logs/catalina.out \
+> -errfile $CATALINA_BASE/logs/catalina.err \
+> -Dcatalina.home=$CATALINA_HOME \
+> -Dcatalina.base=$CATALINA_BASE \
+> -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager \
+> -Djava.util.logging.config.file=$CATALINA_BASE/conf/logging.properties \
+> org.apache.catalina.startup.Bootstrap
+root@rose01:/usr/local/tomcat# netstat -anp|grep jsvc
+tcp6       0      0 :::8009                 :::*                    LISTEN      4699/jsvc.exec  
+tcp6       0      0 127.0.0.1:8080          :::*                    LISTEN      4699/jsvc.exec  
+tcp6       0      0 127.0.0.1:56665         127.0.0.1:3306          ESTABLISHED 4699/jsvc.exec  
+tcp6       0      0 127.0.0.1:56671         127.0.0.1:3306          ESTABLISHED 4699/jsvc.exec  
+tcp6       0      0 127.0.0.1:56667         127.0.0.1:3306          ESTABLISHED 4699/jsvc.exec  
+tcp6       0      0 127.0.0.1:56672         127.0.0.1:3306          ESTABLISHED 4699/jsvc.exec  
+tcp6       0      0 127.0.0.1:56666         127.0.0.1:3306          ESTABLISHED 4699/jsvc.exec  
+tcp6       0      0 127.0.0.1:56668         127.0.0.1:3306          ESTABLISHED 4699/jsvc.exec  
+tcp6       0      0 127.0.0.1:56669         127.0.0.1:3306          ESTABLISHED 4699/jsvc.exec  
+tcp6       0      0 127.0.0.1:56663         127.0.0.1:3306          ESTABLISHED 4699/jsvc.exec  
+tcp6       0      0 127.0.0.1:56664         127.0.0.1:3306          ESTABLISHED 4699/jsvc.exec  
+tcp6       0      0 127.0.0.1:56670         127.0.0.1:3306          ESTABLISHED 4699/jsvc.exec  
+unix  2      [ ]         STREAM     CONNECTED     14155    4699/jsvc.exec      
+unix  2      [ ]         STREAM     CONNECTED     16908    4699/jsvc.exec      
+root@rose01:/usr/local/tomcat#
