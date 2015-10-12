@@ -320,10 +320,28 @@ https://github.com/annbigbig/rose_memo/tree/master/conf/tomcat-8.0.27/etc/init.d
 =========================================================================================================================
 6.6 (優化)記憶體調整
 =========================================================================================================================
-
-
 搜尋關鍵字
 tomcat 8 increase memory
 
 參考資料
 http://www.mkyong.com/tomcat/tomcat-javalangoutofmemoryerror-permgen-space/
+https://docs.oracle.com/cd/E40520_01/integrator.311/integrator_install/src/cli_ldi_server_config.html
+
+新增一個設定檔setenv.sh
+# cd $CATALINA_HOME/bin
+# touch ./setenv.sh
+# chown tomcat:tomcat ./setenv.sh
+# chmod 755 ./setenv.sh
+
+內容如下
+export JAVA_OPTS="-Dfile.encoding=UTF-8 -Xms256m -Xmx512m -XX:PermSize=128m -XX:MaxPermSize=256m"
+
+重新啟動Tomcat即刻生效
+# /etc/init.d/tomcat stop
+# /etc/init.d/tomcat start
+# netstat -anp|grep jsvc
+
+可以在小板板的GUI裡的Server Status看到記憶體的使用狀態
+http://127.0.0.1:8080/manager/status
+
+=========================================================================================================================
