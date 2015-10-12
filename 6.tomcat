@@ -7,6 +7,7 @@
 6.3 將稍早前匯出的janjan.war部署到Tomcat
 6.4 將www.mydomain.com.tw對應127.0.0.1:8080/janjan/
 6.5 編譯jsvc並將Tomcat設定成開機後自動啟動的服務
+6.6 (優化)記憶體調整
 
 =========================================================================================================================
 Oracle JDK 8官方下載頁面 (要按下Accept License Agreement才能下載)
@@ -233,8 +234,9 @@ http://127.0.0.1:8080/janjan/
 =========================================================================================================================
 參考資料
 http://tomcat.apache.org/tomcat-8.0-doc/setup.html
+http://d.hatena.ne.jp/shammer/20140905/p1
 
-編譯前jni_md.h請先作一個Symbolic Link不然編譯會出錯
+編譯前jni_md.h和jawt_md.h請先作一個Symbolic Link不然編譯會出錯
 # ln -s /usr/local/jdk1.8.0_60/include/linux/jni_md.h /usr/local/jdk1.8.0_60/include/jni_md.h
 # ln -s /usr/local/jdk1.8.0_60/include/linux/jawt_md.h /usr/local/jdk1.8.0_60/include/jawt_md.h
 
@@ -275,3 +277,53 @@ https://github.com/annbigbig/rose_memo/tree/master/ouput/tomcat-8.0.27/jsvc_is_r
 先停止Tomcat服務，直接砍PID號 (假設是4699)
 # kill 4699
 
+新增tomcat用戶和群組
+# groupadd -g 500 tomcat
+# useradd -g tomcat -s /usr/sbin/nologin -d /home/tomcat -u 500 tomcat
+# id tomcat
+
+變更tomcat安裝目錄的擁有人及群組
+# chown -R tomcat:tomcat /usr/local/apache-tomcat-8.0.27/
+
+複製daemon.sh到/etc/init.d目錄並更名為tomcat
+# cp /usr/local/tomcat/bin/daemon.sh /etc/init.d/tomcat
+# chown root:root /etc/init.d/tomcat
+# chmod 755 /etc/init.d/tomcat
+
+修改/etc/init.d/tomcat第91行的
+# JAVA_HOME=/opt/jdk-1.6.0.22
+改成
+JAVA_HOME=/usr/local/jdk
+
+這一行放在第104行
+CATALINA_HOME="/usr/local/tomcat"
+
+完整的/etc/init.d/tomcat請參考這裡
+https://github.com/annbigbig/rose_memo/tree/master/conf/tomcat-8.0.27/etc/init.d/tomcat
+
+啟動tomcat
+# /etc/init.d/tomcat start
+
+停止tomcat
+# /etc/init.d/tomcat stop
+
+查看tomcat版本號
+# /etc/init.d/tomcat version
+
+設定tomcat為開機後自動啟動的服務
+# update-rc.d -f tomcat defaults
+
+重新開機後，查看tomcat是否順利運行？
+# netstat -anp|grep jsvc
+# netstat -anp|grep 8080
+
+=========================================================================================================================
+6.6 (優化)記憶體調整
+=========================================================================================================================
+
+
+搜尋關鍵字
+tomcat 8 increase memory
+
+參考資料
+http://www.mkyong.com/tomcat/tomcat-javalangoutofmemoryerror-permgen-space/
