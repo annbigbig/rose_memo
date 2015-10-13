@@ -1,0 +1,3 @@
+出現在/var/log/syslog裡的訊息
+
+aotg_hcd aotg_hcd.1: HC OUT ep 0 error [0x0F] error type [0x03], reset it...

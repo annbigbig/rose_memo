@@ -1,0 +1,25 @@
+/var/log/syslog裡的錯誤訊息(第2行)
+Oct 13 16:42:57 rose01 udisksd[1952]: Acquired the name org.freedesktop.UDisks2 on the system message bus
+Oct 13 16:42:58 rose01 udisksd[1952]: Adding read ACL for uid 1001 to `/media/labasky' failed: Operation not supported
+Oct 13 16:42:59 rose01 udisksd[1952]: Mounted /dev/mmcblk0p1 at /media/labasky/misc on behalf of uid 1001
+
+解決方法
+確認/media/labasky目錄是存在的
+而且擁有人和群組都是labasky，權限值750
+root@rose01:~# cd /media/
+root@rose01:/media# ls -al
+總計 12
+drwxr-xr-x  3 root    root 4096 10月 13 16:42 .
+drwxr-xr-x 21 root    root 4096 10月  5 03:16 ..
+drwx------  3 labasky root 4096 10月 13 16:42 labasky
+root@rose01:/media# chown labasky:labasky /media/labasky
+root@rose01:/media# chmod 750 /media/labasky
+root@rose01:/media# ls -al
+總計 12
+drwxr-xr-x  3 root    root    4096 10月 13 16:42 .
+drwxr-xr-x 21 root    root    4096 10月  5 03:16 ..
+drwxr-x---  3 labasky labasky 4096 10月 13 16:42 labasky
+root@rose01:/media# 
+
+參考資料
+http://askubuntu.com/questions/202560/cant-mount-any-partition-due-to-usb-adding-read-acl-for-uid-1000-to-media-e

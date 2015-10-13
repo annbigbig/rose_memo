@@ -1,0 +1,68 @@
+出現在/var/log/syslog的訊息
+Oct 13 15:58:32 rose01 dbus[979]: [system] Activated service 'org.freedesktop.ConsoleKit' failed: Failed to execute program /usr/lib/dbus-1.0/dbus-daemon-launch-helper: Success
+
+解決方法
+修正/usr/lib/dbus-1.0/dbus-daemon-launch-helper這個檔案的擁有人和群組
+
+root@rose01:/var/log# cd /usr/lib/dbus-1.0/
+root@rose01:/usr/lib/dbus-1.0# ls -al
+總計 180
+drwxr-xr-x  2 root root      4096 10月 24  2014 .
+drwxr-xr-x 79 root root      4096 10月 13 15:41 ..
+-rwsr-xr--  1 root scanner 174452  4月  2  2014 dbus-daemon-launch-helper
+root@rose01:/usr/lib/dbus-1.0# cat /etc/passwd|grep dbus
+messagebus:x:101:105::/var/run/dbus:/bin/false
+root@rose01:/usr/lib/dbus-1.0# 
+root@rose01:/usr/lib/dbus-1.0# cd /usr/lib/dbus-1.0/
+root@rose01:/usr/lib/dbus-1.0# ls -al
+總計 180
+drwxr-xr-x  2 root root      4096 10月 24  2014 .
+drwxr-xr-x 79 root root      4096 10月 13 15:41 ..
+-rwsr-xr--  1 root scanner 174452  4月  2  2014 dbus-daemon-launch-helper
+root@rose01:/usr/lib/dbus-1.0# cat /etc/passwd|grep messagebus
+messagebus:x:101:105::/var/run/dbus:/bin/false
+root@rose01:/usr/lib/dbus-1.0# chmod 4754 ./dbus-daemon-launch-helper 
+root@rose01:/usr/lib/dbus-1.0# chown root:messagebus ./dbus-daemon-launch-helper 
+root@rose01:/usr/lib/dbus-1.0# ls -al
+總計 180
+drwxr-xr-x  2 root root         4096 10月 24  2014 .
+drwxr-xr-x 79 root root         4096 10月 13 15:41 ..
+-rwxr-xr--  1 root messagebus 174452  4月  2  2014 dbus-daemon-launch-helper
+root@rose01:/usr/lib/dbus-1.0# 
+
+這樣是錯的，因為重新開機之後又在/var/log/syslog發現了
+Oct 13 16:27:11 rose01 dbus[983]: [system] Activated service 'org.freedesktop.ConsoleKit' failed: The permission of the setuid helper is not correct
+
+於是再補上u+s的權限
+root@rose01:/var/log# cd /usr/lib/dbus-1.0/
+root@rose01:/usr/lib/dbus-1.0# ls -al
+總計 180
+drwxr-xr-x  2 root root         4096 10月 24  2014 .
+drwxr-xr-x 79 root root         4096 10月 13 15:41 ..
+-rwxr-xr--  1 root messagebus 174452  4月  2  2014 dbus-daemon-launch-helper
+root@rose01:/usr/lib/dbus-1.0# chmod u+s ./dbus-daemon-launch-helper 
+root@rose01:/usr/lib/dbus-1.0# ls -al
+總計 180
+drwxr-xr-x  2 root root         4096 10月 24  2014 .
+drwxr-xr-x 79 root root         4096 10月 13 15:41 ..
+-rwsr-xr--  1 root messagebus 174452  4月  2  2014 dbus-daemon-launch-helper
+root@rose01:/usr/lib/dbus-1.0# 
+
+重新開機之後再次查看/var/log/syslog
+Oct 13 16:35:40 rose01 dbus[988]: [system] Activating service name='org.freedesktop.ConsoleKit' (using servicehelper)
+Oct 13 16:35:41 rose01 dbus[988]: [system] Activating service name='org.freedesktop.PolicyKit1' (using servicehelper)
+Oct 13 16:35:41 rose01 polkitd[1775]: started daemon version 0.105 using authority implementation `local' version `0.105'
+Oct 13 16:35:41 rose01 dbus[988]: [system] Successfully activated service 'org.freedesktop.PolicyKit1'
+Oct 13 16:35:41 rose01 dbus[988]: [system] Successfully activated service 'org.freedesktop.ConsoleKit'
+
+應該是正常了，不再靠腰
+可是為什麼/usr/lib/dbus-1.0/dbus-daemon-launch-helper這個檔案的擁有人和群組會是
+root:scanner (錯誤)
+而不是
+root:messagebus (正確)
+這個仍然是個謎
+
+參考資料
+http://ubuntuforums.org/showthread.php?t=842819
+http://f7t.fr/blog/?p=165
+

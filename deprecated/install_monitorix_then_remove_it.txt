@@ -1,0 +1,175 @@
+====================================================================================================================
+9.6.18 Monitorix (超猛的system monitoring tool)
+====================================================================================================================
+參考資料
+http://linuxg.net/how-to-install-monitorix-3-6-0-on-ubuntu-14-10-ubuntu-14-04-ubuntu-12-04-debian-8-debian-7-and-derivatives/
+http://joealdeguer.com/monitor-your-server-stats-using-monitorix/
+
+搜尋關鍵字「ubuntu 14 monitorix installation」
+
+安裝
+# cd /root
+# apt-get install gdebi
+# wget http://www.monitorix.org/monitorix_3.8.0-izzy1_all.deb
+# gdebi monitorix_3.8.0-izzy1_all.deb
+按下y確定安裝
+沒多久跑出了
+This is the fully-qualified host name of the computer running nullmailer. It defaults to the literal name 'me'. 
+Mailname of your system:
+維持預設的主機名rose01選「確定」按Enter
+又跳出了
+This is a colon-separated list of remote servers to which to send each message. Each entry contains a remote host name or address followed      
+by an optional protocol string 'host protocol'. The protocol name defaults to smtp, and may be followed by command-line arguments for that      
+module.                                                                                                                                         
+                                                                                                                                               
+Examples:                                                                                                                                       
+                                                                                                                                           
+smarthost                                                                                                                                     
+smarthost smtp --port=10025
+選「確定」按Enter
+然後又出現了
+正在設定 nullmailer                         
+Smarthosts:   
+                      
+mail_____________                                             
+                                                                 
+<確定>       <取消>   
+選「確定」按Enter
+
+安裝完成後
+root@rose01:~# netstat -anp|grep 8080
+tcp        0      0 0.0.0.0:8080            0.0.0.0:*               LISTEN      6400/monitorix-http
+
+在10.1.1.90筆記型電腦上，打開瀏覽器，連到
+http://10.1.1.170:8080/monitorix/
+就可以看到10.1.1.170的網路流量狀態了
+不過為了將來不要和Tomcat的port 8080衝突
+請將monitorix運行的port改成別的，改成10080好了
+
+先將預設的設定檔備份一份下來
+# cp /etc/monitorix/monitorix.conf /etc/monitorix/monitorix.conf.default
+
+打開vi文字編輯器修改它
+# vi /etc/monitorix/monitorix.conf
+
+我只有修改這個區塊，這是原來的
+<httpd_builtin>
+        enabled = y
+        host =
+        port = 8080
+        user = nobody
+        group = nobody
+        log_file = /var/log/monitorix-httpd
+        hosts_deny =
+        hosts_allow =
+        <auth>
+                enabled = n
+                msg = Monitorix: Restricted access
+                htpasswd = /var/lib/monitorix/htpasswd
+        </auth>
+</httpd_builtin>
+
+
+改成了這樣
+<httpd_builtin>
+        enabled = y
+        host = 127.0.0.1
+        port = 10080
+        user = nobody
+        group = nobody
+        log_file = /var/log/monitorix-httpd
+        hosts_deny =
+        hosts_allow =
+        <auth>
+                enabled = n
+                msg = Monitorix: Restricted access
+                htpasswd = /var/lib/monitorix/htpasswd
+        </auth>
+</httpd_builtin>
+
+
+# service monitorix status
+ * Monitorix is running
+
+重新啟動
+# service monitorix restart
+
+# service monitorix status
+ * Monitorix is running
+
+# netstat -anp|grep monitorix
+tcp        0      0 127.0.0.1:10080         0.0.0.0:*               LISTEN      8116/monitorix-http
+
+因為現在monitorix只運行於10.1.1.170這個機器的127.0.0.1:10080
+所以你直接登入它的LXDE，開瀏覽器來看
+http://127.0.0.1:10080/monitorix/
+(可以直接把瀏覽器的首頁設成這個URL)
+
+或是用ssh tunnel的方法連到10.1.1.170上面的127.0.0.1:10080，不再詳述
+
+＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+
+====================================================================================================================
+10.3 查看/var/log/syslog發現nullmailer一直持續嘗試寄信出去
+====================================================================================================================
+查看/var/log/syslog
+# cat /var/log/syslog | grep nullmailer
+
+然後終端機會出現
+Oct 11 01:42:39 rose01 nullmailer[2063]: smtp: Failed: Connect failed
+Oct 11 01:42:39 rose01 nullmailer[1620]: Sending failed:  Host not found
+這樣重複上面兩行幾乎無限次，也就是說每分鐘nullmailer都在重新嘗試寄出信件
+寄到那裡？不知道，log檔裡面沒寫
+
+這裡還有
+Oct 12 21:11:14 rose01 nullmailer[1610]: Starting delivery: protocol: smtp host: mail file: 1444655471.1931
+Oct 12 21:11:14 rose01 nullmailer[1610]: Starting delivery, 21 message(s) in queue.
+
+然後我找到了/var/spool/nullmailer/queue/
+# cd /var/spool/nullmailer/queue/
+# ls -al
+
+裡面有
+總計 16
+drwxr-x--- 2 mail root 4096 10月 13 15:01 .
+drwxr-xr-x 4 mail root 4096  9月 27 21:07 ..
+-rw------- 1 mail root  533 10月 13 01:29 1444670957.2091
+-rw------- 1 mail root  535 10月 13 15:01 1444719685.1895
+
+這樣的東西
+# cat ./1444670957.2091
+
+可以發現這好像是cron的日志
+Received: (nullmailer pid 2091 invoked by uid 0);
+	Mon, 12 Oct 2015 17:29:17 -0000
+From: Anacron <root@rose01>
+To: root@rose01
+Subject: Anacron job 'cron.daily' on rose01
+Content-Type: text/plain; charset=US-ASCII
+Date: Tue, 13 Oct 2015 01:29:17 +0800
+Message-Id: <1444670957.625031.2090.nullmailer@rose01>
+
+/etc/cron.daily/logrotate:
+error: iptraf-ng:2 duplicate log entry for /var/log/iptraf/*.log
+/etc/cron.daily/ntpdate:
+13 Oct 01:29:16 ntpdate[2082]: adjust time server 91.189.94.4 offset -0.000013 sec
+
+先停止monitorix和nullmailer服務
+# /etc/init.d/monitorix stop
+# /etc/init.d/nullmailer stop
+
+下次開機後也不要再執行了
+# update-rc.d monitorix disable
+# update-rc.d nullmailer disable
+
+清除/var/spool/nullmailer/queue目錄
+# cd /var/spool/nullmailer/queue/
+# rm -rf ./14*
+
+反安裝monitorix和nullmailer
+# apt-get purge monitorix
+# apt-get autoremove
+# apt-get purge nullmailer
+# apt-get autoremove
