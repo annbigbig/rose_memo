@@ -1,0 +1,102 @@
+root@rose01:/# cd /usr/lib/arm-linux-gnueabihf/
+root@rose01:/usr/lib/arm-linux-gnueabihf# ls -al|grep mysql
+-rw-r--r--  1 root root  3938940  2月 20  2014 libmysqlclient.a
+lrwxrwxrwx  1 root root       16  2月 20  2014 libmysqlclient_r.a -> libmysqlclient.a
+lrwxrwxrwx  1 root root       17  2月 20  2014 libmysqlclient_r.so -> libmysqlclient.so
+lrwxrwxrwx  1 root root       20  2月 20  2014 libmysqlclient_r.so.18 -> libmysqlclient.so.18
+lrwxrwxrwx  1 root root       24  2月 20  2014 libmysqlclient_r.so.18.0.0 -> libmysqlclient.so.18.0.0
+lrwxrwxrwx  1 root root       20  2月 20  2014 libmysqlclient.so -> libmysqlclient.so.18
+lrwxrwxrwx  1 root root       24  2月 20  2014 libmysqlclient.so.18 -> libmysqlclient.so.18.0.0
+-rw-r--r--  1 root root  2968924  2月 20  2014 libmysqlclient.so.18.0.0
+root@rose01:/usr/lib/arm-linux-gnueabihf# cd /usr/local/mariadb/lib
+root@rose01:/usr/local/mariadb/lib# ls -al
+總計 36380
+drwxrwxr-x 3 mysql mysql     4096 10月  5 15:14 .
+drwxrwxr-x 7 mysql mysql     4096 10月  5 15:14 ..
+-rw-rw-r-- 1 mysql mysql  3626514 10月  4 23:43 libmysqlclient.a
+lrwxrwxrwx 1 mysql mysql       16 10月  5 15:13 libmysqlclient_r.a -> libmysqlclient.a
+lrwxrwxrwx 1 mysql mysql       17 10月  5 15:13 libmysqlclient_r.so -> libmysqlclient.so
+lrwxrwxrwx 1 mysql mysql       17 10月  5 15:13 libmysqlclient_r.so.18 -> libmysqlclient.so
+lrwxrwxrwx 1 mysql mysql       17 10月  5 15:13 libmysqlclient_r.so.18.0.0 -> libmysqlclient.so
+lrwxrwxrwx 1 mysql mysql       20 10月  5 15:13 libmysqlclient.so -> libmysqlclient.so.18
+lrwxrwxrwx 1 mysql mysql       24 10月  5 15:13 libmysqlclient.so.18 -> libmysqlclient.so.18.0.0
+-rw-rw-r-- 1 mysql mysql  3228137 10月  5 02:29 libmysqlclient.so.18.0.0
+-rw-rw-r-- 1 mysql mysql 18228552 10月  5 03:06 libmysqld.a
+lrwxrwxrwx 1 mysql mysql       15 10月  5 15:14 libmysqld.so -> libmysqld.so.18
+-rw-rw-r-- 1 mysql mysql 12133322 10月  5 03:06 libmysqld.so.18
+-rw-rw-r-- 1 mysql mysql    10642 10月  5 00:50 libmysqlservices.a
+drwxrwxr-x 3 mysql mysql     4096 10月  5 15:13 mysql
+root@rose01:/usr/local/mariadb/lib# 
+root@rose01:/usr/local/mariadb/lib# # dpkg --get-selections | grep -v deinstall | grep mysql
+root@rose01:/usr/local/mariadb/lib# dpkg --get-selections | grep -v deinstall | grep mysql
+libmysqlclient-dev				install
+libmysqlclient18:armhf				install
+mysql-common					install
+root@rose01:/usr/local/mariadb/lib# apt-get purge libmysqlclient mysql-common
+正在讀取套件清單... 完成
+正在重建相依關係          
+正在讀取狀態資料... 完成
+E: 找不到套件 libmysqlclient
+root@rose01:/usr/local/mariadb/lib# apt-get purge libmysqlclient* mysql-common
+正在讀取套件清單... 完成
+正在重建相依關係          
+正在讀取狀態資料... 完成
+E: 找不到套件 libmysqlclient.a
+E: 無法按 regex 找到 libmysqlclient.a 套件
+E: 找不到套件 libmysqlclient_r.a
+E: 無法按 regex 找到 libmysqlclient_r.a 套件
+E: 找不到套件 libmysqlclient_r.so
+E: 無法按 regex 找到 libmysqlclient_r.so 套件
+E: 找不到套件 libmysqlclient_r.so.18
+E: 無法按 regex 找到 libmysqlclient_r.so.18 套件
+E: 找不到套件 libmysqlclient_r.so.18.0.0
+E: 無法按 regex 找到 libmysqlclient_r.so.18.0.0 套件
+E: 找不到套件 libmysqlclient.so
+E: 無法按 regex 找到 libmysqlclient.so 套件
+E: 找不到套件 libmysqlclient.so.18
+E: 無法按 regex 找到 libmysqlclient.so.18 套件
+E: 找不到套件 libmysqlclient.so.18.0.0
+E: 無法按 regex 找到 libmysqlclient.so.18.0.0 套件
+root@rose01:/usr/local/mariadb/lib# dpkg --get-selections | grep -v deinstall | grep mysql
+libmysqlclient-dev				install
+libmysqlclient18:armhf				install
+mysql-common					install
+root@rose01:/usr/local/mariadb/lib# apt-get purge libmysqlclient-dev libmysqlclient18 mysql-common
+正在讀取套件清單... 完成
+正在重建相依關係          
+正在讀取狀態資料... 完成
+下列套件將會被【移除】：
+  libmysqlclient-dev* libmysqlclient18* mysql-common*
+升級 0 個，新安裝 0 個，移除 3 個，有 2 個未被升級。
+此操作完成之後，會空出 8,013 kB 的磁碟空間。
+Do you want to continue? [Y/n] y
+（讀取資料庫 ... 目前共安裝了 58626 個檔案和目錄。）
+移除 libmysqlclient-dev (5.5.35+dfsg-1ubuntu1) 中...
+移除 libmysqlclient18:armhf (5.5.35+dfsg-1ubuntu1) 中...
+Purging configuration files for libmysqlclient18:armhf (5.5.35+dfsg-1ubuntu1) ...
+移除 mysql-common (5.5.35+dfsg-1ubuntu1) 中...
+Purging configuration files for mysql-common (5.5.35+dfsg-1ubuntu1) ...
+Processing triggers for man-db (2.6.7.1-1) ...
+Processing triggers for libc-bin (2.19-0ubuntu6) ...
+root@rose01:/usr/local/mariadb/lib# cd /etc
+root@rose01:/etc# ls -al|grep mysql
+root@rose01:/etc# cd /usr/lib/arm-linux-gnueabihf/
+root@rose01:/usr/lib/arm-linux-gnueabihf# ln -s /usr/local/mariadb/lib/libmysqlclient.a ./libmysqlclient.a
+root@rose01:/usr/lib/arm-linux-gnueabihf# ln -s /usr/local/mariadb/lib/libmysqlclient.a ./libmysqlclient_r.a
+root@rose01:/usr/lib/arm-linux-gnueabihf# ln -s /usr/local/mariadb/lib/libmysqlclient.so.18.0.0 ./libmysqlclient.so.18.0.0
+root@rose01:/usr/lib/arm-linux-gnueabihf# ln -s /usr/local/mariadb/lib/libmysqlclient.so.18.0.0 ./libmysqlclient.so.18
+root@rose01:/usr/lib/arm-linux-gnueabihf# ln -s /usr/local/mariadb/lib/libmysqlclient.so.18.0.0 ./libmysqlclient.so
+root@rose01:/usr/lib/arm-linux-gnueabihf# ln -s /usr/local/mariadb/lib/libmysqlclient.so.18.0.0 ./libmysqlclient_r.so.18.0.0
+root@rose01:/usr/lib/arm-linux-gnueabihf# ln -s /usr/local/mariadb/lib/libmysqlclient.so.18.0.0 ./libmysqlclient_r.so.18
+root@rose01:/usr/lib/arm-linux-gnueabihf# ln -s /usr/local/mariadb/lib/libmysqlclient.so.18.0.0 ./libmysqlclient_r.so
+root@rose01:/usr/lib/arm-linux-gnueabihf# ls -al|grep mysql
+lrwxrwxrwx  1 root root       39 10月 15 01:44 libmysqlclient.a -> /usr/local/mariadb/lib/libmysqlclient.a
+lrwxrwxrwx  1 root root       39 10月 15 01:47 libmysqlclient_r.a -> /usr/local/mariadb/lib/libmysqlclient.a
+lrwxrwxrwx  1 root root       47 10月 15 01:52 libmysqlclient_r.so -> /usr/local/mariadb/lib/libmysqlclient.so.18.0.0
+lrwxrwxrwx  1 root root       47 10月 15 01:52 libmysqlclient_r.so.18 -> /usr/local/mariadb/lib/libmysqlclient.so.18.0.0
+lrwxrwxrwx  1 root root       47 10月 15 01:51 libmysqlclient_r.so.18.0.0 -> /usr/local/mariadb/lib/libmysqlclient.so.18.0.0
+lrwxrwxrwx  1 root root       47 10月 15 01:50 libmysqlclient.so -> /usr/local/mariadb/lib/libmysqlclient.so.18.0.0
+lrwxrwxrwx  1 root root       47 10月 15 01:49 libmysqlclient.so.18 -> /usr/local/mariadb/lib/libmysqlclient.so.18.0.0
+lrwxrwxrwx  1 root root       47 10月 15 01:48 libmysqlclient.so.18.0.0 -> /usr/local/mariadb/lib/libmysqlclient.so.18.0.0
+root@rose01:/usr/lib/arm-linux-gnueabihf# dpkg --get-selections | grep -v deinstall | grep mysql
+root@rose01:/usr/lib/arm-linux-gnueabihf# 

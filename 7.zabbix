@@ -1,0 +1,126 @@
+7.zabbix
+
+=========================================================================================================================
+
+參考資料
+https://www.zabbix.com/documentation/2.4/start
+https://www.zabbix.com/documentation/2.4/manual/installation/requirements
+http://www.subvs.co.uk/server_monitoring_ubuntu_zabbix
+
+在zabbix官網，上面那一行requirements的連結裡寫著
+你的php extensions需要
+gd、bcmath、ctype、libXML、xmlreader、xmlwriter、session、sockets、mbstring、gettext、mysqli
+你可以執行終端機指令查看稍早前編譯的php是否支援？
+# cd /usr/local/php/bin
+# ./php -m
+
+安裝依賴套件
+# apt-get install libcurl3 libsnmp-dev fping libgdbm-dev libiksemel-dev libiksemel-utils 
+# apt-get install libiksemel3 libopenipmi-dev libopenipmi0 libssh2-1 libssh2-1-dev
+
+連結libmysqlclient.so
+# cd /usr/lib/arm-linux-gnueabihf/
+# ln -s /usr/local/mariadb/lib/libmysqlclient.a ./libmysqlclient.a
+# ln -s /usr/local/mariadb/lib/libmysqlclient.a ./libmysqlclient_r.a
+# ln -s /usr/local/mariadb/lib/libmysqlclient.so.18.0.0 ./libmysqlclient.so.18.0.0
+# ln -s /usr/local/mariadb/lib/libmysqlclient.so.18.0.0 ./libmysqlclient.so.18
+# ln -s /usr/local/mariadb/lib/libmysqlclient.so.18.0.0 ./libmysqlclient.so
+# ln -s /usr/local/mariadb/lib/libmysqlclient.so.18.0.0 ./libmysqlclient_r.so.18.0.0
+# ln -s /usr/local/mariadb/lib/libmysqlclient.so.18.0.0 ./libmysqlclient_r.so.18
+# ln -s /usr/local/mariadb/lib/libmysqlclient.so.18.0.0 ./libmysqlclient_r.so
+
+新增zabbix用戶與群組
+# groupadd -g 600 zabbix
+# useradd -d /home/zabbix -g zabbix -s /bin/false -u 600 zabbix
+# id zabbix
+
+下載tar.gz放在/usr/local/src，並解開
+# cd /usr/local/src
+# tar -zxvf ./zabbix-2.4.6.tar.gz
+# chown -R root:root ./zabbix-2.4.6
+# cd ./zabbix-2.4.6
+# ./configure --help
+# ./configure --prefix=/usr/local/zabbix-2.4.6 --enable-server --enable-agent --with-mysql --enable-ipv6 --with-net-snmp --with-libcurl --with-libxml2
+
+無須make請直接
+# make install
+
+作一個Symbolic Link
+# ln -s /usr/local/zabbix-2.4.6 /usr/local/zabbix
+
+新增zabbix需要的資料庫
+# mysql -h localhost --port 3306 -u root -p
+> create database zabbix;
+> create user 'zabbix'@'localhost' identified by 'zabbixpassword';
+> grant all on zabbix.* to 'zabbix'@'localhost';
+> flush privileges;
+> quit;
+# cd /usr/local/src/zabbix-2.4.6/database/mysql/
+# mysql -u zabbix -p zabbix < ./schema.sql
+# mysql -u zabbix -p zabbix < ./images.sql
+# mysql -u zabbix -p zabbix < ./data.sql
+
+修改設定檔前先備份
+# cd /usr/local/zabbix/etc/
+# cp ./zabbix_agent.conf ./zabbix_agent.default
+# cp ./zabbix_agentd.conf ./zabbix_agentd.conf.default
+# cp ./zabbix_server.conf ./zabbix_server.conf.default
+
+首先是zabbix_agentd.conf
+我沒有更動，重點是這行
+Server=127.0.0.1
+
+再來是zabbix_server.conf
+更動的有這些
+LogFileSize=16
+DebugLevel=3
+DBHost=localhost
+DBName=zabbix
+DBUser=zabbix
+DBPassword=zabbixpassword
+DBSocket=/run/mysqld/mysqld.sock
+BPort=3306
+
+第一次啟動zabbix server和agentd
+# cd /usr/local/zabbix/sbin
+# ./zabbix_server
+# ./zabbix_agentd
+
+真的啟動了嗎？
+# netstat -anp|grep zabbix
+
+終端機可以看到
+tcp        0      0 0.0.0.0:10050           0.0.0.0:*               LISTEN      1900/zabbix_agentd
+tcp        0      0 0.0.0.0:10051           0.0.0.0:*               LISTEN      1846/zabbix_server
+tcp6       0      0 :::10050                :::*                    LISTEN      1900/zabbix_agentd
+tcp6       0      0 :::10051                :::*                    LISTEN      1846/zabbix_server
+(後面還有訊息，略…)
+
+先停止zabbix_server和zabbix_agentd程序，直接砍PID
+# kill 1900
+# kill 1846
+
+產生init script啟動腳本
+# cd /etc/init.d
+# touch ./zabbix_server
+# touch ./zabbix_agentd
+# chown root:root ./zabbix*
+# chmod 755 ./zabbix*
+
+這是/etc/init.d/zabbix_server的內容
+https://github.com/annbigbig/rose_memo/tree/master/conf/zabbix-2.4.6/etc/init.d/zabbix_server
+
+這是/etc/init.d/zabbix_agentd的內容
+https://github.com/annbigbig/rose_memo/tree/master/conf/zabbix-2.4.6/etc/init.d/zabbix_agentd
+
+試著用init script來啟動zabbix_server和zabbix_agentd
+# service zabbix_server start
+# service zabbix_agentd start
+
+查看zabbix_server和zabbix_agentd的DAEMON有沒有成功運行？
+# netstat -anp|grep zabbix
+
+設定開機後自動啟動服務
+# update-rc.d zabbix_server defaults
+# update-rc.d zabbix_agentd defaults
+這是/etc/init.d/zabbix_agentd的內容
