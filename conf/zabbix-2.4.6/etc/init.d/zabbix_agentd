@@ -1,0 +1,37 @@
+#!/bin/sh
+# Slightly modified version o f zabbix-agent that comes in the zabbix tarball
+PATH=/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin
+DAEMON=/usr/local/zabbix/sbin/zabbix_agentd
+NAME=zabbix_agentd
+DESC="Zabbix agentd daemon"
+USER=zabbix
+#Check the daemon is executable
+test -x $DAEMON || exit 0
+set -e
+case "$1" in
+start)
+echo "Starting $DESC: $NAME"
+start-stop-daemon --oknodo --start --pidfile /tmp/$NAME.pid \
+--user $USER --exec $DAEMON
+;;
+stop)
+echo "Stopping $DESC: $NAME"
+start-stop-daemon --oknodo --stop --pidfile /tmp/$NAME.pid \
+--user $USER --exec $DAEMON
+;;
+restart|force-reload)
+echo "Restarting $DESC: $NAME"
+if [ -z "$(ps ax | egrep zabbix_server)" ]; then
+echo " Zabbix isn't running, so not killed" ;
+else
+$0 stop
+fi
+sleep 1
+$0 start
+;;
+*)
+echo "Usage: $0 {start|stop|restart|force-reload}" >&2
+exit 1
+;;
+esac
+exit 0

@@ -6,6 +6,8 @@
 https://www.zabbix.com/documentation/2.4/start
 https://www.zabbix.com/documentation/2.4/manual/installation/requirements
 http://www.subvs.co.uk/server_monitoring_ubuntu_zabbix
+http://www.thegeekstuff.com/2013/10/enable-gd-php/
+http://stackoverflow.com/questions/15331015/how-to-verify-downloaded-file-with-sig-file
 
 在zabbix官網，上面那一行requirements的連結裡寫著
 你的php extensions需要
@@ -123,4 +125,84 @@ https://github.com/annbigbig/rose_memo/tree/master/conf/zabbix-2.4.6/etc/init.d/
 設定開機後自動啟動服務
 # update-rc.d zabbix_server defaults
 # update-rc.d zabbix_agentd defaults
-這是/etc/init.d/zabbix_agentd的內容
+
+安裝frontend介面，複製php檔案
+# cd /usr/local/nginx
+# mkdir ./zabbix
+# cd /usr/local/src/zabbix-2.4.6/frontends/php/
+# cp -a . /usr/local/nginx/zabbix
+# chown -R root:www-data /usr/local/nginx/zabbix
+# chmod -R g+w /usr/local/nginx/zabbix
+
+為nginx服務器加一個VirtualHost
+# cd /usr/local/nginx/conf/vhosts/
+# touch ./127.0.0.1:10080.conf
+# vi ./127.0.0.1\:10080.conf 
+
+設定檔內容如下
+https://github.com/annbigbig/rose_memo/blob/master/conf/nginx-1.9.5/usr/local/nginx/conf/vhosts/127.0.0.1:10080.conf
+
+檢查設定檔語法是否正確後，重新啟動nginx服務器
+# cd /usr/local/nginx
+# sbin/nginx -t -c conf/nginx.conf
+# service nginx status
+# service nginx restart
+# service nginx status
+# netstat -anp|grep nginx
+
+如果設定正確，可以看到終端機會包含這一行輸出，TCP端口10080在Listening
+tcp        0      0 127.0.0.1:10080         0.0.0.0:*               LISTEN      2189/nginx.conf 
+
+調整php.ini的設定
+# cd /usr/local/php/lib
+# vi ./php.ini
+
+只列出有更動的部分
+post_max_size = 16M
+max_execution_time = 300
+max_input_time = 300
+always_populate_raw_post_data = -1
+
+重新啟動php-fpm
+# service php-fpm status
+# service php-fpm restart
+# service php-fpm status
+
+登入小板板的LXDE，打開瀏覽器，連這個URL
+http://127.0.0.1:10080
+
+看到zabbix歡迎首頁setup.php
+按右下角的Next > 來到了步驟3.Configure DB connection
+在這一個網頁填入
+Database type : MySQL
+Database host : localhost
+Database port : 3306
+Database name : zabbix
+User : zabbix
+Password : zabbixpassword
+按下網頁下方的[ Test Conntection ]按鈕，如果可以連線資料庫，網頁上會出現一個綠色的OK
+按下右下角的[ Next ]按鈕繼續
+
+接下來是步驟4 .Zabbix server details
+維持預設的
+Host : localhost
+Port : 10051
+Name : (這個不用填)
+按下右下角的[ Next ]按鈕繼續
+
+接下來是步驟5. Pre-Installation summary
+這裡把剛才的設定值再打印出來讓你再確認一次
+沒問題就按[ Next ]按鈕繼續
+
+最後這個網頁打印了
+Configuration file
+"/usr/local/nginx-1.9.5/zabbix/conf/zabbix.conf.php"
+created: OK
+
+Congratulations on successful installation of Zabbix frontend.
+
+When done, press the "Finish" button
+按下[ Finish ]完成
+然後來到了登入畫面，請用帳號Admin密碼zabbix登入
+
+

@@ -36,7 +36,7 @@ root
 切換目錄，待會兒下載的tar.gz都會放在這裡
 # cd /usr/local/src
 
-下載zlib、pcre、openssl原始碼的tar.gz包，然後解壓縮
+下載zlib、pcre、openssl、libjpeg原始碼的tar.gz包，然後解壓縮
 # wget http://zlib.net/zlib-1.2.8.tar.gz
 # tar -zxvf ./zlib-1.2.8.tar.gz
 # chown -R root:root ./zlib-1.2.8
@@ -45,7 +45,7 @@ root
 # tar -zxvf ./pcre-8.37.tar.gz
 # chown -R root:root ./pcre-8.37
 
-# https://www.openssl.org/source/openssl-1.0.2d.tar.gz
+# wget https://www.openssl.org/source/openssl-1.0.2d.tar.gz
 # tar -zxvf ./openssl-1.0.2d.tar.gz
 # chown -R root:root ./openssl-1.0.2d
 
@@ -202,7 +202,7 @@ http://www.linuxfromscratch.org/blfs/view/svn/general/php.html
 下載需要的tar.gz並解開它們
 剛才安裝Nginx服務器的時候，openssl和zlib已經下載過了就不用再下載
 # cd /usr/local/src
-# wget http://in1.php.net/distributions/php-5.6.13.tar.gz
+# wget http://au1.php.net/distributions/php-5.6.14.tar.gz
 # wget http://sourceforge.net/projects/mcrypt/files/MCrypt/2.6.8/mcrypt-2.6.8.tar.gz
 
 編譯openssl並安裝
@@ -234,6 +234,36 @@ http://www.linuxfromscratch.org/blfs/view/svn/general/php.html
 # make install
 # ln -s /usr/local/mcrypt-2.6.8 /usr/local/mcrypt
 
+編譯libjpeg並安裝
+# wget http://www.ijg.org/files/jpegsrc.v9a.tar.gz
+# tar -zxvf ./jpegsrc.v9a.tar.gz
+# chown -R root:root ./jpeg-9a
+# cd ./jpeg-9a/
+# ./configure --help
+# ./configure --prefix=/usr/local/libjpeg-9a
+# make
+# make install
+# ln -s /usr/local/libjpeg-9a /usr/local/libjpeg
+
+下載freetype2
+# wget http://download.savannah.gnu.org/releases/freetype/freetype-2.6.1.tar.gz
+# wget http://download.savannah.gnu.org/releases/freetype/freetype-2.6.1.tar.gz.sig
+
+檢查來源是否可信賴？
+# gpg --verify ./freetype-2.6.1.tar.gz.sig ./freetype-2.6.1.tar.gz
+# gpg --recv-key E707FDA5
+# gpg ./freetype-2.6.1.tar.gz.sig 
+
+編譯freetype2並安裝
+# tar -zxvf ./freetype-2.6.1.tar.gz
+# chown -R root:root ./freetype-2.6.1
+# cd ./freetype-2.6.1/
+# ./configure --help
+# ./configure --prefix=/usr/local/freetype-2.6.1
+# make
+# make install
+# ln -s /usr/local/freetype-2.6.1 /usr/local/freetype
+
 重要的連結檔gmp.h
 # ln -s /usr/include/arm-linux-gnueabihf/gmp.h /usr/include/gmp.h
 
@@ -241,18 +271,18 @@ http://www.linuxfromscratch.org/blfs/view/svn/general/php.html
 # cd /tmp
 # wget -O fpm-race-condition.patch 'https://bugs.php.net/patch-display.php?bug_id=65398&patch=fpm-race-condition.patch&revision=1375772074&download=1' -4
 
-解開php-5.6.13.tar.gz
+解開php-5.6.14.tar.gz
 # cd /usr/local/src
-# tar -zxvf ./php-5.6.13.tar.gz
-# chown -R root:root ./php-5.6.13
+# tar -zxvf ./php-5.6.14.tar.gz
+# chown -R root:root ./php-5.6.14
 
 打上補丁
-# patch -d php-5.6.13 -p0 < /tmp/fpm-race-condition.patch
+# patch -d php-5.6.14 -p0 < /tmp/fpm-race-condition.patch
 
 編譯php-fpm並安裝
-# cd ./php-5.6.13
+# cd ./php-5.6.14
 # ./configure -h
-# ./configure --prefix=/usr/local/php-5.6.13 \ 
+# ./configure --prefix=/usr/local/php-5.6.14 \ 
 > --enable-opcache --enable-fpm \ 
 > --with-mysql --with-mysqli --with-pdo-mysql --with-mysql-sock=/run/mysqld/mysqld.sock \ 
 > --with-openssl --with-openssl-dir=/usr/local/openssl-1.0.2d --with-kerberos \ 
@@ -261,7 +291,8 @@ http://www.linuxfromscratch.org/blfs/view/svn/general/php.html
 > --enable-soap --enable-wddx --with-xmlrpc --with-readline --enable-calendar \ 
 > --with-gettext --enable-mbstring \ 
 > --with-zlib --with-zlib-dir=/usr/local/zlib-1.2.8 \ 
-> --with-bz2 --enable-zip --enable-exif --with-gd 
+> --with-bz2 --enable-zip --enable-exif --with-gd \
+> --with-jpeg-dir=/usr/local/libjpeg-9a --with-freetype-dir=/usr/local/freetype-2.6.1
 # make
 
 
@@ -286,7 +317,7 @@ http://www.5ienet.com/note/html/stlamp6/index.shtml
 回到剛才的pear的問題
 # cd /tmp
 # wget http://pear.php.net/go-pear.phar
-# /usr/local/php-5.6.13/bin/php /tmp/go-pear.phar
+# /usr/local/php-5.6.14/bin/php /tmp/go-pear.phar
 
 接下來會進入一個交談式的介面，按下Enter一次，完成pear的安裝
 (輸出訊息略)
@@ -294,8 +325,8 @@ http://www.5ienet.com/note/html/stlamp6/index.shtml
 建立Symbolic Link
 複製設定檔到正確的路徑
 設定php-fpm執行檔的權限
-# ln -s /usr/local/php-5.6.13 /usr/local/php
-# cp /usr/local/src/php-5.6.13/php.ini-development /usr/local/php/lib/php.ini
+# ln -s /usr/local/php-5.6.14 /usr/local/php
+# cp /usr/local/src/php-5.6.14/php.ini-development /usr/local/php/lib/php.ini
 # cp /usr/local/php/etc/php-fpm.conf.default /usr/local/php/etc/php-fpm.conf
 # cp /usr/local/php/sbin/php-fpm /usr/local/sbin/
 # chown root:root /usr/local/sbin/php-fpm
@@ -351,7 +382,7 @@ unix  3      [ ]         STREAM     CONNECTED     13922    2736/php-fpm.conf)
 # 
 
 複製init script並設定權限值
-# cp /usr/local/src/php-5.6.13/sapi/fpm/init.d.php-fpm.in /etc/init.d/php-fpm
+# cp /usr/local/src/php-5.6.14/sapi/fpm/init.d.php-fpm.in /etc/init.d/php-fpm
 # chown root:root /etc/init.d/php-fpm 
 # chmod 755 /etc/init.d/php-fpm
 
