@@ -1,0 +1,156 @@
+=====================================================================
+TIME END 2015-10-25 13:42:14
+
+=====================================================================
+TEST RESULT SUMMARY
+---------------------------------------------------------------------
+Exts skipped    :   25
+Exts tested     :   55
+---------------------------------------------------------------------
+
+Number of tests : 13701             10976
+Tests skipped   : 2725 ( 19.9%) --------
+Tests warned    :    5 (  0.0%) (  0.0%)
+Tests failed    :   63 (  0.5%) (  0.6%)
+Expected fail   :   38 (  0.3%) (  0.3%)
+Tests passed    : 10870 ( 79.3%) ( 99.0%)
+---------------------------------------------------------------------
+Time taken      : 3465 seconds
+=====================================================================
+
+=====================================================================
+EXPECTED FAILED TEST SUMMARY
+---------------------------------------------------------------------
+Test open_basedir configuration [tests/security/open_basedir_linkinfo.phpt]  XFAIL REASON: BUG: open_basedir cannot delete symlink to prohibited file. See also
+bugs 48111 and 52176.
+Inconsistencies when accessing protected members [Zend/tests/access_modifiers_008.phpt]  XFAIL REASON: Discussion: http://marc.info/?l=php-internals&m=120221184420957&w=2
+Inconsistencies when accessing protected members - 2 [Zend/tests/access_modifiers_009.phpt]  XFAIL REASON: Discussion: http://marc.info/?l=php-internals&m=120221184420957&w=2
+Bug #48770 (call_user_func_array() fails to call parent from inheriting class) [Zend/tests/bug48770.phpt]  XFAIL REASON: See Bug #48770
+Bug #48770 (call_user_func_array() fails to call parent from inheriting class) [Zend/tests/bug48770_2.phpt]  XFAIL REASON: See Bug #48770
+Bug #48770 (call_user_func_array() fails to call parent from inheriting class) [Zend/tests/bug48770_3.phpt]  XFAIL REASON: See Bug #48770
+Bug #64896 (Segfault with gc_collect_cycles using unserialize on certain objects) [Zend/tests/bug64896.phpt]  XFAIL REASON: We can not fix this bug without a significant (performace slow down) change to gc
+Initial value of static var in method depends on the include time of the class definition [Zend/tests/method_static_var.phpt]  XFAIL REASON: Maybe not a bug
+DateTime::add() -- fall type2 type3 [ext/date/tests/DateTime_add-fall-type2-type3.phpt]  XFAIL REASON: Various bugs exist
+DateTime::add() -- fall type3 type2 [ext/date/tests/DateTime_add-fall-type3-type2.phpt]  XFAIL REASON: Various bugs exist
+DateTime::add() -- fall type3 type3 [ext/date/tests/DateTime_add-fall-type3-type3.phpt]  XFAIL REASON: Various bugs exist
+DateTime::add() -- spring type2 type3 [ext/date/tests/DateTime_add-spring-type2-type3.phpt]  XFAIL REASON: Various bugs exist
+DateTime::add() -- spring type3 type2 [ext/date/tests/DateTime_add-spring-type3-type2.phpt]  XFAIL REASON: Various bugs exist
+DateTime::add() -- spring type3 type3 [ext/date/tests/DateTime_add-spring-type3-type3.phpt]  XFAIL REASON: Various bugs exist
+DateTime::diff() -- fall type2 type3 [ext/date/tests/DateTime_diff-fall-type2-type3.phpt]  XFAIL REASON: Various bugs exist
+DateTime::diff() -- fall type3 type2 [ext/date/tests/DateTime_diff-fall-type3-type2.phpt]  XFAIL REASON: Various bugs exist
+DateTime::diff() -- fall type3 type3 [ext/date/tests/DateTime_diff-fall-type3-type3.phpt]  XFAIL REASON: Various bugs exist
+DateTime::diff() -- spring type2 type3 [ext/date/tests/DateTime_diff-spring-type2-type3.phpt]  XFAIL REASON: Various bugs exist
+DateTime::diff() -- spring type3 type2 [ext/date/tests/DateTime_diff-spring-type3-type2.phpt]  XFAIL REASON: Various bugs exist
+DateTime::diff() -- spring type3 type3 [ext/date/tests/DateTime_diff-spring-type3-type3.phpt]  XFAIL REASON: Various bugs exist
+DateTime::sub() -- fall type2 type3 [ext/date/tests/DateTime_sub-fall-type2-type3.phpt]  XFAIL REASON: Various bugs exist
+DateTime::sub() -- fall type3 type2 [ext/date/tests/DateTime_sub-fall-type3-type2.phpt]  XFAIL REASON: Various bugs exist
+DateTime::sub() -- fall type3 type3 [ext/date/tests/DateTime_sub-fall-type3-type3.phpt]  XFAIL REASON: Various bugs exist
+DateTime::sub() -- spring type2 type3 [ext/date/tests/DateTime_sub-spring-type2-type3.phpt]  XFAIL REASON: Various bugs exist
+DateTime::sub() -- spring type3 type2 [ext/date/tests/DateTime_sub-spring-type3-type2.phpt]  XFAIL REASON: Various bugs exist
+DateTime::sub() -- spring type3 type3 [ext/date/tests/DateTime_sub-spring-type3-type3.phpt]  XFAIL REASON: Various bugs exist
+RFC: DateTime and Daylight Saving Time Transitions (zone type 3, bd2) [ext/date/tests/rfc-datetime_and_daylight_saving_time-type3-bd2.phpt]  XFAIL REASON: Still not quite right
+RFC: DateTime and Daylight Saving Time Transitions (zone type 3, fs) [ext/date/tests/rfc-datetime_and_daylight_saving_time-type3-fs.phpt]  XFAIL REASON: Still not quite right
+Bug #42718 (unsafe_raw filter not applied when configured as default filter) [ext/filter/tests/bug42718.phpt]  XFAIL REASON: FILTER_UNSAFE_RAW not applied when configured as default filter, even with flags
+Bug #67296 (filter_input doesn't validate variables) [ext/filter/tests/bug49184.phpt]  XFAIL REASON: See Bug #49184
+Bug #53640 (XBM images require width to be multiple of 8) [ext/gd/tests/bug53640.phpt]  XFAIL REASON: Padding is not implemented yet
+zend multibyte (2) [ext/mbstring/tests/zend_multibyte-02.phpt]  XFAIL REASON: https://bugs.php.net/bug.php?id=66582
+zend multibyte (6) [ext/mbstring/tests/zend_multibyte-06.phpt]  XFAIL REASON: https://bugs.php.net/bug.php?id=66582
+zend multibyte (7) [ext/mbstring/tests/zend_multibyte-07.phpt]  XFAIL REASON: https://bugs.php.net/bug.php?id=66582
+zend multibyte (9) [ext/mbstring/tests/zend_multibyte-09.phpt]  XFAIL REASON: https://bugs.php.net/bug.php?id=66582
+Bug #70470 (Built-in server truncates headers spanning over TCP packets) [sapi/cli/tests/bug70470.phpt]  XFAIL REASON: bug is not fixed yet
+FPM: Test various messages on start, from master and childs [sapi/fpm/tests/015.phpt]  XFAIL REASON: randomly intermittently failing all the time in CI,
+ERROR: unable to read what child say: Bad file descriptor (9)
+catch_workers_output = yes seems not reliable
+FPM: Test Unix Domain Socket with Posix ACL [sapi/fpm/tests/021-uds-acl.phpt]  XFAIL REASON: Mark as XFAIL because --with-fpm-acl is not enabled in default build
+=====================================================================
+
+=====================================================================
+FAILED TEST SUMMARY
+---------------------------------------------------------------------
+Bug #53437 DateInterval unserialize bad data, 32 bit [ext/date/tests/bug53437_var3.phpt]
+Bug #54992: Stream not closed and error not returned when SSL CN_match fails [ext/openssl/tests/bug54992.phpt]
+Bug #65729: CN_match gives false positive when wildcard is used [ext/openssl/tests/bug65729.phpt]
+Bug #69215: Crypto servers should send client CA list [ext/openssl/tests/bug69215.phpt]
+capture_peer_cert context captures on verify failure [ext/openssl/tests/capture_peer_cert_001.phpt]
+Testing peer fingerprint on connection [ext/openssl/tests/openssl_peer_fingerprint.phpt]
+Testing openssl_spki_new()
+Tests SPKAC for all available private key sizes & hashing algorithms [ext/openssl/tests/openssl_spki_new.phpt]
+Testing openssl_spki_verify()
+Creates SPKAC for all available key sizes & signature algorithms and tests for valid signature [ext/openssl/tests/openssl_spki_verify.phpt]
+Peer verification enabled for client streams [ext/openssl/tests/peer_verification.phpt]
+Peer verification matches SAN names [ext/openssl/tests/san_peer_matching.phpt]
+Capture SSL session meta array in stream context [ext/openssl/tests/session_meta_capture.phpt]
+sni_server [ext/openssl/tests/sni_server.phpt]
+Basic bitwise stream crypto context flag assignment [ext/openssl/tests/stream_crypto_flags_001.phpt]
+TLSv1.1 and TLSv1.2 bitwise stream crypto flag assignment [ext/openssl/tests/stream_crypto_flags_002.phpt]
+Server bitwise stream crypto flag assignment [ext/openssl/tests/stream_crypto_flags_003.phpt]
+Specific protocol method specification [ext/openssl/tests/stream_crypto_flags_004.phpt]
+Verify host name by default in client transfers [ext/openssl/tests/stream_verify_peer_name_001.phpt]
+Allow host name mismatch when "verify_host" disabled [ext/openssl/tests/stream_verify_peer_name_002.phpt]
+Host name mismatch triggers error [ext/openssl/tests/stream_verify_peer_name_003.phpt]
+tlsv1.0 stream wrapper [ext/openssl/tests/tlsv1.0_wrapper.phpt]
+tlsv1.1 stream wrapper [ext/openssl/tests/tlsv1.1_wrapper.phpt]
+Bug #64124 IPv6 malformed [ext/snmp/tests/bug64124.phpt]
+Bug #64159: Truncated snmpget [ext/snmp/tests/bug64159.phpt]
+IPv6 support [ext/snmp/tests/ipv6.phpt]
+OO API: getErrno & getError methods [ext/snmp/tests/snmp-object-errno-errstr.phpt]
+OO API [ext/snmp/tests/snmp-object.phpt]
+Function snmp2_get [ext/snmp/tests/snmp2_get.phpt]
+Function snmp2_getnext [ext/snmp/tests/snmp2_getnext.phpt]
+Function snmp2_real_walk [ext/snmp/tests/snmp2_real_walk.phpt]
+Function snmp2_set (without MIBs loading) [ext/snmp/tests/snmp2_set-nomib.phpt]
+Function snmp2_set [ext/snmp/tests/snmp2_set.phpt]
+Function snmp2_walk [ext/snmp/tests/snmp2_walk.phpt]
+SNMPv3 Support (errors) [ext/snmp/tests/snmp3-error.phpt]
+SNMPv3 Support [ext/snmp/tests/snmp3.phpt]
+Function snmp_getvalue [ext/snmp/tests/snmp_getvalue.phpt]
+Function snmp_read_mib [ext/snmp/tests/snmp_read_mib.phpt]
+Function snmpget [ext/snmp/tests/snmpget.phpt]
+Function snmpgetnext [ext/snmp/tests/snmpgetnext.phpt]
+Function snmprealwalk [ext/snmp/tests/snmprealwalk.phpt]
+Function snmpset (without MIBs loading) [ext/snmp/tests/snmpset-nomib.phpt]
+Function snmpset [ext/snmp/tests/snmpset.phpt]
+Function snmpwalk [ext/snmp/tests/snmpwalk.phpt]
+Multicast support: IPv4 receive options [ext/sockets/tests/mcast_ipv4_recv.phpt]
+recvmsg(): receive SCM_CREDENTIALS messages [ext/sockets/tests/socket_cmsg_rights.phpt]
+socket_import_stream: Test with multicasting [ext/sockets/tests/socket_import_stream-3.phpt]
+Bug #64146 (serialize incorrectly saving objects when they are cloned) [ext/standard/tests/serialize/bug64146.phpt]
+FPM: Startup and connect [sapi/fpm/tests/002.phpt]
+FPM: Test IPv6 support [sapi/fpm/tests/003.phpt]
+FPM: Test IPv4/IPv6 support [sapi/fpm/tests/004.phpt]
+FPM: Test IPv4 allowed clients [sapi/fpm/tests/005.phpt]
+FPM: Test IPv6 allowed clients (bug #68428) [sapi/fpm/tests/006.phpt]
+FPM: Test IPv6 all addresses and access_log (bug #68421) [sapi/fpm/tests/007.phpt]
+FPM: Test multi pool (dynamic + ondemand + static) (bug #68423) [sapi/fpm/tests/008.phpt]
+FPM: Test Unix Domain Socket [sapi/fpm/tests/009.phpt]
+FPM: Test status page [sapi/fpm/tests/010.phpt]
+FPM: Test IPv4 all addresses (bug #68420) [sapi/fpm/tests/011.phpt]
+FPM: Test reload configuration (bug #68442) [sapi/fpm/tests/012.phpt]
+FPM: Test for log_level in fpm_unix_init_main #68381 [sapi/fpm/tests/013.phpt]
+FPM: Test for pm.start_servers default calculation message being a notice and not a warning #68458 [sapi/fpm/tests/014.phpt]
+FPM: Test splited configuration and load order #68391 [sapi/fpm/tests/016.phpt]
+FPM: Test fastcgi_finish_request function [sapi/fpm/tests/017.phpt]
+FPM: Test global prefix [sapi/fpm/tests/019.phpt]
+FPM: Test pool prefix [sapi/fpm/tests/020.phpt]
+=====================================================================
+
+=====================================================================
+WARNED TEST SUMMARY
+---------------------------------------------------------------------
+zend multibyte (8) [ext/mbstring/tests/zend_multibyte-08.phpt] (warn: XFAIL section but test passes)
+zend multibyte (10) [ext/mbstring/tests/zend_multibyte-10.phpt] (warn: XFAIL section but test passes)
+zend multibyte (11) [ext/mbstring/tests/zend_multibyte-11.phpt] (warn: XFAIL section but test passes)
+Phar: bug #69958: Segfault in Phar::convertToData on invalid file [ext/phar/tests/bug69958.phpt] (warn: XFAIL section but test passes)
+Bug #70172 - Use After Free Vulnerability in unserialize() [ext/standard/tests/serialize/bug70172.phpt] (warn: XFAIL section but test passes)
+=====================================================================
+
+You may have found a problem in PHP.
+This report can be automatically sent to the PHP QA team at
+http://qa.php.net/reports and http://news.php.net/php.qa.reports
+This gives us a better understanding of PHP's behavior.
+If you don't want to send the report immediately you can choose
+option "s" to save it.	You can then email it to qa-reports@lists.php.net later.
+Do you want to send this report now? [Yns]: s
+Please send /usr/local/src/php-5.6.14/php_test_results_20151025_1244.txt to qa-reports@lists.php.net manually, thank you.
+root@rose01:/usr/local/src/php-5.6.14# 
+

@@ -1,6 +1,8 @@
 7.zabbix
 
 =========================================================================================================================
+7.1 安裝zabbix_server與zabbix_agentd與Frontend
+=========================================================================================================================
 
 參考資料
 https://www.zabbix.com/documentation/2.4/start
@@ -204,5 +206,141 @@ Congratulations on successful installation of Zabbix frontend.
 When done, press the "Finish" button
 按下[ Finish ]完成
 然後來到了登入畫面，請用帳號Admin密碼zabbix登入
+
+登入後請到Configuration > Hosts 找到Zabbix server
+右邊的Status是 [ Disabled ] 按下將它切換成 [ Enabled ]
+
+=========================================================================================================================
+在筆記型電腦上安裝snmpd，並設定為開機後自動執行的服務
+=========================================================================================================================
+安裝snmpd的指令
+# apt-get install snmpd
+
+安裝好之後已經自動執行過update-rc.d指令
+# update-rc.d snmpd defaults
+
+查看snmpd運行狀態
+# netstat -anp|grep snmpd
+
+終端機回應
+udp        0      0 127.0.0.1:161           0.0.0.0:*                           3625/snmpd      
+udp        0      0 0.0.0.0:43136           0.0.0.0:*                           3625/snmpd  
+(略去部分輸出...)
+
+我希望snmpd可以是運行於0.0.0.0:161，所以我要更改設定檔
+# cp /etc/snmp/snmpd.conf /etc/snmp/snmpd.conf.default
+# vi /etc/snmp/snmpd.conf
+
+修改這一行
+agentAddress  udp:127.0.0.1:161
+改成這樣
+agentAddress  udp:0.0.0.0:161
+
+重新啟動服務
+# service snmpd status
+# service snmpd restart
+# service snmpd status
+
+查看snmpd服務運行狀態
+# netstat -anp|grep snmpd
+
+如果看到有這樣一行，就是成功了
+udp        0      0 0.0.0.0:161             0.0.0.0:*                           3934/snmpd
+
+順便一提，snmp的agent是「服務器」是「Server」的意思
+但是在zabbix裡面agentd不是「服務器」，是用來裝在被監控主機上的軟件
+
+=========================================================================================================================
+7.2 (Zabbix)加入一個host
+=========================================================================================================================
+修改/usr/local/zabbix/etc/zabbix_agentd.conf
+
+更改Server參數如下
+Server=127.0.0.1
+
+如果Hostname還有ServerActive參數有啟用，在前面加上#把它們註解掉(Active Agent才使用這兩個參數)
+#Hostname=localhost
+#ServerActive=127.0.0.1
+
+然後重新啟動zabbix_agentd
+# service zabbix_agentd restart
+
+新增host
+Configuration > Hosts > [Create host]
+填入的資料
+Host name : localhost
+Groups : (In groups) : Linux servers
+按下網頁最下方的[Add]新增此host
+
+為這個新增的host加入templates
+Configuration > Hosts > (剛才新增的)localhost > Templates > Select
+我加入的Template有
+Template App HTTP Service	  
+Template App HTTPS Service	  
+Template App MySQL	  
+Template App SSH Service	  
+Template ICMP Ping	  
+Template OS Linux
+按[Add]再按[Update]
+
+=========================================================================================================================
+7.3 安裝zabbix_agentd於Linux Mint 17.1的筆記型電腦(10.1.1.90)
+=========================================================================================================================
+
+安裝依賴套件
+# apt-get update
+# apt-get install libcurl3 libsnmp-dev fping libgdbm-dev libiksemel-dev libiksemel-utils 
+# apt-get install libiksemel3 libopenipmi-dev libopenipmi0 libssh2-1 libssh2-1-dev
+
+新增zabbix用戶與群組
+# groupadd -g 600 zabbix
+# useradd -d /home/zabbix -g zabbix -s /bin/false -u 600 zabbix
+# id zabbix
+
+下載zabbix source的zabbix-2.4.6.tar.gz放到/usr/local/src目錄
+解壓縮、configure之後make install
+# cd /usr/local/src
+# tar -zxvf ./zabbix-2.4.6.tar.gz
+# cd zabbix-2.4.6/
+# ./configure --help
+# ./configure --prefix=/usr/local/zabbix-2.4.6 --enable-agent
+# make install
+# chown -R root:root /usr/local/zabbix-2.4.6
+# ln -s /usr/local/zabbix-2.4.6 /usr/local/zabbix
+
+修改zabbix_agentd.conf
+# cd /usr/local/zabbix/etc/
+# cp ./zabbix_agentd.conf ./zabbix_agentd.conf.default
+# vi ./zabbix_agentd.conf
+
+有更動的三個參數和值如下
+Server=10.1.1.170
+ServerActive=10.1.1.170
+Hostname=LenovoB590
+
+產生init script
+# cd /etc/init.d
+# touch ./zabbix_agentd
+# chmod 755 ./zabbix_agentd
+
+內容一樣是
+https://github.com/annbigbig/rose_memo/tree/master/conf/zabbix-2.4.6/etc/init.d/zabbix_agentd
+
+手動啟動zabbix_agentd
+# service zabbix_agentd start
+
+查看zabbix_agentd運行狀態
+# netstat -anp|grep zabbix
+
+看到終端機有這個回應就成功了
+tcp        0      0 0.0.0.0:10050           0.0.0.0:*               LISTEN      25088/zabbix_agentd
+
+然後將zabbix_agentd設定為開機後自動啟動的服務
+# update-rc.d zabbix_agentd defaults
+
+接下來你該登入Zabbix的Frontend，加入這台host (剛才安裝zabbix_agentd的Linux Mint 17.1筆記型電腦)
+Configuration > Hosts > [Create host] …和先前一樣的步驟，不再重複
+
+=========================================================================================================================
 
 

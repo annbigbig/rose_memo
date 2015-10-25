@@ -1,0 +1,32 @@
+configure: Configured to build curl/libcurl:
+
+  curl version:     7.46.0-DEV
+  Host setup:       armv7l-unknown-linux-gnueabihf
+  Install prefix:   /usr/local/curl-7.46.0-dev
+  Compiler:         gcc
+  SSL support:      enabled (OpenSSL)
+  SSH support:      enabled (libSSH2)
+  zlib support:     enabled
+  GSS-API support:  no      (--with-gssapi)
+  TLS-SRP support:  enabled
+  resolver:         default (--enable-ares / --enable-threaded-resolver)
+  IPv6 support:     enabled
+  Unix sockets support: enabled
+  IDN support:      enabled
+  Build libcurl:    Shared=yes, Static=yes
+  Built-in manual:  enabled
+  --libcurl option: enabled (--disable-libcurl-option)
+  Verbose errors:   enabled (--disable-verbose)
+  SSPI support:     no      (--enable-sspi)
+  ca cert bundle:   /etc/ssl/certs/ca-certificates.crt
+  ca cert path:     no
+  LDAP support:     enabled (OpenLDAP)
+  LDAPS support:    enabled
+  RTSP support:     enabled
+  RTMP support:     enabled (librtmp)
+  metalink support: no      (--with-libmetalink)
+  PSL support:      no      (libpsl not found)
+  HTTP2 support:    disabled (--with-nghttp2)
+  Protocols:        DICT FILE FTP FTPS GOPHER HTTP HTTPS IMAP IMAPS LDAP LDAPS POP3 POP3S RTMP RTSP SCP SFTP SMB SMBS SMTP SMTPS TELNET TFTP
+
+root@rose01:/usr/local/src/curl# make

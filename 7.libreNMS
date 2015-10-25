@@ -1,0 +1,41 @@
+7.LibreNMS
+
+工作列表
+=========================================================================================================================
+7.1 安裝LibreNMS
+=========================================================================================================================
+
+
+
+=========================================================================================================================
+7.1 安裝LibreNMS
+=========================================================================================================================
+建立資料庫librenms及資料庫用戶librenms@localhost
+# mysql -h localhost --port 3306 -u root -p
+> create database librenms;
+> create user 'librenms'@'localhost' identified by 'librenmspassword';
+> grant all on librenms.* to 'librenms'@'localhost';
+> flush privileges;
+> show grants for 'librenms'@'localhost';
+> quit
+
+安裝依賴套件
+# apt-get update
+# apt-get install snmp graphviz fping imagemagick whois mtr-tiny nmap python-mysqldb snmpd rrdtool
+
+修改/etc/snmp/snmpd.conf
+修改之前先備份一下原檔
+# cp /etc/snmp/snmpd.conf /etc/snmp/snmpd.conf.default
+# vi /etc/snmp/snmpd.conf
+
+我把這一行加在第50行的地方
+rocommunity public  127.0.0.1
+
+然後重新啟動snmpd服務，剛才的設定就生效了
+# service snmpd restart
+
+無需再將snmpd設成開機自動啟動的服務，剛才安裝的時候系統已經替你這麼作了
+(待續...)
+
+
+

@@ -1,0 +1,53 @@
+=========================================================================================================================
+新增zabbix用戶
+=========================================================================================================================
+
+登入Zabbix Frontend之後，在Administration > Users
+右邊有一個User groups把它切換成Users
+按下右邊的按鈕 [ Create user ]
+填入此頁的新用戶資料
+Alias : grayhame
+Name : gandalf
+Surname : Admin
+Groups : zabbix adminstrators
+Password : xxxxxx
+Password (once again) : xxxxxx
+Language : English (en GB)
+Theme : system default
+Refresh (in seconds) : 30
+Rows per page : 50
+
+為新用戶grayhame新增Media，按下Media那個TAB再按下Add，填入
+Type : Email
+Send to : annbigbig@gmail.com
+When active : 1-7,00:00-24:00
+Use if severity : 有6個全都打勾
+Status : Enabled
+按下[ Add ]
+
+再按下 [ Add ]新增用戶
+這樣子新增用戶之後，登入帳號是grayhame密碼是xxxxxx
+
+為新用戶grayhame增加權限
+在Administration > Users > Zabbix administrators > Permissions
+在Composing permissions > Read Only > Add
+勾選Linux Servers然後按[ Select ]再[ Update ]
+
+=========================================================================================================================
+新增host (Zabbix要監視的主機)
+=========================================================================================================================
+Configuration > Hosts 可以看到預設已經有一台主機叫Zabbix server了
+再新增一台主機，按下右邊的[ Create host ]
+填入
+Host name : My Local Host
+Groups : 我選了Linux servers
+IP address : 127.0.0.1
+Port : 10050
+按下[ Add ]新增主機
+
+=========================================================================================================================
+新增Item
+=========================================================================================================================
+Configuration > Hosts > My Local Host (剛才建立的主機) > Items (0) > Create Item
+
+

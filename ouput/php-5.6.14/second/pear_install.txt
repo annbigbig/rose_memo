@@ -1,0 +1,80 @@
+root@rose01:/usr/local/php-5.6.14# cd /tmp
+root@rose01:/tmp# wget http://pear.php.net/go-pear.phar
+--2015-10-25 21:55:30--  http://pear.php.net/go-pear.phar
+正在查找主機 pear.php.net (pear.php.net)... 5.77.39.20
+正在連接 pear.php.net (pear.php.net)|5.77.39.20|:80... 連上了。
+已送出 HTTP 要求，正在等候回應... 200 OK
+長度: 3566292 (3.4M) [application/octet-stream]
+Saving to: ‘go-pear.phar’
+
+100%[==========================================================================================================================>] 3,566,292    555KB/s   in 7.6s   
+
+2015-10-25 21:55:39 (457 KB/s) - ‘go-pear.phar’ saved [3566292/3566292]
+
+root@rose01:/tmp# ls -al|grep pear
+-rw-r--r--  1 root    root    3566292 10月 17 19:32 go-pear.phar
+drwxr-xr-x  3 root    root       4096 10月 25 21:50 pear
+root@rose01:/tmp# cd /usr/local/php-5.6.14/bin/
+root@rose01:/usr/local/php-5.6.14/bin# ls
+pear  peardev  pecl  phar  phar.phar  php  php-cgi  php-config  phpize
+root@rose01:/usr/local/php-5.6.14/bin# cd -
+/tmp
+root@rose01:/tmp# /usr/local/php-5.6.14/bin/php /tmp/go-pear.phar
+
+Below is a suggested file layout for your new PEAR installation.  To
+change individual locations, type the number in front of the
+directory.  Type 'all' to change all of them or simply press Enter to
+accept these locations.
+
+ 1. Installation base ($prefix)                   : /usr/local/php-5.6.14
+ 2. Temporary directory for processing            : /tmp/pear/install
+ 3. Temporary directory for downloads             : /tmp/pear/install
+ 4. Binaries directory                            : /usr/local/php-5.6.14/bin
+ 5. PHP code directory ($php_dir)                 : /usr/local/php-5.6.14/lib/php
+ 6. Documentation directory                       : /usr/local/php-5.6.14/docs
+ 7. Data directory                                : /usr/local/php-5.6.14/data
+ 8. User-modifiable configuration files directory : /usr/local/php-5.6.14/cfg
+ 9. Public Web Files directory                    : /usr/local/php-5.6.14/www
+10. System manual pages directory                 : /usr/local/php-5.6.14/man
+11. Tests directory                               : /usr/local/php-5.6.14/tests
+12. Name of configuration file                    : /usr/local/php-5.6.14/etc/pear.conf
+
+1-12, 'all' or Enter to continue: 
+Beginning install...
+Configuration written to /usr/local/php-5.6.14/etc/pear.conf...
+Initialized registry...
+Preparing to install...
+installing phar:///tmp/go-pear.phar/PEAR/go-pear-tarballs/Archive_Tar-1.4.0.tar...
+installing phar:///tmp/go-pear.phar/PEAR/go-pear-tarballs/Console_Getopt-1.4.1.tar...
+installing phar:///tmp/go-pear.phar/PEAR/go-pear-tarballs/PEAR-1.10.1.tar...
+installing phar:///tmp/go-pear.phar/PEAR/go-pear-tarballs/Structures_Graph-1.1.1.tar...
+installing phar:///tmp/go-pear.phar/PEAR/go-pear-tarballs/XML_Util-1.3.0.tar...
+install ok: channel://pear.php.net/Archive_Tar-1.4.0
+install ok: channel://pear.php.net/Console_Getopt-1.4.1
+install ok: channel://pear.php.net/Structures_Graph-1.1.1
+install ok: channel://pear.php.net/XML_Util-1.3.0
+install ok: channel://pear.php.net/PEAR-1.10.1
+PEAR: Optional feature webinstaller available (PEAR's web-based installer)
+PEAR: Optional feature gtkinstaller available (PEAR's PHP-GTK-based installer)
+PEAR: Optional feature gtk2installer available (PEAR's PHP-GTK2-based installer)
+PEAR: To install optional features use "pear install pear/PEAR#featurename"
+
+** WARNING! Old version found at /usr/local/php-5.6.14/bin, please remove it or be sure to use the new /usr/local/php-5.6.14/bin/pear command
+
+The 'pear' command is now at your service at /usr/local/php-5.6.14/bin/pear
+
+** The 'pear' command is not currently in your PATH, so you need to
+** use '/usr/local/php-5.6.14/bin/pear' until you have added
+** '/usr/local/php-5.6.14/bin' to your PATH environment variable.
+
+Run it without parameters to see the available actions, try 'pear list'
+to see what packages are installed, or 'pear help' for help.
+
+For more information about PEAR, see:
+
+  http://pear.php.net/faq.php
+  http://pear.php.net/manual/
+
+Thanks for using go-pear!
+
+root@rose01:/tmp# 

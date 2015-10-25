@@ -1,0 +1,7 @@
+TESTDONE: 774 tests out of 775 reported OK: 99%
+TESTFAIL: These test cases failed: 1026 
+TESTDONE: 996 tests were considered during 455 seconds.
+make[1]: *** [quiet-test] Error 1
+make[1]: Leaving directory `/usr/local/src/curl/tests'
+make: *** [test] Error 2
+root@rose01:/usr/local/src/curl# 

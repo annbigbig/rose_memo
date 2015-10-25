@@ -198,6 +198,7 @@ http://www.linuxfromscratch.org/blfs/view/svn/general/php.html
 # apt-get install libXpm-dev libfreetype6-dev libt1-dev libgmp3-dev libc-client2007e-dev libldap2-dev libmcrypt-dev libmhash-dev
 # apt-get install freetds-dev zlib1g-dev libmysqlclient-dev libncurses5-dev libpcre3-dev unixODBC-dev 
 # apt-get install libsqlite0-dev libaspell-dev libreadline6-dev librecode-dev libsnmp-dev libtidy-dev libxslt1-dev libt1-dev
+# apt-get install snmp
 
 下載需要的tar.gz並解開它們
 剛才安裝Nginx服務器的時候，openssl和zlib已經下載過了就不用再下載
@@ -264,6 +265,36 @@ http://www.linuxfromscratch.org/blfs/view/svn/general/php.html
 # make install
 # ln -s /usr/local/freetype-2.6.1 /usr/local/freetype
 
+編譯curl並安裝
+# cd /usr/local/src
+# git clone https://github.com/bagder/curl
+
+安裝說明請看這裡
+https://github.com/bagder/curl/blob/master/GIT-INFO
+
+安裝依賴套件
+# apt-get update
+# apt-get install autoconf automake libtool m4
+
+說明裡有一段話
+If you don't have nroff and perl and you for some reason don't want to
+   install them, you can rename the source file src/tool_hugehelp.c.cvs to
+   src/tool_hugehelp.c and avoid having to generate this file. This will
+   give you a stubbed version of the file that doesn't contain actual content.
+
+照作
+# cd ./curl/src/
+# mv ./tool_hugehelp.c.cvs ./tool_hugehelp.c
+
+開始編譯，然後安裝
+# cd /usr/local/src/curl
+# ./buildconf
+# ./configure --prefix=/usr/local/curl-7.46.0-dev --with-ssl
+# make
+# make test
+# make install
+# ln -s /usr/local/curl-7.46.0-dev /usr/local/curl
+
 重要的連結檔gmp.h
 # ln -s /usr/include/arm-linux-gnueabihf/gmp.h /usr/include/gmp.h
 
@@ -292,7 +323,8 @@ http://www.linuxfromscratch.org/blfs/view/svn/general/php.html
 > --with-gettext --enable-mbstring \ 
 > --with-zlib --with-zlib-dir=/usr/local/zlib-1.2.8 \ 
 > --with-bz2 --enable-zip --enable-exif --with-gd \
-> --with-jpeg-dir=/usr/local/libjpeg-9a --with-freetype-dir=/usr/local/freetype-2.6.1
+> --with-jpeg-dir=/usr/local/libjpeg-9a --with-freetype-dir=/usr/local/freetype-2.6.1 \
+> --with-snmp --with-curl=/usr/local/curl-7.46.0-dev
 # make
 
 
@@ -321,6 +353,11 @@ http://www.5ienet.com/note/html/stlamp6/index.shtml
 
 接下來會進入一個交談式的介面，按下Enter一次，完成pear的安裝
 (輸出訊息略)
+
+安裝Net_IPv4和Net_IPv6
+# cd /usr/local/php-5.6.14/bin/
+# ./pear install Net_IPv4
+# ./pear install Net_IPv6
 
 建立Symbolic Link
 複製設定檔到正確的路徑
