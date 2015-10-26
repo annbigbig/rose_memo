@@ -1,0 +1,102 @@
+root@rose01:/usr/local/nginx/librenms/logs# cd ..
+root@rose01:/usr/local/nginx/librenms# cd /root
+root@rose01:~# /usr/local/php/bin/ph
+phar        phar.phar   php         php-cgi     php-config  phpize      
+root@rose01:~# /usr/local/php/bin/php /usr/local/nginx/librenms/addhost.php localhost public v2c
+Trying community public ...
+Trying community public ...
+
+LibreNMS 2015.master Add Host Tool
+
+    Usage (SNMPv1/2c): ./addhost.php [-g <poller group>] [-f] <hostname> [community] [v1|v2c] [port] [udp|udp6|tcp|tcp6]
+    Usage (SNMPv3)   :  Config Defaults : ./addhost.php [-g <poller group>] [-f]<hostname> any v3 [user] [port] [udp|udp6|tcp|tcp6]
+    No Auth, No Priv : ./addhost.php [-g <poller group>] [-f]<hostname> nanp v3 [user] [port] [udp|udp6|tcp|tcp6]
+       Auth, No Priv : ./addhost.php [-g <poller group>] [-f]<hostname> anp v3 <user> <password> [md5|sha] [port] [udp|udp6|tcp|tcp6]
+       Auth,    Priv : ./addhost.php [-g <poller group>] [-f]<hostname> ap v3 <user> <password> <enckey> [md5|sha] [aes|dsa] [port] [udp|udp6|tcp|tcp6]
+
+        -g <poller group> allows you to add a device to be pinned to a specific poller when using distributed polling. X can be any number associated with a poller group
+        -f forces the device to be added by skipping the icmp and snmp check against the host.
+
+    Remember to run discovery for the host afterwards.
+root@rose01:~# /usr/local/php/bin/php /usr/local/nginx/librenms/discovery.php -h all
+LibreNMS 2015.master Discovery
+commit d7357b99e91e8d6f03c93ebbe5b392a2ecb8ab99
+
+-- Updating database schema
+000 -> 001 ... done.
+001 -> 002 ... done.
+002 -> 003 ... done.
+003 -> 004 ... done.
+004 -> 005 ... done.
+005 -> 006 ... done (0 errors).
+006 -> 007 ... done (0 errors).
+007 -> 008 ... done (0 errors).
+008 -> 009 ... done (0 errors).
+009 -> 010 ... done (0 errors).
+010 -> 011 ... done (0 errors).
+011 -> 012 ... done (0 errors).
+012 -> 013 ... done (0 errors).
+013 -> 014 ... done (0 errors).
+014 -> 015 ... done (0 errors).
+015 -> 016 ... done (0 errors).
+016 -> 017 ... done (0 errors).
+017 -> 018 ... done (0 errors).
+018 -> 019 ... done (0 errors).
+019 -> 020 ... done (0 errors).
+020 -> 021 ... done (0 errors).
+021 -> 022 ... done (0 errors).
+022 -> 023 ... done (0 errors).
+023 -> 024 ... done (0 errors).
+024 -> 025 ... done (0 errors).
+025 -> 026 ... done (0 errors).
+026 -> 027 ... done (0 errors).
+027 -> 028 ... done (0 errors).
+028 -> 029 ... done (0 errors).
+029 -> 030 ... done (0 errors).
+030 -> 031 ... done (0 errors).
+031 -> 032 ... done (0 errors).
+032 -> 033 ... done (0 errors).
+033 -> 034 ... done (0 errors).
+034 -> 035 ... done (0 errors).
+035 -> 036 ... done (0 errors).
+036 -> 037 ... done (0 errors).
+037 -> 038 ... done (0 errors).
+038 -> 039 ... done (0 errors).
+039 -> 040 ... done (0 errors).
+040 -> 041 ... done (0 errors).
+041 -> 042 ... done (0 errors).
+042 -> 043 ... done (0 errors).
+043 -> 044 ... done (0 errors).
+044 -> 045 ... done (0 errors).
+045 -> 046 ... done (0 errors).
+046 -> 047 ... done (0 errors).
+047 -> 048 ... done (0 errors).
+048 -> 049 ... done (0 errors).
+049 -> 050 ... done (0 errors).
+050 -> 051 ... done (0 errors).
+051 -> 052 ... done (0 errors).
+052 -> 053 ... done (0 errors).
+053 -> 054 ... done (0 errors).
+054 -> 055 ... done (0 errors).
+055 -> 056 ... done (0 errors).
+056 -> 057 ... done (0 errors).
+057 -> 058 ... done (0 errors).
+058 -> 059 ... done (0 errors).
+059 -> 060 ... done (0 errors).
+060 -> 061 ... done (0 errors).
+061 -> 062 ... done (0 errors).
+062 -> 063 ... done (0 errors).
+063 -> 064 ... done (0 errors).
+064 -> 065 ... done (0 errors).
+065 -> 066 ... done (0 errors).
+066 -> 067 ... done (0 errors).
+067 -> 068 ... done (0 errors).
+068 -> 069 ... done (0 errors).
+069 -> 070 ... done (0 errors).
+070 -> 071 ... done (0 errors).
+071 -> 072 ... done (0 errors).
+072 -> 073 ... done (0 errors).
+073 -> 074 ... done (0 errors).
+-- Done
+MySQL: Cell[2/0.09s] Row[1/0.01s] Rows[2/0.01s] Column[0/0s] Update[0/0s] Insert[74/9.24s] Delete[0/0s]
+root@rose01:~# 

@@ -1,0 +1,8 @@
+# Using this cron file requires an additional user on your system, please see install docs.
+
+33  */6   * * *   librenms    /usr/local/nginx/librenms/discovery.php -h all >> /dev/null 2>&1
+*/5  *    * * *   librenms    /usr/local/nginx/librenms/discovery.php -h new >> /dev/null 2>&1
+*/5  *    * * *   librenms    /usr/local/nginx/librenms/cronic /usr/local/nginx/librenms/poller-wrapper.py 16
+15   0    * * *   librenms    /usr/local/nginx/librenms/daily.sh >> /dev/null 2>&1
+*    *    * * *   librenms    /usr/local/nginx/librenms/alerts.php >> /dev/null 2>&1
+*/5  *    * * *   librenms    /usr/local/nginx/librenms/check-services.php >> /dev/null 2>&1

@@ -13,6 +13,9 @@
 參考資料
 http://docs.librenms.org/Installation/Installation-(Debian-Ubuntu)/
 https://github.com/librenms/librenms/issues/1996
+http://askubuntu.com/questions/164627/nginx-php-fpm-access-denied-error
+http://superuser.com/questions/717863/nginxphp-fpm-setup-why-is-this-configuration-workaround-needed-to-properly-set
+http://unix.stackexchange.com/questions/112023/how-can-i-replace-a-string-in-a-files
 
 建立資料庫librenms及資料庫用戶librenms@localhost
 # mysql -h localhost --port 3306 -u root -p
@@ -88,6 +91,10 @@ $config['db_user'] = 'librenms';
 $config['db_pass'] = 'librenmspassword';
 $config['db_name'] = 'librenms';
 $config['db']['extension'] = 'mysqli';// mysql or mysqli
+$config['install_dir']  = "/usr/local/nginx/librenms";
+$config['update'] = 0;
+$config['temp_dir'] = "/tmp";
+$config['log_dir'] = "/usr/local/nginx/librenms/logs";
 
 初始化資料庫
 # /usr/local/php/bin/php /usr/local/nginx/librenms/build-base.php
@@ -95,4 +102,27 @@ $config['db']['extension'] = 'mysqli';// mysql or mysqli
 建立最高管理者帳號 (帳號admin密碼admin)
 # /usr/local/php/bin/php /usr/local/nginx/librenms/adduser.php admin admin 10 annbigbig@gmail.com
 
+增加主機localhost
+# /usr/local/php/bin/php /usr/local/nginx/librenms/addhost.php localhost public v2c
+# /usr/local/php/bin/php /usr/local/nginx/librenms/discovery.php -h all
 
+排程
+# cd /usr/local/nginx/librenms
+# cp ./librenms.nonroot.cron /etc/cron.d/librenms
+# sed -i -- 's/\/opt/\/usr\/local\/nginx/g' /etc/cron.d/librenms
+
+php的binary必須加到PATH環境變數裡
+# cd /etc/profile.d
+# touch ./php_environments.sh
+# chown root:root ./php_environments.sh
+# chmod 644 ./php_environments.sh
+# echo 'export PATH=$PATH:/usr/local/php/bin' >> ./php_environments.sh
+# source /etc/profile.d/php_environments.sh
+
+你問系統php在哪裡？
+# which php
+
+終端機應該要這樣回答你才對
+/usr/local/php/bin/php
+
+(待續...)
