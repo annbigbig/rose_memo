@@ -10,6 +10,10 @@
 =========================================================================================================================
 7.1 安裝LibreNMS
 =========================================================================================================================
+參考資料
+http://docs.librenms.org/Installation/Installation-(Debian-Ubuntu)/
+https://github.com/librenms/librenms/issues/1996
+
 建立資料庫librenms及資料庫用戶librenms@localhost
 # mysql -h localhost --port 3306 -u root -p
 > create database librenms;
@@ -35,7 +39,60 @@ rocommunity public  127.0.0.1
 # service snmpd restart
 
 無需再將snmpd設成開機自動啟動的服務，剛才安裝的時候系統已經替你這麼作了
-(待續...)
 
+新增librenms用戶及群組，並將www-data用戶加入librenms群組
+# groupadd -g 700 librenms
+# useradd -M -d /usr/local/nginx/librenms -g librenms -s /bin/false -u 700 librenms
+# usermod -a -G librenms www-data
+# id librenms
+# id www-data
+
+透過git clone指令來安裝LibreNMS，我只拉最新的commit，沒有整個repo都拉下來
+# cd /usr/local/nginx
+# git clone --depth 1 https://github.com/librenms/librenms.git librenms
+# cd ./librenms/
+# mkdir rrd logs
+# chown -R librenms:librenms /usr/local/nginx/librenms
+# chown www-data:www-data ./logs
+# chmod -R g+w /usr/local/nginx/librenms
+
+增加一個nginx的VirtualHost設定
+# cd /usr/local/nginx/conf/vhosts
+# touch ./127.0.0.1:7080.conf
+# chown root:www-data ./127.0.0.1\:7080.conf
+# chmod 640 ./127.0.0.1\:7080.conf
+
+設定檔內容請參考這裡
+https://github.com/annbigbig/rose_memo/tree/master/conf/librenms/usr/local/nginx/conf/vhosts/127.0.0.1:7080.conf
+
+重新啟動nginx服務器讓剛才的虛擬主機設定生效
+# service nginx status
+# service nginx restart
+# service nginx status
+
+查看剛才設定的虛擬主機有沒有跑起來？
+# netstat -anp|grep 7080
+
+看到這一行就表示成功了
+tcp        0      0 127.0.0.1:7080          0.0.0.0:*               LISTEN      1954/nginx.conf
+
+複製並設定config.php
+# cd /usr/local/nginx/librenms/
+# cp ./config.php.default ./config.php
+# chown librenms:librenms ./config.php
+# vi ./config.php
+
+需要修改的設定有
+$config['db_host'] = 'localhost';
+$config['db_user'] = 'librenms';
+$config['db_pass'] = 'librenmspassword';
+$config['db_name'] = 'librenms';
+$config['db']['extension'] = 'mysqli';// mysql or mysqli
+
+初始化資料庫
+# /usr/local/php/bin/php /usr/local/nginx/librenms/build-base.php
+
+建立最高管理者帳號 (帳號admin密碼admin)
+# /usr/local/php/bin/php /usr/local/nginx/librenms/adduser.php admin admin 10 annbigbig@gmail.com
 
 
