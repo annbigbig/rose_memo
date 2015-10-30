@@ -1,0 +1,490 @@
+root@rose01:/usr/local/nginx/librenms# 
+root@rose01:/usr/local/nginx/librenms# php ./addhost.php 10.1.1.90 public v2c
+Trying community public ...
+Added device 10.1.1.90 (2)
+root@rose01:/usr/local/nginx/librenms# php ./discovery.php -h 10.1.1.90 -d
+LibreNMS 2015.master Discovery
+commit d7357b99e91e8d6f03c93ebbe5b392a2ecb8ab99
+
+DEBUG!
+
+SQL[SELECT version FROM `dbSchema` ORDER BY version DESC LIMIT 1] 
+SQL[SELECT revision FROM `dbSchema`] DB Schema already up to date.
+
+SQL[SELECT * FROM `devices` WHERE status = 1 AND disabled = 0 AND `hostname` LIKE '10.1.1.90' ORDER BY device_id DESC] 
+SQL[SELECT * FROM devices_attribs WHERE `device_id` = '2'] 10.1.1.90 2 linux  (unix)
+OS: DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpget -v2c -c public -Ovq -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 SNMPv2-MIB::sysDescr.0
+Linux anntony-Lenovo-B590 3.13.0-24-generic #47-Ubuntu SMP Fri May 2 23:30:00 UTC 2014 x86_64
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpget -v2c -c public -Ovqn -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 SNMPv2-MIB::sysObjectID.0
+.1.3.6.1.4.1.8072.3.2.10
+
+| Linux anntony-Lenovo-B590 3.13.0-24-generic #47-Ubuntu SMP Fri May 2 23:30:00 UTC 2014 x86_64 | .1.3.6.1.4.1.8072.3.2.10 | DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpget -v2c -c public -Oqv -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 .1.3.6.1.4.1.39165.1.6.0
+No Such Object available on this agent at this OID
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpget -v2c -c public -Oqv -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 SML-MIB::product-Name.0
+No Such Object available on this agent at this OID
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpget -v2c -c public -Oqv -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 1.3.6.1.4.1.674.10895.3000.1.2.100.1.0
+No Such Object available on this agent at this OID
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpget -v2c -c public -Osqnv -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 ENTITY-MIB::entPhysicalMfgName.1
+No Such Object available on this agent at this OID
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpget -v2c -c public -Oqvn -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 ENTITY-MIB::entPhysicalDescr.1
+No Such Object available on this agent at this OID
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpget -v2c -c public -Osqnv -m NETONIX-SWITCH-MIB -M mibs:mibs/netonix/ udp:10.1.1.90:161 firmwareVersion.0
+No Such Object available on this agent at this OID
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpget -v2c -c public -Osqnv -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 ENTITY-MIB::entPhysicalMfgName.1
+No Such Object available on this agent at this OID
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpget -v2c -c public -Osqnv -m IEEE802dot11-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 dot11manufacturerName.5
+No Such Object available on this agent at this OID
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpget -v2c -c public -Osqnv -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 HOST-RESOURCES-MIB::hrSystemInitialLoadParameters.0
+"BOOT_IMAGE=/boot/vmlinuz-3.13.0-24-generic root=UUID=e4919818-7215-41d0-83ea-9c422321afad ro quiet splash vt.handoff=7
+"
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpget -v2c -c public -OqvU -m CAREL-ug40cdz-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 roomTemp.0
+No Such Object available on this agent at this OID
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m IF-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 ifDescr
+ifDescr = No Such Object available on this agent at this OID
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m IF-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 ifName
+ifName = No more variables left in this MIB View (It is past the end of the MIB tree)
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m IF-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 ifType
+ifType = No Such Object available on this agent at this OID
+
+Array
+(
+)
+
+SQL[SELECT * FROM `ports` WHERE `device_id` = '2'] 
+Port Stack: 
+SQL[SELECT * FROM `ports_stack` WHERE `device_id` = '2'] DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -O QUs -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 ifStackStatus 2>/dev/null
+
+
+Physical Inventory : 
+Caching OIDs: entPhysicalEntryDEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m ENTITY-MIB:CISCO-ENTITY-VENDORTYPE-OID-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 entPhysicalEntry
+entPhysicalEntry = No more variables left in this MIB View (It is past the end of the MIB tree)
+
+ entAliasMappingIdentifierDEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -O QUs -M /usr/local/nginx/librenms/mibs -m ENTITY-MIB:IF-MIB udp:10.1.1.90:161 entAliasMappingIdentifier 2>/dev/null
+entAliasMappingIdentifier = No more variables left in this MIB View (It is past the end of the MIB tree)
+
+
+SQL[SELECT * FROM `entPhysical` WHERE `device_id`  = '2'] 
+Processors : Including: /usr/local/nginx/librenms/includes/discovery/processors/pulse.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/zywall.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/extreme.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/ironware.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/hrdevice.inc.php
+ hrDevice: DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m HOST-RESOURCES-MIB:HOST-RESOURCES-TYPES -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 hrDevice
+hrDevice = No more variables left in this MIB View (It is past the end of the MIB tree)
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m HOST-RESOURCES-MIB:HOST-RESOURCES-TYPES -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 hrProcessorLoad
+hrProcessorLoad = No more variables left in this MIB View (It is past the end of the MIB tree)
+
+Including: /usr/local/nginx/librenms/includes/discovery/processors/watchguard.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/ciscosb.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/junos.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/aos-device.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/junose.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/datacom.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/netscaler.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/powerconnect.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/screenos.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/avaya-ers.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/fortigate.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/ios.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/vrp.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/radlan.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/fiberhome.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/sonicwall.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/processors/procurve.inc.php
+
+SQL[SELECT COUNT(*) FROM `processors` WHERE `device_id` = '2' AND `processor_type` != 'ucd-old'] UCD Old: DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpget -v2c -c public -OvQ -m UCD-SNMP-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 ssCpuSystem.0
+No Such Object available on this agent at this OID
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpget -v2c -c public -OvQ -m UCD-SNMP-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 ssCpuUser.0
+No Such Object available on this agent at this OID
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpget -v2c -c public -OvQ -m UCD-SNMP-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 ssCpuIdle.0
+No Such Object available on this agent at this OID
+
+
+SQL[SELECT * FROM `processors` WHERE `device_id`  = '2'] 
+Memory : Including: /usr/local/nginx/librenms/includes/discovery/mempools/pulse.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/mempools/zywall.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/mempools/extreme.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/mempools/hrstorage.inc.php
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m HOST-RESOURCES-MIB:HOST-RESOURCES-TYPES:NetWare-Host-Ext-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 hrStorageEntry
+hrStorageEntry = No more variables left in this MIB View (It is past the end of the MIB tree)
+
+Including: /usr/local/nginx/librenms/includes/discovery/mempools/cmp.inc.php
+
+SQL[SELECT COUNT(*) FROM `mempools` WHERE `device_id` = '2' AND `mempool_type` = 'cemp'] Including: /usr/local/nginx/librenms/includes/discovery/mempools/junos.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/mempools/aos-device.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/mempools/ironware-dyn.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/mempools/cemp.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/mempools/netscaler.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/mempools/screenos.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/mempools/avaya-ers.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/mempools/fortigate.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/mempools/vrp.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/mempools/fiberhome.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/mempools/powerconnect-cpu.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/mempools/hp-procurve.inc.php
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m NETSWITCH-MIB -M /usr/local/nginx/librenms/mibs:/usr/local/nginx/librenms/mibs/hp udp:10.1.1.90:161 hpLocal
+hpLocalMem = No more variables left in this MIB View (It is past the end of the MIB tree)
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m NETSWITCH-MIB -M /usr/local/nginx/librenms/mibs:/usr/local/nginx/librenms/mibs/hp udp:10.1.1.90:161 hpGlobal
+hpGlobalMem = No more variables left in this MIB View (It is past the end of the MIB tree)
+
+Including: /usr/local/nginx/librenms/includes/discovery/mempools/sonicwall.inc.php
+
+SQL[SELECT * FROM `mempools` WHERE `device_id`  = '2'] 
+IPv4 Addresses : DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -Osq  -m IP-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 ipAdEntIfIndex
+ipAdEntIfIndex No Such Object available on this agent at this OID
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpget -v2c -c public -Oqv -m IP-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 ipAdEntNetMask.
+No Such Object available on this agent at this OID
+
+
+SQL[SELECT COUNT(*) FROM `ports` WHERE device_id = '2' AND `ifIndex` = ''] !
+SQL[SELECT * FROM ipv4_addresses AS A, ports AS I WHERE I.device_id = '2' AND  A.port_id = I.port_id] 
+IPv6 Addresses : DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -Ln -Osq  -m IP-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 ipAddressIfIndex.ipv6
+ipAddressIfIndex.ipv6 No Such Object available on this agent at this OID
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -Ln -Osq -OnU  -m IPV6-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 ipv6AddrPfxLength
+.1.3.6.1.2.1.55.1.8.1.2 No more variables left in this MIB View (It is past the end of the MIB tree)
+
+
+SQL[SELECT * FROM ipv6_addresses AS A, ports AS I WHERE I.device_id = '2' AND  A.port_id = I.port_id] 
+Sensors:  ENTITY-SENSOR: Caching OIDs: entPhySensorTypeDEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m ENTITY-SENSOR-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 entPhySensorType
+entPhySensorType = No more variables left in this MIB View (It is past the end of the MIB tree)
+
+ entPhySensorScaleDEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m ENTITY-SENSOR-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 entPhySensorScale
+entPhySensorScale = No more variables left in this MIB View (It is past the end of the MIB tree)
+
+ entPhySensorPrecisionDEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m ENTITY-SENSOR-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 entPhySensorPrecision
+entPhySensorPrecision = No more variables left in this MIB View (It is past the end of the MIB tree)
+
+ entPhySensorValueDEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m ENTITY-SENSOR-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 entPhySensorValue
+entPhySensorValue = No more variables left in this MIB View (It is past the end of the MIB tree)
+
+
+
+SQL[SELECT attrib_value FROM devices_attribs WHERE `device_id` = '2' AND `attrib_type` = 'ipmi_hostname' ] Temperatures: Including: /usr/local/nginx/librenms/includes/discovery/temperatures/adva.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/ibmnos.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/extreme.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/ironware.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/mgeups.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/junos.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/netbotz.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/sentry3.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/aos-device.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/junose.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/zyxel-ies.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/xups.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/drac.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/ciscowlc.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/ipoman.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/cometsystem-p85xx.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/powerconnect.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/siklu.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/cisco-envmon.inc.php
+
+SQL[SELECT COUNT(*) FROM `sensors` WHERE `device_id` = '2' AND `sensor_class` = 'temperature' AND (`sensor_type` = 'cisco-entity-sensor' OR `sensor_type` = 'entity-sensor')] Including: /usr/local/nginx/librenms/includes/discovery/temperatures/dell.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/netapp.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/avaya-ers.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/mikrotik.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/supermicro.inc.php
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -Osqn  -m SUPERMICRO-HEALTH-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 1.3.6.1.4.1.10876.2.1.1.1.1.3
+.1.3.6.1.4.1.10876.2.1.1.1.1.3 No more variables left in this MIB View (It is past the end of the MIB tree)
+
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/hpilo.inc.php
+HP_ILO DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -Osqn  -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 1.3.6.1.4.1.232.6.2.6.8.1.2.1
+.1.3.6.1.4.1.232.6.2.6.8.1.2.1 No more variables left in this MIB View (It is past the end of the MIB tree)
+
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/pcoweb.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/rfc1628.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/dsm.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/ftos-e-series.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/areca.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/papouch-tme.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/fiberhome.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/equallogic.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/akcp.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/ftos-c-series.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/dnos-ftos-s-series.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/observernms-custom.inc.php
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpwalk -M /usr/local/nginx/librenms/mibs -M /usr/local/nginx/librenms/mibs -m SNMPv2-SMI -Osqn -CI  -v2c -c public udp:10.1.1.90:161 .1.3.6.1.4.1.2021.7891 | sed s/.1.3.6.1.4.1.2021.7891.// | grep '.1.1 ' | grep -v '.101.' | cut -d'.' -f 1
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/apc.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/temperatures/lm-sensors.inc.php
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -Osqn  -m LM-SENSORS-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 lmTempSensorsDevice
+.1.3.6.1.4.1.2021.13.16.2.1.2 No more variables left in this MIB View (It is past the end of the MIB tree)
+
+
+
+SQL[SELECT * FROM sensors AS S, devices AS D WHERE S.sensor_class='temperature' AND S.device_id = D.device_id AND D.device_id = '2' AND S.poller_type = 'snmp'] 
+Humidity : Including: /usr/local/nginx/librenms/includes/discovery/humidity/mgeups.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/humidity/netbotz.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/humidity/sentry3.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/humidity/ipoman.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/humidity/pcoweb.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/humidity/akcp.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/humidity/apc.inc.php
+
+SQL[SELECT * FROM sensors AS S, devices AS D WHERE S.sensor_class='humidity' AND S.device_id = D.device_id AND D.device_id = '2' AND S.poller_type = 'snmp'] 
+Voltages: Including: /usr/local/nginx/librenms/includes/discovery/voltages/mgeups.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/voltages/gamatronicups.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/voltages/sentry3.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/voltages/xups.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/voltages/drac.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/voltages/ipoman.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/voltages/siklu.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/voltages/mikrotik.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/voltages/supermicro.inc.php
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OsqnU  -m SUPERMICRO-HEALTH-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 1.3.6.1.4.1.10876.2.1.1.1.1.3
+.1.3.6.1.4.1.10876.2.1.1.1.1.3 No more variables left in this MIB View (It is past the end of the MIB tree)
+
+
+Including: /usr/local/nginx/librenms/includes/discovery/voltages/rfc1628.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/voltages/dsm.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/voltages/areca.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/voltages/linux.inc.php
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OsqnU  -m LM-SENSORS-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 lmVoltSensorsDevice
+.1.3.6.1.4.1.2021.13.16.4.1.2 No more variables left in this MIB View (It is past the end of the MIB tree)
+
+
+Including: /usr/local/nginx/librenms/includes/discovery/voltages/apc.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/voltages/netvision.inc.php
+
+SQL[SELECT * FROM sensors AS S, devices AS D WHERE S.sensor_class='voltage' AND S.device_id = D.device_id AND D.device_id = '2' AND S.poller_type = 'snmp'] 
+Frequencies: Including: /usr/local/nginx/librenms/includes/discovery/frequencies/mgeups.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/frequencies/raritan.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/frequencies/xups.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/frequencies/ipoman.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/frequencies/rfc1628.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/frequencies/apc.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/frequencies/netvision.inc.php
+
+SQL[SELECT * FROM sensors AS S, devices AS D WHERE S.sensor_class='frequency' AND S.device_id = D.device_id AND D.device_id = '2' AND S.poller_type = 'snmp'] 
+Current: Including: /usr/local/nginx/librenms/includes/discovery/current/mgeups.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/current/gamatronicups.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/current/sentry3.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/current/raritan.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/current/xups.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/current/ipoman.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/current/rfc1628.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/current/apc.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/current/netvision.inc.php
+
+SQL[SELECT * FROM sensors AS S, devices AS D WHERE S.sensor_class='current' AND S.device_id = D.device_id AND D.device_id = '2' AND S.poller_type = 'snmp'] 
+Power: Including: /usr/local/nginx/librenms/includes/discovery/power/extreme.inc.php
+ EXTREME-BASE-MIB Including: /usr/local/nginx/librenms/includes/discovery/power/raritan.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/power/ipoman.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/power/rfc1628.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/power/dsm.inc.php
+
+SQL[SELECT * FROM sensors AS S, devices AS D WHERE S.sensor_class='power' AND S.device_id = D.device_id AND D.device_id = '2' AND S.poller_type = 'snmp'] 
+Fanspeeds : Including: /usr/local/nginx/librenms/includes/discovery/fanspeeds/extreme.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/fanspeeds/drac.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/fanspeeds/dell.inc.php
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OsqnU  -m MIB-Dell-10892 -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 coolingDevicechassisIndex.1
+.1.3.6.1.4.1.674.10892.1.700.12.1.1.1 No more variables left in this MIB View (It is past the end of the MIB tree)
+
+
+Including: /usr/local/nginx/librenms/includes/discovery/fanspeeds/mikrotik.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/fanspeeds/supermicro.inc.php
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OsqnU  -m SUPERMICRO-HEALTH-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 1.3.6.1.4.1.10876.2.1.1.1.1.3
+.1.3.6.1.4.1.10876.2.1.1.1.1.3 No more variables left in this MIB View (It is past the end of the MIB tree)
+
+
+Including: /usr/local/nginx/librenms/includes/discovery/fanspeeds/areca.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/fanspeeds/equallogic.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/fanspeeds/lmsensors.inc.php
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OsqnU  -m LM-SENSORS-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 lmFanSensorsDevice
+.1.3.6.1.4.1.2021.13.16.3.1.2 No more variables left in this MIB View (It is past the end of the MIB tree)
+
+
+
+SQL[SELECT * FROM sensors AS S, devices AS D WHERE S.sensor_class='fanspeed' AND S.device_id = D.device_id AND D.device_id = '2' AND S.poller_type = 'snmp'] 
+Battery Charge: Including: /usr/local/nginx/librenms/includes/discovery/charge/rfc1628.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/charge/dsm.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/charge/apc.inc.php
+
+SQL[SELECT * FROM sensors AS S, devices AS D WHERE S.sensor_class='charge' AND S.device_id = D.device_id AND D.device_id = '2' AND S.poller_type = 'snmp'] 
+Load: Including: /usr/local/nginx/librenms/includes/discovery/load/rfc1628.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/load/dsm.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/load/apc.inc.php
+
+SQL[SELECT * FROM sensors AS S, devices AS D WHERE S.sensor_class='load' AND S.device_id = D.device_id AND D.device_id = '2' AND S.poller_type = 'snmp'] 
+States: Including: /usr/local/nginx/librenms/includes/discovery/states/drac.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/states/dell.inc.php
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -Oesqn  -m StorageManagement-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 virtualDiskNumber
+.1.3.6.1.4.1.674.10893.1.20.140.1.1.1 No more variables left in this MIB View (It is past the end of the MIB tree)
+
+
+Including: /usr/local/nginx/librenms/includes/discovery/states/pcoweb.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/states/rfc1628.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/states/dsm.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/states/equallogic.inc.php
+
+SQL[SELECT * FROM sensors AS S, devices AS D WHERE S.sensor_class='states' AND S.device_id = D.device_id AND D.device_id = '2' AND S.poller_type = 'snmp'] 
+Storage : Including: /usr/local/nginx/librenms/includes/discovery/storage/hrstorage.inc.php
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m HOST-RESOURCES-MIB:HOST-RESOURCES-TYPES:NetWare-Host-Ext-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 hrStorageEntry
+hrStorageEntry = No more variables left in this MIB View (It is past the end of the MIB tree)
+
+Including: /usr/local/nginx/librenms/includes/discovery/storage/netapp-storage.inc.php
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m NETAPP-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 dfEntry
+dfEntry = No more variables left in this MIB View (It is past the end of the MIB tree)
+
+
+SQL[SELECT * FROM `storage` WHERE `device_id`  = '2'] 
+hrDevice : DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m HOST-RESOURCES-MIB:HOST-RESOURCES-TYPES -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 hrDeviceEntry
+hrDeviceEntry = No more variables left in this MIB View (It is past the end of the MIB tree)
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m HOST-RESOURCES-MIB:HOST-RESOURCES-TYPES -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 hrProcessorEntry
+hrProcessorEntry = No more variables left in this MIB View (It is past the end of the MIB tree)
+
+Array
+(
+)
+
+SQL[SELECT * FROM `hrDevice` WHERE `device_id`  = '2'] 
+Discovery protocols: CISCO-CDP-MIB: DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -O QUs -M /usr/local/nginx/librenms/mibs -m CISCO-CDP-MIB udp:10.1.1.90:161 cdpCache 2>/dev/null
+cdpCache = No more variables left in this MIB View (It is past the end of the MIB tree)
+
+Array
+(
+)
+ LLDP-MIB: DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -O QUs -M /usr/local/nginx/librenms/mibs -m LLDP-MIB udp:10.1.1.90:161 lldpRemoteSystemsData
+lldpRemoteSystemsData = No Such Object available on this agent at this OID
+
+lldpRemoteSystemsData = No Such Object available on this agent at this OID || lldpRemoteSystemsData ||  ||  || 
+Array
+(
+)
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m BRIDGE-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 dot1dBasePortIfIndex
+dot1dBasePortIfIndex = No Such Object available on this agent at this OID
+
+Array
+(
+)
+OSPF Discovery: enabled
+
+SQL[SELECT DISTINCT(`ospfNbrIpAddr`),`device_id` FROM `ospf_nbrs` WHERE `device_id`='2'] 
+SQL[SELECT * FROM `links` AS L, `ports` AS I WHERE L.local_port_id = I.port_id AND I.device_id = '2'] 
+ARP Table : DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -Oq  -m IP-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 ipNetToMediaPhysAddress
+IP-MIB::ipNetToMediaPhysAddress No Such Object available on this agent at this OID
+
+
+SQL[SELECT * from ipv4_mac AS M, ports as I WHERE M.port_id = I.port_id and I.device_id = '2'] 
+Module [ discovery-arp ] disabled globally.
+BGP Sessions : DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -Oqvn  -m BGP4-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 .1.3.6.1.2.1.15.2
+No Such Object available on this agent at this OID
+
+No BGP on host
+SQL[SELECT * FROM bgpPeers AS B, devices AS D WHERE B.device_id = D.device_id AND D.device_id = '2'] 
+VLANs:
+
+SQL[SELECT * FROM `vlans` WHERE `device_id` = '2'] Q-BRIDGE-MIB VLANs : DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpget -v2c -c public -Oqv -m Q-BRIDGE-MIB -M /usr/local/nginx/librenms/mibs udp:10.1.1.90:161 dot1qVlanVersionNumber.0
+No Such Object available on this agent at this OID
+
+
+VMware VM: DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -Osqnv  -m +VMWARE-ROOT-MIB:VMWARE-VMINFO-MIB -M +/usr/local/nginx/librenms/mibs/vmware:/usr/local/nginx/librenms/mibs udp:10.1.1.90:161 VMWARE-VMINFO-MIB::vmwVmVMID
+MIB search path: /root/.snmp/mibs:/usr/share/snmp/mibs:/usr/share/snmp/mibs/iana:/usr/share/snmp/mibs/ietf:/usr/share/mibs/site:/usr/share/snmp/mibs:/usr/share/mibs/iana:/usr/share/mibs/ietf:/usr/share/mibs/netsnmp:/usr/local/nginx/librenms/mibs/vmware:/usr/local/nginx/librenms/mibs
+Cannot find module (MTA-MIB): At line 5 in (none)
+Cannot find module (NETWORK-SERVICES-MIB): At line 5 in (none)
+No more variables left in this MIB View (It is past the end of the MIB tree)
+
+DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -Osq  -m +VMWARE-ROOT-MIB:VMWARE-VMINFO-MIB -M +/usr/local/nginx/librenms/mibs/vmware:/usr/local/nginx/librenms/mibs udp:10.1.1.90:161 vmwVmUUID
+MIB search path: /root/.snmp/mibs:/usr/share/snmp/mibs:/usr/share/snmp/mibs/iana:/usr/share/snmp/mibs/ietf:/usr/share/mibs/site:/usr/share/snmp/mibs:/usr/share/mibs/iana:/usr/share/mibs/ietf:/usr/share/mibs/netsnmp:/usr/local/nginx/librenms/mibs/vmware:/usr/local/nginx/librenms/mibs
+Cannot find module (MTA-MIB): At line 0 in (none)
+Cannot find module (NETWORK-SERVICES-MIB): At line 0 in (none)
+vmwVmUUID No more variables left in this MIB View (It is past the end of the MIB tree)
+
+
+SQL[SELECT id, vmwVmVMID, vmwVmDisplayName FROM vminfo WHERE device_id = '2' AND vm_type='vmware'] 
+UCD Disk IO : DEBUG: SNMP Auth options =  -v2c -c public
+/usr/bin/snmpbulkwalk -v2c -c public -OQUs  -m UCD-DISKIO-MIB -M +/usr/local/nginx/librenms/mibs/ udp:10.1.1.90:161 diskIOEntry
+diskIOEntry = No more variables left in this MIB View (It is past the end of the MIB tree)
+
+Array
+(
+)
+
+SQL[SELECT * FROM `ucd_diskio` where `device_id`  = '2'] 
+Battery Charge: Including: /usr/local/nginx/librenms/includes/discovery/charge/rfc1628.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/charge/dsm.inc.php
+Including: /usr/local/nginx/librenms/includes/discovery/charge/apc.inc.php
+
+SQL[SELECT * FROM sensors AS S, devices AS D WHERE S.sensor_class='charge' AND S.device_id = D.device_id AND D.device_id = '2' AND S.poller_type = 'snmp'] 
+
+SQL[UPDATE `devices` set `last_discovered` =NOW(),`type` ='server',`last_discovered_timetaken` ='5.160' WHERE `device_id` = '2'] Discovered in 5.160 seconds
+
+
+SQL[INSERT INTO `perf_times` (`type`,`doing`,`start`,`duration`,`devices`)  VALUES ('discover','10.1.1.90','1445929971.2115','5.559','1')] ./discovery.php 10.1.1.90 2015-10-27 15:12:56 - 1 devices discovered in 5.559 secs
+MySQL: Cell[1/0s] Row[6/0.04s] Rows[28/0.13s] Column[0/0s] Update[1/0.19s] Insert[1/0.16s] Delete[0/0s]
+root@rose01:/usr/local/nginx/librenms# 

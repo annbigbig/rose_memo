@@ -1,0 +1,33 @@
+root@rose01:/usr/local/zabbix/etc# apt-get install ipmitool openipmi
+正在讀取套件清單... 完成
+正在重建相依關係          
+正在讀取狀態資料... 完成
+下列【新】套件將會被安裝：
+  ipmitool openipmi
+升級 0 個，新安裝 2 個，移除 0 個，有 2 個未被升級。
+需要下載 581 kB 的套件檔。
+此操作完成之後，會多佔用 1,325 kB 的磁碟空間。
+下載:1 http://ports.ubuntu.com/ubuntu-ports/ trusty/universe ipmitool armhf 1.8.13-1 [471 kB]
+下載:2 http://ports.ubuntu.com/ubuntu-ports/ trusty/main openipmi armhf 2.0.18-0ubuntu7 [110 kB]                                                                     
+取得 581 kB 用了 8秒 (66.5 kB/s)                                                                                                                                     
+選取了原先未選的套件 ipmitool。
+（讀取資料庫 ... 目前共安裝了 61869 個檔案和目錄。）
+準備解開 .../ipmitool_1.8.13-1_armhf.deb ...
+解開 ipmitool (1.8.13-1) 中...
+選取了原先未選的套件 openipmi。
+準備解開 .../openipmi_2.0.18-0ubuntu7_armhf.deb ...
+解開 openipmi (2.0.18-0ubuntu7) 中...
+Processing triggers for man-db (2.6.7.1-1) ...
+Processing triggers for ureadahead (0.100.0-16) ...
+設定 ipmitool (1.8.13-1) ...
+ * Starting IPMI event daemon                                                                                                                                         Could not open device at /dev/ipmi0 or /dev/ipmi/0 or /dev/ipmidev/0: No such file or directory
+Could not open device at /dev/ipmi0 or /dev/ipmi/0 or /dev/ipmidev/0: No such file or directory
+ipmievd: using pidfile /var/run/ipmievd.pid0
+Could not open device at /dev/ipmi0 or /dev/ipmi/0 or /dev/ipmidev/0: No such file or directory
+Unable to open interface
+                                                                                                                                                               [fail]
+invoke-rc.d: initscript ipmievd, action "start" failed.
+Unable to start ipmievd during installation.  Trying to disable.
+設定 openipmi (2.0.18-0ubuntu7) ...
+Processing triggers for ureadahead (0.100.0-16) ...
+root@rose01:/usr/local/zabbix/etc#

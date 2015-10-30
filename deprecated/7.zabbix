@@ -44,7 +44,7 @@ gd、bcmath、ctype、libXML、xmlreader、xmlwriter、session、sockets、mbstr
 # chown -R root:root ./zabbix-2.4.6
 # cd ./zabbix-2.4.6
 # ./configure --help
-# ./configure --prefix=/usr/local/zabbix-2.4.6 --enable-server --enable-agent --with-mysql --enable-ipv6 --with-net-snmp --with-libcurl --with-libxml2
+# ./configure --prefix=/usr/local/zabbix-2.4.6 --enable-server --enable-agent --enable-java --with-mysql --enable-ipv6 --with-net-snmp --with-libcurl --with-libxml2 --with-ssh2 --with-openipmi --with-ldap --with-jabber
 
 無須make請直接
 # make install
@@ -73,6 +73,9 @@ gd、bcmath、ctype、libXML、xmlreader、xmlwriter、session、sockets、mbstr
 首先是zabbix_agentd.conf
 我沒有更動，重點是這行
 Server=127.0.0.1
+然後把這二行注解掉，讓它失效，變成這樣
+#Hostname=Zabbix server
+#ServerActive=127.0.0.1
 
 再來是zabbix_server.conf
 更動的有這些
@@ -83,7 +86,10 @@ DBName=zabbix
 DBUser=zabbix
 DBPassword=zabbixpassword
 DBSocket=/run/mysqld/mysqld.sock
-BPort=3306
+DBPort=3306
+Java gateway=127.0.0.1
+Java Gateway Port=10052
+Start Java pollers=2
 
 第一次啟動zabbix server和agentd
 # cd /usr/local/zabbix/sbin
@@ -313,10 +319,8 @@ Template OS Linux
 # cp ./zabbix_agentd.conf ./zabbix_agentd.conf.default
 # vi ./zabbix_agentd.conf
 
-有更動的三個參數和值如下
+有更動的參數和值如下
 Server=10.1.1.170
-ServerActive=10.1.1.170
-Hostname=LenovoB590
 
 產生init script
 # cd /etc/init.d
@@ -342,5 +346,32 @@ tcp        0      0 0.0.0.0:10050           0.0.0.0:*               LISTEN      
 Configuration > Hosts > [Create host] …和先前一樣的步驟，不再重複
 
 =========================================================================================================================
+snmp (不會用)
+=========================================================================================================================
+
+查看小板板是否支援snmp協定2c？
+# snmpstatus -v 2c -c public 10.1.1.170
+
+很多OID會跑出來
+# snmpwalk -v 2c -c public 10.1.1.170
+
+？？？
+# snmpget -v 2c -c public -On 10.1.1.170 iso.3.6.1.2.1.88.1.1.5.0
+終端機會打印
+.1.3.6.1.2.1.88.1.1.5.0 = Counter32: 0
+
+=========================================================================================================================
+IPMI (好像不支援)
+=========================================================================================================================
+安裝ipmi相關套件
+# apt-get install ipmitool openipmi
+
+
+http://setaoffice.com/2014/01/17/trying-to-run-ipmitool-and-receive-an-error-where-it-cant-find-the-ipmi-device/
+http://www.linuxquestions.org/questions/linux-server-73/ipmitool-could-not-open-device-4175430861/
+http://serverfault.com/questions/480371/ipmitool-cant-find-dev-ipmi0-or-dev-ipmidev-0
+
+=========================================================================================================================
+
 
 

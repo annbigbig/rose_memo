@@ -1,0 +1,34 @@
+anntony-Lenovo-B590 ~ # apt-get install ipmitool openipmi
+正在讀取套件清單... 完成
+正在重建相依關係          
+正在讀取狀態資料... 完成
+以下套件為自動安裝，並且已經無用：
+  dconf-cli libchewing3 libchewing3-data libgettextpo0 libgsoap4 libm17n-0
+  libotf0 m17n-contrib m17n-db
+Use 'apt-get autoremove' to remove them.
+下列【新】套件將會被安裝：
+  ipmitool openipmi
+升級 0 個，新安裝 2 個，移除 0 個，有 64 個未被升級。
+需要下載 457 kB 的套件檔。
+此操作完成之後，會多佔用 1,725 kB 的磁碟空間。
+下載:1 http://archive.ubuntu.com/ubuntu/ trusty-updates/universe ipmitool amd64 1.8.13-1ubuntu0.5 [332 kB]
+下載:2 http://archive.ubuntu.com/ubuntu/ trusty-updates/main openipmi amd64 2.0.18-0ubuntu7.1 [125 kB]
+取得 457 kB 用了 1秒 (260 kB/s)   
+選取了原先未選的套件 ipmitool。
+（讀取資料庫 ... 目前共安裝了 199763 個檔案和目錄。）
+準備解開 .../ipmitool_1.8.13-1ubuntu0.5_amd64.deb ...
+解開 ipmitool (1.8.13-1ubuntu0.5) 中...
+選取了原先未選的套件 openipmi。
+準備解開 .../openipmi_2.0.18-0ubuntu7.1_amd64.deb ...
+解開 openipmi (2.0.18-0ubuntu7.1) 中...
+Processing triggers for man-db (2.6.7.1-1ubuntu1) ...
+Processing triggers for ureadahead (0.100.0-16) ...
+ureadahead will be reprofiled on next reboot
+設定 ipmitool (1.8.13-1ubuntu0.5) ...
+ * Starting IPMI event daemon                                                                                                                 Could not open device at /dev/ipmi0 or /dev/ipmi/0 or /dev/ipmidev/0: No such file or directory
+                                                                                                                                       [fail]
+invoke-rc.d: initscript ipmievd, action "start" failed.
+Unable to start ipmievd during installation.  Trying to disable.
+設定 openipmi (2.0.18-0ubuntu7.1) ...
+Processing triggers for ureadahead (0.100.0-16) ...
+anntony-Lenovo-B590 ~ # 

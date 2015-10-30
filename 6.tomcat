@@ -8,6 +8,7 @@
 6.4 將www.mydomain.com.tw對應127.0.0.1:8080/janjan/
 6.5 編譯jsvc並將Tomcat設定成開機後自動啟動的服務
 6.6 (優化)記憶體調整
+6.7 Enabling JMX Remote
 
 =========================================================================================================================
 Oracle JDK 8官方下載頁面 (要按下Accept License Agreement才能下載)
@@ -344,4 +345,77 @@ export JAVA_OPTS="-Dfile.encoding=UTF-8 -Xms256m -Xmx512m -XX:PermSize=128m -XX:
 可以在小板板的GUI裡的Server Status看到記憶體的使用狀態
 http://127.0.0.1:8080/manager/status
 
+=========================================================================================================================
+6.7 Enabling JMX Remote
+=========================================================================================================================
+參考資料
+https://tomcat.apache.org/tomcat-8.0-doc/monitoring.html
+https://tomcat.apache.org/tomcat-8.0-doc/config/listeners.html#JMX_Remote_Lifecycle_Listener_-_org.apache.catalina.mbeans.JmxRemoteLifecycleListener
+http://www.mkyong.com/tomcat/jconsole-jmx-remote-access-on-tomcat/
+http://stackoverflow.com/questions/14926260/multiline-java-opts-in-setenv-sh
+http://openwares.net/linux/jconsole_remote_monitor_tomcat8.html
+http://serverfault.com/questions/350049/jmx-connection-to-tomcat-running-on-amazon-ec2
+
+我先到Tomcat官網下載了catalina-jmx-remote.jar
+丟進$CATALINA_HOME/lib目錄裡，並設定好這個檔的擁有人和群組是tomcat，權限值644
+
+我編輯了$CATALINA_HOME/bin/setenv.sh
+現在這個檔案的內容是這樣
+export JAVA_OPTS="-Dfile.encoding=UTF-8 -Xms256m -Xmx384m -XX:PermSize=128m -XX:MaxPermSize=256m"
+export CATALINA_OPTS="$CATALINA_OPTS\
+ -Dcom.sun.management.jmxremote\
+ -Dcom.sun.management.jmxremote.port=9997\
+ -Dcom.sun.management.jmxremote.ssl=false\
+ -Dcom.sun.management.jmxremote.authenticate=false
+ -Djava.rmi.server.hostname=10.1.1.170"
+
+重新啟動Tomcat
+# service tomcat stop
+# service tomcat start
+# netstat -anp|grep jsvc
+
+終端機部分輸出如下，我規定的tcp port 9997正在Listening，另外還開了兩個(官網文件寫一個)隨機端口39051和42288
+tcp6       0      0 :::8009                 :::*                    LISTEN      2200/jsvc.exec  
+tcp6       0      0 :::39051                :::*                    LISTEN      2200/jsvc.exec  
+tcp6       0      0 :::9997                 :::*                    LISTEN      2200/jsvc.exec  
+tcp6       0      0 127.0.0.1:8080          :::*                    LISTEN      2200/jsvc.exec  
+tcp6       0      0 :::42288                :::*                    LISTEN      2200/jsvc.exec  
+
+Tomcat官網有一段文字解釋
+Note: The JSR 160 JMX-Adaptor opens a second data channel on a random port.
+ That is a problem when you have a local firewall installed. To fix it,
+ configure a JmxRemoteLifecycleListener, as described in listeners documentation.
+
+由於我jconsole和jmx都在同一個10.1.1.0/24的網段裡
+可以不管這個問題，如果你要隔著防火牆，使用jconsole去連jmx
+那要記得看一下Tomcat官網載明的JmxRemoteLifecycleListener的設定
+因為除了9997，另外那個端口如果一直是隨機選擇的號碼，這樣防火牆不知道要怎麼設定，會很困擾
+
+接下來回筆記型電腦，打開終端機執行
+$ which jconsole
+
+終端機回答
+/usr/local/jdk1.8.0_45/bin/jconsole
+
+執行jconsole
+$ jconsole
+
+跳出一個圖形介面，選擇下方的Remote Process
+文字框的地方請輸入
+10.1.1.170:9997
+而Username和Password留白，因為我們沒設定，按下Connect
+再跳出
+-------------------------------------------------------------------------------------------------------
+Secure connection failed. Retry
+insecurely?
+
+The connection to 10.1.1.170:9997 could not
+be made using SSL.
+Would you like to try without SSL?
+(Username and password will be sent in plain
+text.)
+
+[ Insecure connection ]  [ Cancel ]
+-------------------------------------------------------------------------------------------------------
+按下[ Insecure connection ] 就可以連進去了
 =========================================================================================================================

@@ -16,6 +16,7 @@ https://github.com/librenms/librenms/issues/1996
 http://askubuntu.com/questions/164627/nginx-php-fpm-access-denied-error
 http://superuser.com/questions/717863/nginxphp-fpm-setup-why-is-this-configuration-workaround-needed-to-properly-set
 http://unix.stackexchange.com/questions/112023/how-can-i-replace-a-string-in-a-files
+http://askubuntu.com/questions/346165/how-to-make-snmp-agent-accept-connections-from-other-hosts-in-the-network
 
 建立資料庫librenms及資料庫用戶librenms@localhost
 # mysql -h localhost --port 3306 -u root -p
@@ -125,4 +126,44 @@ php的binary必須加到PATH環境變數裡
 終端機應該要這樣回答你才對
 /usr/local/php/bin/php
 
-(待續...)
+------------------------------------------------------------------------------------------------------------------------------
+add host 然後 discover host
+方法一：登入Web UI之後，在Devices > Add Device
+方法二：使用指令加入主機10.1.1.90並discover它
+# php ./addhost.php 10.1.1.90 public v2c
+# php ./discovery.php -h 10.1.1.90 -d
+------------------------------------------------------------------------------------------------------------------------------
+
+安裝Agent
+
+先安裝xinetd
+# apt-get install xinetd
+
+複製librenms-agent倉庫裡的check_mk_agent到正確位置 
+# cd /opt/
+# git clone https://github.com/librenms/librenms-agent.git
+# cd librenms-agent
+# cp check_mk_agent /usr/bin/check_mk_agent
+# chmod +x /usr/bin/check_mk_agent
+
+複製xinetd設定檔
+# cp check_mk_xinetd /etc/xinetd.d/check_mk
+
+創造需要的目錄後，複製需要的script
+# mkdir -p /usr/lib/check_mk_agent/plugins /usr/lib/check_mk_agent/local
+# cp agent-local/dpkg /usr/lib/check_mk_agent/local/
+# cp agent-local/mysql /usr/lib/check_mk_agent/local/
+# cp agent-local/nginx /usr/lib/check_mk_agent/local/
+# chmod +x /usr/lib/check_mk_agent/local/*
+
+重新啟動xinetd
+# /etc/init.d/xinetd restart
+# /etc/init.d/xinetd status
+
+登入Web UI後，在
+Devices > localhost > Edit device > Modules > unix-agent (ON)
+Devices > localhost > Edit device > Modules > mib (ON)
+
+等等等等
+什麼資料都沒進來，故放棄安裝
+

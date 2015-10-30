@@ -384,6 +384,10 @@ mysqli.default_port = 3306
 mysqli.default_socket = /run/mysqld/mysqld.sock
 mysqli.default_host = localhost
 pdo_mysql.default_socket = /run/mysqld/mysqld.sock
+post_max_size = 16M
+max_execution_time = 300
+max_input_time = 300
+always_populate_raw_post_data = -1
 
 設定php-fpm.conf
 # vi /usr/local/php/etc/php-fpm.conf
