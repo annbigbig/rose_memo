@@ -1,0 +1,251 @@
+7.Icinga 2
+
+工作列表
+=========================================================================================================================
+7.1 安裝Icinga 2並設定成開機後自動啟動的服務
+7.2 新增IDO MYSQL需要的資料庫然後打開模組功能
+7.3 安裝Icinga Web 2
+=========================================================================================================================
+
+
+
+=========================================================================================================================
+7.1 安裝Icinga 2並設定成開機後自動啟動的服務
+=========================================================================================================================
+參考資料
+https://github.com/Icinga/icinga2/blob/master/INSTALL.md
+http://docs.icinga.org/icinga2/latest/doc/module/icinga2/toc#!/icinga2/latest/doc/module/icinga2/chapter/getting-started#getting-started
+http://stackoverflow.com/questions/21047399/cmake-set-environment-variables-from-a-script
+https://www.icinga.org/category/icinga-2/
+https://dev.icinga.org/issues/8751
+
+安裝依賴套件
+# apt-get install libssl-dev libboost-all-dev bison flex libmysqlclient-dev libyajl-dev
+# apt-get install libedit-dev nagios-plugins
+
+加入兩個群組及一個用戶，還有用戶www-data加入icingacmd群組
+加入完成後查看用戶icinga和www-data
+# groupadd -g 800 icinga
+# groupadd -g 801 icingacmd
+# useradd -c "icinga" -s /sbin/nologin -G icingacmd -g icinga -u 800 icinga
+# usermod -a -G icingacmd www-data
+# id icinga
+# id www-data
+
+拉下repo開始編譯
+# cd /usr/local/src
+# git clone https://github.com/Icinga/icinga2
+# cd ./icinga2
+# mkdir build && cd build
+# cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/icinga2 \
+-DICINGA2_USER=icinga \
+-DICINGA2_GROUP=icinga \
+-DICINGA2_GIT_VERSION_INFO=ON \
+-DICINGA2_COMMAND_GROUP=icingacmd \
+-DICINGA2_UNITY_BUILD=OFF \
+-DICINGA2_LTO_BUILD=OFF \
+-DICINGA2_PLUGINDIR=/usr/lib/nagios/plugins \
+-DUSE_SYSTEMD=OFF \
+-DINSTALL_SYSTEMD_SERVICE_AND_INITSCRIPT=OFF \
+-DICINGA2_WITH_MYSQL=ON \
+-DICINGA2_WITH_PGSQL=OFF \
+-DICINGA2_WITH_CHECKER=ON \
+-DICINGA2_WITH_COMPAT=ON \
+-DICINGA2_WITH_DEMO=OFF \
+-DICINGA2_WITH_HELLO=OFF \
+-DICINGA2_WITH_LIVESTATUS=ON \
+-DICINGA2_WITH_NOTIFICATION=ON \
+-DICINGA2_WITH_PERFDATA=ON
+
+# make
+# make install
+
+這很重要，把擁有人和群組都改成icinga
+其實應該只有/usr/local/icinga2/var/cache這個目錄需要是icinga:icinga
+不過為了省事，全都改成icinga:icinga
+# chown -R icinga:icinga /usr/local/icinga2/
+
+安裝完成，把icinga的路徑加到PATH環境變數
+# touch /etc/profile.d/icinga2_environments.sh
+# chown root:root /etc/profile.d/icinga2_environments.sh
+# chmod 644 /etc/profile.d/icinga2_environments.sh
+# echo 'export PATH=$PATH:/usr/local/icinga2/sbin' >> /etc/profile.d/icinga2_environments.sh
+# echo $PATH
+# source /etc/profile.d/icinga2_environments.sh
+# echo $PATH
+# which icinga2
+
+檢查已啟用的功能
+# icinga2 feature list
+
+啟用api功能
+# icinga2 api setup
+
+再次檢查已啟用的功能
+# icinga2 feature list
+
+第一次執行icinga2
+# icinga2 daemon
+
+查看icinga2是否成功運行？
+如果有，終端機會出現
+[2015-11-01 21:26:08 +0800] information/cli: Icinga application loader (version: v2.3.11-744-g1b9f0a8)
+這樣的訊息大概四十五十行
+
+按下Ctrl+C，讓icinga2的程序停止
+
+複製init script到/etc/init.d
+# cp /usr/local/icinga2/etc/init.d/icinga2 /etc/init.d/
+# chown root:root /etc/init.d/icinga2
+# chmod 755 /etc/init.d/icinga2
+
+啟動icinga2
+# service icinga2 start
+
+看看是否icinga2跑起來了？
+# service icinga2 status
+或
+# netstat -anp|grep icinga
+
+如果跑起來，會看到終端機說
+Icinga 2 status: Running
+或
+tcp        0      0 0.0.0.0:5665            0.0.0.0:*               LISTEN      9458/icinga2
+
+設定成開機後自動執行的服務
+# update-rc.d icinga2 defaults
+
+=========================================================================================================================
+7.2 新增IDO MYSQL需要的資料庫然後打開模組功能
+=========================================================================================================================
+新增用戶icinga及資料庫icinga
+# mysql -h localhost --port 3306 -u root -p
+> create database icinga;
+> create user 'icinga'@'localhost' identified by 'icinga';
+> grant all on icinga.* to 'icinga'@'localhost';
+> flush privileges;
+> show grants for 'icinga'@'localhost';
+> quit;
+
+匯入資料表
+# cd /usr/local/icinga2/share/icinga2-ido-mysql/schema/
+# mysql -u root -p icinga < ./mysql.sql
+
+打開ido-mysql模組
+先修改設定檔，把資料庫連線的host、user、password寫進去
+# cd /usr/local/icinga2/etc/icinga2/features-available
+# vi ./ido-mysql.conf
+
+修改之後檔案的內容
+/**
+ * The db_ido_mysql library implements IDO functionality
+ * for MySQL.
+ */
+
+library "db_ido_mysql"
+
+object IdoMysqlConnection "ido-mysql" {
+  user = "icinga"
+  password = "icinga"
+  host = "localhost"
+  database = "icinga"
+}
+
+查看現在啟用了什麼模組？
+# icinga2 feature list
+
+啟用ido-mysql模組
+# icinga2 feature enable ido-mysql
+
+重新啟動icinga2服務
+# service icinga2 restart
+
+=========================================================================================================================
+7.3 安裝Icinga Web 2
+=========================================================================================================================
+
+參考資料
+http://www.olindata.com/blog/2015/02/setup-icinga-2-debian-77
+http://www.monitoring-portal.org/wbb/index.php?page=Thread&threadID=33411
+https://www.thomas-krenn.com/de/wiki/Icinga_Web_2_mit_Icinga_2_verwenden#Icinga_Web_2_Konfiguration
+https://dev.icinga.org/issues/8044
+
+拉下repo
+# cd /usr/local/nginx
+# git clone git://git.icinga.org/icingaweb2.git
+
+新增群組icingaweb2，並把用戶www-data加到這個群組
+# addgroup --system icingaweb2
+# usermod -a -G icingaweb2 www-data
+
+這個目錄的擁有人和群組是我(亂)猜的，因為文件上沒寫
+# chown -R www-data:icingaweb2 /usr/local/nginx/icingaweb2
+# chmod -R g+w /usr/local/nginx/icingaweb2
+
+使用這個指令，會產生部分nginx設定檔
+# ./icingaweb2/bin/icingacli setup config webserver nginx --document-root /usr/local/nginx/icingaweb2/public
+
+依照上面的提示，產生nginx的VirtualHost設定檔
+# touch /usr/local/nginx/conf/vhosts/icingaweb2.conf
+# chown root:www-data /usr/local/nginx/conf/vhosts/icingaweb2.conf
+# chmod 640 /usr/local/nginx/conf/vhosts/icingaweb2.conf
+
+內容如下
+# virtual host for icingaweb2
+    server { 
+      server_name localhost; 
+      listen 127.0.0.1:6080; 
+      root /usr/local/nginx/icingaweb2/public; 
+      access_log  logs/icingaweb2.access.log combined; 
+      error_log   logs/icingaweb2.error.log; 
+
+
+      location ~ ^/icingaweb2/index\.php(.*)$ {
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME /usr/local/nginx/icingaweb2/public/index.php;
+        fastcgi_param ICINGAWEB_CONFIGDIR /etc/icingaweb2;
+        fastcgi_param REMOTE_USER $remote_user;
+      }
+
+
+      location ~ ^/icingaweb2(.+)? {
+        alias /usr/local/nginx/icingaweb2/public;
+        index index.php;
+        try_files $1 $uri $uri/ /icingaweb2/index.php$is_args$args;
+      }
+     }
+
+重新啟動nginx服務器
+# service nginx restart
+
+使用icingacli指令建立/etc/icinga2目錄，這是組態檔目錄
+# cd /usr/local/nginx/icingaweb2/bin
+# ./icingacli setup config directory
+
+產生token，如果你要用Web Setup Wizard的話，要用產生的token來登入
+# cd /usr/local/nginx/icingaweb2/bin
+# ./icingacli setup token create
+
+終端機回應了
+The newly generated setup token is: dd89aa0dde68d0eb
+
+如果你忘記了這個token，可以這樣找回
+# ./icingacli setup token show
+
+然後終端機會很好心回應你
+The current setup token is: dd89aa0dde68d0eb
+
+登入小板板LXDE，打開瀏覽器，在網址列輸入進入Web Setup Wizard
+http://localhost:6080/icingaweb2/
+
+注意：
+如果進入網頁，發現css沒有載入，請清除瀏覽器的快取
+然後到/tmp/FileCache_icingaweb這個目錄看看
+它可能(因為某個不知名的詭異理由)完全沒有讀取的r權限
+為它加上r權限
+# chmod -R a+r /tmp/FileCache_icingaweb
+之後，重新整理瀏覽器再試試
+
+

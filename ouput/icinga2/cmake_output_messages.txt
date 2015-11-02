@@ -1,0 +1,81 @@
+root@rose01:/usr/local/src/icinga2/build# 
+root@rose01:/usr/local/src/icinga2/build# cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/icinga2 \
+> -DICINGA2_USER=icinga \
+> -DICINGA2_GROUP=icinga \
+> -DICINGA2_GIT_VERSION_INFO=ON \
+> -DICINGA2_COMMAND_GROUP=icingacmd \
+> -DICINGA2_UNITY_BUILD=OFF \
+> -DICINGA2_LTO_BUILD=OFF \
+> -DICINGA2_PLUGINDIR=/usr/lib/nagios/plugins \
+> -DUSE_SYSTEMD=OFF \
+> -DINSTALL_SYSTEMD_SERVICE_AND_INITSCRIPT=OFF \
+> -DICINGA2_WITH_MYSQL=ON \
+> -DICINGA2_WITH_PGSQL=OFF \
+> -DICINGA2_WITH_CHECKER=ON \
+> -DICINGA2_WITH_COMPAT=ON \
+> -DICINGA2_WITH_DEMO=OFF \
+> -DICINGA2_WITH_HELLO=OFF \
+> -DICINGA2_WITH_LIVESTATUS=ON \
+> -DICINGA2_WITH_NOTIFICATION=ON \
+> -DICINGA2_WITH_PERFDATA=ON
+-- The C compiler identification is GNU 4.8.2
+-- The CXX compiler identification is GNU 4.8.2
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Boost version: 1.54.0
+-- Found the following Boost libraries:
+--   thread
+--   system
+--   program_options
+--   regex
+-- Found OpenSSL: /usr/lib/arm-linux-gnueabihf/libssl.so;/usr/lib/arm-linux-gnueabihf/libcrypto.so (found version "1.0.1i") 
+-- Found PkgConfig: /usr/bin/pkg-config (found version "0.26") 
+-- Found yajl: /usr/lib/arm-linux-gnueabihf/libyajl.so  
+-- Found Editline: /usr/lib/arm-linux-gnueabihf/libedit.so  
+-- Found Termcap: /usr/lib/arm-linux-gnueabihf/libtermcap.so  
+-- Performing Test HAVE_VISIBILITY_INLINES_HIDDEN
+-- Performing Test HAVE_VISIBILITY_INLINES_HIDDEN - Failed
+-- Looking for __COUNTER__
+-- Looking for __COUNTER__ - found
+-- Looking for vfork
+-- Looking for vfork - found
+-- Looking for backtrace_symbols
+-- Looking for backtrace_symbols - found
+-- Looking for pipe2
+-- Looking for pipe2 - found
+-- Looking for nice
+-- Looking for nice - found
+-- Looking for dladdr in dl
+-- Looking for dladdr in dl - found
+-- Looking for backtrace_symbols in execinfo
+-- Looking for backtrace_symbols in execinfo - not found
+-- Looking for C++ include cxxabi.h
+-- Looking for C++ include cxxabi.h - found
+-- Performing Test CXX_FLAG_CXX11
+-- Performing Test CXX_FLAG_CXX11 - Success
+-- Performing Test CXX_FLAG_CXX0X
+-- Performing Test CXX_FLAG_CXX0X - Success
+-- Performing Test CXX_FLAG_NO_OVERRIDE_WARNING
+-- Performing Test CXX_FLAG_NO_OVERRIDE_WARNING - Success
+-- Performing Test CXX_FEATURE_OVERRIDE
+-- Performing Test CXX_FEATURE_OVERRIDE - Success
+-- Found BISON: /usr/bin/bison (Required is at least version "2.3.0") 
+-- Found FLEX: 2.5.35 (Required is at least version "2.5.31") 
+-- MySQL Include dir: /usr/include/mysql  library dir: /usr/lib/arm-linux-gnueabihf
+-- MySQL client libraries: mysqlclient_r
+-- Test 'base' uses the CMake-configurable form of the boost test framework - congrats! (Including File: test.cpp)
+-- Test 'livestatus' uses the CMake-configurable form of the boost test framework - congrats! (Including File: test.cpp)
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /usr/local/src/icinga2/build
+root@rose01:/usr/local/src/icinga2/build# 

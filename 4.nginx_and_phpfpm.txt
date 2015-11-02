@@ -191,6 +191,7 @@ unix  3      [ ]         STREAM     CONNECTED     8224     1380/nginx.conf
 
 參考資料
 http://www.linuxfromscratch.org/blfs/view/svn/general/php.html
+http://www.sitepoint.com/install-php-extensions-source/
 
 安裝依賴套件
 # apt-get update
@@ -471,6 +472,21 @@ unix  3      [ ]         STREAM     CONNECTED     1946     1410/php-fpm.conf)
 unix  3      [ ]         STREAM     CONNECTED     1947     1410/php-fpm.conf)  
 
 恭喜你，這樣就確認php-fpm是開機後自動啟動的服務了
+
+如果會用到php cli
+php的binary必須加到PATH環境變數裡
+# cd /etc/profile.d
+# touch ./php_environments.sh
+# chown root:root ./php_environments.sh
+# chmod 644 ./php_environments.sh
+# echo 'export PATH=$PATH:/usr/local/php/bin' >> ./php_environments.sh
+# source /etc/profile.d/php_environments.sh
+
+你問系統php在哪裡？
+# which php
+
+終端機應該要這樣回答你才對
+/usr/local/php/bin/php
 
 =========================================================================================================================
 4.3 預設站台http://localhost設定

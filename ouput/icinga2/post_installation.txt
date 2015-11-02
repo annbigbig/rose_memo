@@ -1,0 +1,25 @@
+root@rose01:~# which icinga2
+/usr/local/icinga2/sbin/icinga2
+root@rose01:~# icinga2 feature list
+Disabled features: api command compatlog debuglog gelf graphite icingastatus ido-mysql livestatus opentsdb perfdata statusdata syslog
+Enabled features: checker mainlog notification
+root@rose01:~# icinga2 api setup
+information/cli: Generating new CA.
+information/base: Writing private key to '/usr/local/icinga2/var/lib/icinga2/ca/ca.key'.
+information/base: Writing X509 certificate to '/usr/local/icinga2/var/lib/icinga2/ca/ca.crt'.
+information/cli: Generating new CSR in '/usr/local/icinga2/etc/icinga2/pki/rose01.csr'.
+information/base: Writing private key to '/usr/local/icinga2/etc/icinga2/pki/rose01.key'.
+information/base: Writing certificate signing request to '/usr/local/icinga2/etc/icinga2/pki/rose01.csr'.
+information/cli: Signing CSR with CA and writing certificate to '/usr/local/icinga2/etc/icinga2/pki/rose01.crt'.
+information/cli: Copying CA certificate to '/usr/local/icinga2/etc/icinga2/pki/ca.crt'.
+information/cli: Adding new ApiUser 'root' in '/usr/local/icinga2/etc/icinga2/conf.d/api-users.conf'.
+information/cli: Enabling the 'api' feature.
+Enabling feature api. Make sure to restart Icinga 2 for these changes to take effect.
+Done.
+
+Now restart your Icinga 2 daemon to finish the installation!
+
+root@rose01:~# icinga2 feature list
+Disabled features: command compatlog debuglog gelf graphite icingastatus ido-mysql livestatus opentsdb perfdata statusdata syslog
+Enabled features: api checker mainlog notification
+root@rose01:~# 
