@@ -5,6 +5,8 @@
 7.1 安裝Icinga 2並設定成開機後自動啟動的服務
 7.2 新增IDO MYSQL需要的資料庫然後打開模組功能
 7.3 安裝Icinga Web 2
+7.4 使vim文字編輯器支持設定檔語法highlighting
+7.5 設定Icinga2
 =========================================================================================================================
 
 
@@ -157,6 +159,9 @@ object IdoMysqlConnection "ido-mysql" {
 啟用ido-mysql模組
 # icinga2 feature enable ido-mysql
 
+順便連command模組也啟用
+# icinga2 feature enable command
+
 重新啟動icinga2服務
 # service icinga2 restart
 
@@ -220,9 +225,15 @@ https://dev.icinga.org/issues/8044
 重新啟動nginx服務器
 # service nginx restart
 
-使用icingacli指令建立/etc/icinga2目錄，這是組態檔目錄
+使用icingacli指令建立/etc/icingaweb2目錄，這是組態檔目錄
 # cd /usr/local/nginx/icingaweb2/bin
 # ./icingacli setup config directory
+
+查看一下/etc/icingaweb2目錄，它的擁有人和群組和權限會是
+drwxrws---   2 root icingaweb2  4096 11月  2 17:25 icingaweb2
+
+(因為不能使用Web Setup Wizard所以調整了目錄的擁有人)
+# chown -R www-data:icingaweb2 /etc/icingaweb2
 
 產生token，如果你要用Web Setup Wizard的話，要用產生的token來登入
 # cd /usr/local/nginx/icingaweb2/bin
@@ -237,8 +248,21 @@ The newly generated setup token is: dd89aa0dde68d0eb
 然後終端機會很好心回應你
 The current setup token is: dd89aa0dde68d0eb
 
+產生Icinga Web 2需要的用戶和資料庫
+# mysql -h localhost --port 3306 -u root -p
+> create database icingaweb2;
+> create user 'icingaweb2'@'localhost' identified by 'icingaweb2';
+> grant all on icingaweb2.* to 'icingaweb2'@'localhost';
+> flush privileges;
+> show grants for 'icingaweb2'@'localhost';
+> quit;
+
+匯入資料表
+# cd /usr/local/nginx/icingaweb2/etc/schema/
+# mysql -u icingaweb2 -p icingaweb2 < ./mysql.schema.sql
+
 登入小板板LXDE，打開瀏覽器，在網址列輸入進入Web Setup Wizard
-http://localhost:6080/icingaweb2/
+http://localhost:6080/icingaweb2/setup
 
 注意：
 如果進入網頁，發現css沒有載入，請清除瀏覽器的快取
@@ -248,4 +272,58 @@ http://localhost:6080/icingaweb2/
 # chmod -R a+r /tmp/FileCache_icingaweb
 之後，重新整理瀏覽器再試試
 
+然後就照著Web UI的指示，完成設定後
+使用你設定的管理員帳號密碼(例如admin/admin)來登入IcingaWeb2操作介面
 
+=========================================================================================================================
+7.4 使vim文字編輯器支持設定檔語法highlighting
+=========================================================================================================================
+# PREFIX=~/.vim
+# mkdir -p $PREFIX/{syntax,ftdetect}
+# cd /usr/local/src/icinga2/tools/syntax
+# cp vim/syntax/icinga2.vim $PREFIX/syntax/
+# cp vim/ftdetect/icinga2.vim $PREFIX/ftdetect/
+
+弄完之後，實際打開vim編輯器去編輯一個icinga2的設定檔，
+看到花花綠綠的就是設定成功了 (失敗的時候只有黑色背景與白字)
+# vi /usr/local/icinga2/etc/icinga2/conf.d/templates.conf
+
+=========================================================================================================================
+7.5 設定Icinga2 (實驗中…未寫完)
+=========================================================================================================================
+原來的設定檔目錄conf.d更名為conf.default.d
+不要去動裡面的內容，那是安裝Icinga2後，開發者給出的一個供參考的設定檔範本
+# mv /usr/local/icinga2/etc/icinga2/conf.d /usr/local/icinga2/etc/icinga2/conf.default.d
+
+再新建一個conf.d目錄
+# mkdir /usr/local/icinga2/etc/icinga2/conf.d
+# chown icinga:icinga /usr/local/icinga2/etc/icinga2/conf.d
+
+
+
+解決CRITICAL - Could not interpret output from ping command的問題
+# chmod u+s /bin/ping
+# chmod u+s /bin/ping6
+
+=========================================================================================================================
+備忘區：實驗中…待續
+=========================================================================================================================
+
+The PHP module LDAP is missing.
+The PHP module INTL is missing.
+The PHP module Imagick is missing.
+The PHP module PDO-PostgreSQL is missing.
+
+
+http://stackoverflow.com/questions/11475365/error-connecting-to-mysql
+http://stackoverflow.com/questions/4361459/php-pdo-charset-set-names
+http://linoxide.com/ubuntu-how-to/setup-icinga2-ubuntu-15-04/
+https://blog.slatehorizon.com/?p=157
+https://github.com/deathowl/OpenDuty-Icinga2
+http://zyradyl.github.io/2015/08/17/Icinga2-Tutorial-Part-3/
+http://zyradyl.github.io/2015/09/07/Icinga2-Tutorial-Part-4/
+http://www.ipbalance.com/apps/network-apps/nms/1159-quick-steps-for-how-to-install-icinga2-on-centos7.html
+http://pastebin.com/KEfuNcEt
+http://www.linuxquestions.org/questions/linux-server-73/server-nagios-monitoring-924698/
+
+搜尋關鍵字 icinga2 tutorial

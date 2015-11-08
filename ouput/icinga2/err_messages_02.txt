@@ -1,0 +1,30 @@
+Successfully connected to existing database "icingaweb2"...
+Database schema already exists...
+Login "icingaweb2" already exists...
+Required privileges were already granted to login "icingaweb2".
+The database has been fully set up!
+
+General configuration has been successfully written to: /etc/icingaweb2/config.ini
+
+Authentication configuration has been successfully written to: /etc/icingaweb2/authentication.ini
+Unable to create account "admin". An error occured:
+ERROR: Zend_Db_Adapter_Exception in /usr/local/nginx-1.9.5/icingaweb2/library/vendor/Zend/Db/Adapter/Pdo/Abstract.php:139 with message: SQLSTATE[HY000] [2019] Unknown character set
+Account "admin" has been successfully defined as initial administrator.
+
+User Group Backend configuration has been successfully written to: /etc/icingaweb2/groups.ini
+Unable to create user group "Administrators". An error occured:
+ERROR: Zend_Db_Adapter_Exception in /usr/local/nginx-1.9.5/icingaweb2/library/vendor/Zend/Db/Adapter/Pdo/Abstract.php:139 with message: SQLSTATE[HY000] [2019] Unknown character set
+
+Resource configuration has been successfully written to: /etc/icingaweb2/resources.ini
+
+Monitoring backend configuration has been successfully written to: /etc/icingaweb2/modules/monitoring/backends.ini
+Resource configuration has been successfully updated: /etc/icingaweb2/resources.ini
+
+Command transport configuration has been successfully created: /etc/icingaweb2/modules/monitoring/commandtransports.ini
+
+Monitoring security configuration has been successfully created: /etc/icingaweb2/modules/monitoring/config.ini
+
+Module "iframe" has been successfully enabled.
+Module "monitoring" has been successfully enabled.
+Module "test" has been successfully enabled.
+Module "translation" has been successfully enabled.

@@ -1,0 +1,43 @@
+Successfully connected to existing database "icingaweb2"...
+Database schema already exists...
+Login "icingaweb2" already exists...
+Required privileges were already granted to login "icingaweb2".
+The database has been fully set up!
+
+General configuration could not be written to: /etc/icingaweb2/config.ini. An error occured:
+ERROR: Icinga\Exception\NotWritableError in /usr/local/nginx-1.9.5/icingaweb2/library/Icinga/Util/File.php:63 with message: Path "/etc/icingaweb2" is not writable
+
+Authentication configuration could not be written to: /etc/icingaweb2/authentication.ini. An error occured:
+ERROR: Icinga\Exception\NotWritableError in /usr/local/nginx-1.9.5/icingaweb2/library/Icinga/Util/File.php:63 with message: Path "/etc/icingaweb2" is not writable
+Unable to create account "admin". An error occured:
+ERROR: Zend_Db_Adapter_Exception in /usr/local/nginx-1.9.5/icingaweb2/library/vendor/Zend/Db/Adapter/Pdo/Abstract.php:139 with message: SQLSTATE[HY000] [2019] Unknown character set
+Unable to define account "admin" as initial administrator. An error occured:
+ERROR: Icinga\Exception\NotWritableError in /usr/local/nginx-1.9.5/icingaweb2/library/Icinga/Util/File.php:63 with message: Path "/etc/icingaweb2" is not writable
+
+User Group Backend configuration could not be written to: /etc/icingaweb2/groups.ini. An error occured:
+ERROR: Icinga\Exception\NotWritableError in /usr/local/nginx-1.9.5/icingaweb2/library/Icinga/Util/File.php:63 with message: Path "/etc/icingaweb2" is not writable
+Unable to create user group "Administrators". An error occured:
+ERROR: Zend_Db_Adapter_Exception in /usr/local/nginx-1.9.5/icingaweb2/library/vendor/Zend/Db/Adapter/Pdo/Abstract.php:139 with message: SQLSTATE[HY000] [2019] Unknown character set
+
+Resource configuration could not be written to: /etc/icingaweb2/resources.ini. An error occured:
+ERROR: Icinga\Exception\NotWritableError in /usr/local/nginx-1.9.5/icingaweb2/library/Icinga/Util/File.php:63 with message: Path "/etc/icingaweb2" is not writable
+
+Monitoring backend configuration could not be written to: /etc/icingaweb2/modules/monitoring/backends.ini. An error occured:
+ERROR: RuntimeException in /usr/local/nginx-1.9.5/icingaweb2/library/Icinga/Util/File.php:97 with message: Failed to create missing directory "/etc/icingaweb2/modules/" (mkdir(): Permission denied)
+Resource configuration could not be udpated: /etc/icingaweb2/resources.ini. An error occured:
+ERROR: Icinga\Exception\NotWritableError in /usr/local/nginx-1.9.5/icingaweb2/library/Icinga/Util/File.php:63 with message: Path "/etc/icingaweb2" is not writable
+
+Command transport configuration could not be written to: /etc/icingaweb2/modules/monitoring/commandtransports.ini. An error occured:
+ERROR: RuntimeException in /usr/local/nginx-1.9.5/icingaweb2/library/Icinga/Util/File.php:97 with message: Failed to create missing directory "/etc/icingaweb2/modules/" (mkdir(): Permission denied)
+
+Monitoring security configuration could not be written to: /etc/icingaweb2/modules/monitoring/config.ini. An error occured:
+ERROR: RuntimeException in /usr/local/nginx-1.9.5/icingaweb2/library/Icinga/Util/File.php:97 with message: Failed to create missing directory "/etc/icingaweb2/modules/" (mkdir(): Permission denied)
+
+Module "iframe" could not be enabled. An error occured:
+ERROR: Icinga\Exception\SystemPermissionException in /usr/local/nginx-1.9.5/icingaweb2/library/Icinga/Application/Modules/Manager.php:235 with message: Failed to create enabledModules directory "/etc/icingaweb2/enabledModules" (mkdir(): Permission denied)
+Module "monitoring" could not be enabled. An error occured:
+ERROR: Icinga\Exception\SystemPermissionException in /usr/local/nginx-1.9.5/icingaweb2/library/Icinga/Application/Modules/Manager.php:235 with message: Failed to create enabledModules directory "/etc/icingaweb2/enabledModules" (mkdir(): Permission denied)
+Module "test" could not be enabled. An error occured:
+ERROR: Icinga\Exception\SystemPermissionException in /usr/local/nginx-1.9.5/icingaweb2/library/Icinga/Application/Modules/Manager.php:235 with message: Failed to create enabledModules directory "/etc/icingaweb2/enabledModules" (mkdir(): Permission denied)
+Module "translation" could not be enabled. An error occured:
+ERROR: Icinga\Exception\SystemPermissionException in /usr/local/nginx-1.9.5/icingaweb2/library/Icinga/Application/Modules/Manager.php:235 with message: Failed to create enabledModules directory "/etc/icingaweb2/enabledModules" (mkdir(): Permission denied)
