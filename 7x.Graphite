@@ -1,0 +1,48 @@
+7.x 安裝Graphite (on x86_64 laptop)
+
+參考資料
+http://graphite.readthedocs.org/en/latest/install.html
+http://www.monitoring-portal.org/wbb/index.php?page=Thread&threadID=31274
+https://www.digitalocean.com/community/tutorials/how-to-install-and-use-graphite-on-an-ubuntu-14-04-server
+https://gist.github.com/jgeurts/6142051
+http://alfredocambera.blogspot.tw/2014/06/graphite-on-nginxuwsgi-debian-wheezy.html
+http://stackoverflow.com/questions/15236237/using-sed-to-replace-text-with-spaces-with-a-defined-variable-with-slashs
+
+搜尋關鍵字
+graphite mysql ubuntu
+graphite nginx config
+
+安裝
+# apt-get install graphite-carbon graphite-web python-mysqldb
+
+途中會彈出一個視窗，選NO即可
+DigitalOcean原文如下
+During the installation, you will be asked whether you want Carbon to remove the database files if you ever decide to purge the installation. Choose "No" here so that you will not destroy your stats. If you need to start fresh, you can always manually remove the files (kept in var/lib/graphite/whisper).
+
+配置資料庫
+# cat >> /tmp/graphite.sql << EOF
+create database graphite;
+create user 'graphite'@'localhost' identified by 'graphitepassword';
+grant all privileges on graphite.* to 'graphite'@'localhost';
+flush privileges;
+EOF
+# mysql -h localhost --port 3306 -u root -p < /tmp/graphite.sql
+
+設定Graphite web app組態檔
+# sed -i -- "s|#SECRET_KEY = 'UNSAFE_DEFAULT'|SECRET_KEY = 'a1b2c3d4e5f6g7h8i9'|g" /etc/graphite/local_settings.py
+# sed -i -- "s|#TIME_ZONE = 'America/Los_Angeles'|TIME_ZONE = 'Asia/Taipei'|g" /etc/graphite/local_settings.py
+# sed -i -- "s|#USE_REMOTE_USER_AUTHENTICATION = True|USE_REMOTE_USER_AUTHENTICATION = True|g" /etc/graphite/local_settings.py
+# sed -i -- "s|'NAME': '/var/lib/graphite/graphite.db',|'NAME': 'graphite',|g" /etc/graphite/local_settings.py
+# sed -i -- "s|'ENGINE': 'django.db.backends.sqlite3',|'ENGINE': 'django.db.backends.mysql',|g" /etc/graphite/local_settings.py
+# sed -i -- "s|'USER': '',|'USER': 'graphite',|g" /etc/graphite/local_settings.py
+# sed -i -- "s|'PASSWORD': '',|'PASSWORD': 'graphitepassword',|g" /etc/graphite/local_settings.py
+# sed -i -- "s|'HOST': '',|'HOST': 'localhost',|g" /etc/graphite/local_settings.py
+# sed -i -- "s|'PORT': ''|'PORT': '3306'|g" /etc/graphite/local_settings.py
+
+Sync the Database
+# graphite-manage syncdb
+
+此時會被要求建立一個superuser，輸入yes按Enter之後，我建立了一個帳號admin密碼也是admin
+
+設定Carbon
+

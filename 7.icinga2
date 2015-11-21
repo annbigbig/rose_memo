@@ -23,7 +23,7 @@ https://dev.icinga.org/issues/8751
 
 安裝依賴套件
 # apt-get install libssl-dev libboost-all-dev bison flex libmysqlclient-dev libyajl-dev
-# apt-get install libedit-dev nagios-plugins
+# apt-get install libedit-dev nagios-plugins nagios-snmp-plugins
 
 加入兩個群組及一個用戶，還有用戶www-data加入icingacmd群組
 加入完成後查看用戶icinga和www-data
@@ -305,6 +305,117 @@ http://localhost:6080/icingaweb2/setup
 # chmod u+s /bin/ping
 # chmod u+s /bin/ping6
 
+
+=========================================================================================================================
+7.6 安裝InfluxDB
+=========================================================================================================================
+參考資料
+https://influxdb.com/docs/v0.9/introduction/installation.html
+https://github.com/influxdb/influxdb
+
+爬了文，發現InfluxDB沒有提供32 bit的pre-build package
+所以下面安裝InfluxDB的目標機器是我的Lenovo B590筆記型電腦
+
+安裝
+cd /tmp
+wget http://influxdb.s3.amazonaws.com/influxdb_0.9.4.2_amd64.deb
+dpkg -i influxdb_0.9.4.2_amd64.deb
+
+安裝完已經是設定為系統開機後自動啟動的服務
+但是要重新開機才會生效，你可以手動啟動它
+# service influxdb start
+
+然後看一下influxd有沒有在Listening？
+# netstat -anp|grep influx
+
+看到這樣就是安裝成功了
+
+進入admin管理UI加入一個預設的管理者
+http://localhost:8083/
+
+按下Query Templates > Create Admin User
+在文字框出現範本指令，改成這樣
+CREATE USER "influxadmin" WITH PASSWORD 'influxadmin' WITH ALL PRIVILEGES
+按下Enter
+
+現在多了一個管理員用戶influxadmin，他的密碼也是influxadmin
+然後請新增一個資料庫，按下Query Templates > Create Database
+在文字框出現範本指令，改成這樣
+CREATE DATABASE "db_for_icinga2"
+按下Enter
+現在多了一個資料庫叫作db_for_icinga2
+
+=========================================================================================================================
+7.7 安裝Grafana
+=========================================================================================================================
+
+參考資料
+http://docs.grafana.org/installation/
+
+# cd /tmp
+# wget https://grafanarel.s3.amazonaws.com/builds/grafana_2.5.0_amd64.deb
+# apt-get install -y adduser libfontconfig
+# dpkg -i grafana_2.5.0_amd64.deb
+
+安裝完成，手動啟動服務
+# service grafana-server start
+
+To configure the Grafana server to start at boot time:
+# update-rc.d grafana-server defaults 95 10
+
+加入一個InfluxDB的Data Source
+打開瀏覽器連線這個網址
+http://localhost:3000/
+預設的登入帳號是admin密碼也是admin
+
+登入後，按下左邊的DataSources 再按上面的Add new
+Default打勾
+Type的地方選「InfluxDB 0.9x」
+Name的地方填入forIcinga2
+
+下面Http settings區塊
+Url填入http://localhost:8086
+Access選proxy
+
+再下面的InfluxDB Details區塊
+Database填入db_for_icinga2
+Username填入influxadmin
+Password填入influxadmin
+然後按下右邊的[ Add ]按鈕
+再按下 [ Test Connection ]
+
+如果出現
+Success
+Data source is working
+就是設定DataSource成功了
+
+--------------------------------------------------------------
+
+--------------------------------------------------------------
+
+
+
+=========================================================================================================================
+7.8 讓Icinga2送metric資料進入InfluxDB
+=========================================================================================================================
+# cd /usr/local/icinga2/etc/icinga2/features-available
+# vi ./graphite.conf
+
+內容是
+library "perfdata"
+
+object GraphiteWriter "graphite" {
+  host = "10.1.1.90"
+  port = 2003
+}
+
+啟用graphite
+# icinga2 feature enable graphite
+# icinga2 feature list
+
+重新啟動Icinga2
+# service icinga2 restart
+
 =========================================================================================================================
 備忘區：實驗中…待續
 =========================================================================================================================
@@ -325,5 +436,105 @@ http://zyradyl.github.io/2015/09/07/Icinga2-Tutorial-Part-4/
 http://www.ipbalance.com/apps/network-apps/nms/1159-quick-steps-for-how-to-install-icinga2-on-centos7.html
 http://pastebin.com/KEfuNcEt
 http://www.linuxquestions.org/questions/linux-server-73/server-nagios-monitoring-924698/
+http://www.monitoring-portal.org/wbb/index.php?page=Thread&threadID=34237
+老外抱怨的
+http://www.monitoring-portal.org/wbb/index.php?page=Thread&threadID=34540
 
 搜尋關鍵字 icinga2 tutorial
+
+
+搞不太懂圖表要怎麼產生？
+參考資料
+http://docs.icinga.org/icinga2/latest/doc/module/icinga2/chapter/addons-plugins
+https://exchange.icinga.org/icinga/PNP4Nagios
+
+PNP4Nagios module for Icinga Web 2
+
+# cd /usr/local/nginx/icingaweb2/modules
+# wget https://exchange.icinga.org/icinga/PNP4Nagios/files/1002/icingaweb2-module-pnp4nagios.zip
+# unzip ./icingaweb2-module-pnp4nagios.zip
+# chown -R www-data:icingaweb2 /usr/local/nginx/icingaweb2/modules/pnp4nagios
+# chmod -R g+w /usr/local/nginx/icingaweb2/modules/pnp4nagios
+
+然後到Icinga2 web網頁介面的Configuration > Modules > pnp4nagios 按下 Enable 把這個模組打開
+打開了之後，沒什麼明顯的改變
+
+
+好像要裝這個Graphite
+參考資料
+http://graphite.readthedocs.org/en/latest/overview.html
+
+搜尋icinga2 graph visualization
+搜尋grafana influxdb icinga2
+
+討論區發了文
+http://monitoring-portal.org/wbb/index.php?page=Thread&threadID=34665
+
+=========================================================================================================================
+https://dev.icinga.org/issues/10480
+https://www.reddit.com/r/sysadmin/comments/3mihlx/anyone_using_influxdb_grafana/
+(在這裡看到一句重點是
+influxdb have graphite plugin, when we replaced graphite with it we didnt had to change anything on collector side)
+
+https://influxdb.com/docs/v0.9/write_protocols/graphite.html
+https://github.com/influxdb/influxdb/blob/master/services/graphite/README.md
+
+search keywords : InfluxDB Graphite plugin
+search keywords : icinga2 how to generate graph for http traffic
+search keywords : Icinga2 graphing solution
+search keywords : graphite mysql backend
+
+InfluxDB的設定檔/etc/opt/influxdb/influxdb.conf
+裡面
+[[graphite]]
+  enabled = false
+  # bind-address = ":2003"
+  # protocol = "tcp"
+  # consistency-level = "one"
+  # name-separator = "."
+
+改成
+[[graphite]]
+  enabled = true
+  bind-address = ":2003"
+  protocol = "tcp"
+  consistency-level = "one"
+  name-separator = "."
+
+重新啟動InfluxDB服務
+# service influxdb restart
+
+anntony-Lenovo-B590 influxdb # netstat -anp|grep 2003
+tcp6       0      0 :::2003                 :::*                    LISTEN      11889/influxd 
+
+回到小板板
+# cd /usr/local/icinga2/etc/icinga2/features-available
+# vi ./graphite.conf
+
+內容是
+/**
+ * The GraphiteWriter type writes check result metrics and
+ * performance data to a graphite tcp socket.
+ */
+
+library "perfdata"
+
+object GraphiteWriter "graphite" {
+  //host = "127.0.0.1"
+  //port = 2003
+  host = "10.1.1.90"
+  port = 2003
+
+重新啟動Icinga2
+
+有解了嗎幹
+http://icinga-users.narkive.com/TJgviMLM/icinga-2-and-performance-history-graphs
+http://www.monitoring-portal.org/wbb/index.php?page=Thread&threadID=34237
+
+我要這種圖
+https://zhmurko.com/wp-content/uploads/2014/12/icinga2_graphite_grafana_zhmurko_systems_integration.png
+
+搜尋
+icinga2 historical graph
+
+=========================================================================================================================
