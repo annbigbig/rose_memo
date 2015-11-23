@@ -1,0 +1,230 @@
+7.x 安裝Graphite
+
+參考資料
+http://www.roblayton.com/2014/12/graphite-installation-with-uwsgi-nginx.html
+https://gist.github.com/hmmbug/11378689
+https://github.com/graphite-project/graphite-web/issues/1388
+
+搜尋關鍵字
+graphite mysql ubuntu
+graphite nginx config ubuntu
+
+安裝套件
+# apt-get install -y python python-dev python-virtualenv libevent-dev python-pip python-cairo python-django-tagging python-twisted python-memcache python-pysqlite2
+# apt-get install -y uwsgi uwsgi-plugin-python python-mysqldb
+
+加入一個nginx的Virtual Host設定檔
+# cat >> /usr/local/nginx/conf/vhosts/graphite.conf << EOF
+upstream graphite {
+    server unix:///tmp/uwsgi.sock;
+}
+
+server {
+    listen 9222;
+    server_name localhost;
+
+    access_log logs/graphite-access.log combined;
+    error_log logs/graphite-error.log;
+
+    location / {
+        add_header Access-Control-Allow-Origin "*";
+        add_header Access-Control-Allow-Methods "GET, OPTIONS";
+        add_header Access-Control-Allow-Headers "origin, authorization, accept";
+
+        uwsgi_pass graphite;
+        include uwsgi_params;
+    }
+
+    location /media {
+        # This makes static media available at the /media/ url.  The
+        # media will continue to be available during site downtime,
+        # allowing you to use styles and images in your maintenance page.
+        alias /usr/lib/python2.7/dist-packages/django/contrib/admin/media;
+    }
+}
+EOF
+
+# chown root:www-data /usr/local/nginx/conf/vhosts/graphite.conf
+# chmod 640 /usr/local/nginx/conf/vhosts/graphite.conf
+
+設定UWSGI
+# cat >> /etc/uwsgi/apps-available/graphite.ini << EOF
+
+[uwsgi]
+processes = 2
+pidfile = /tmp/uwsgi.pid
+socket = /tmp/uwsgi.sock
+gid = www-data
+uid = www-data
+virtualenv = /opt/graphite
+chdir = /opt/graphite/conf
+module = wsgi:application
+EOF
+
+作Symbolic Link連結到剛才的graphite.ini
+# ln -s /etc/uwsgi/apps-available/graphite.ini /etc/uwsgi/apps-enabled/
+
+配置資料庫
+# cat >> /tmp/graphite.sql << EOF
+create database graphite;
+create user 'graphite'@'localhost' identified by 'graphitepassword';
+grant all privileges on graphite.* to 'graphite'@'localhost';
+flush privileges;
+EOF
+# mysql -h localhost --port 3306 -u root -p < /tmp/graphite.sql
+
+建立用戶graphite並把他加到/etc/sudoers裡
+# adduser graphite
+# visudo
+
+加到root那一行的下面，也就是
+root    ALL=(ALL:ALL) ALL
+graphite    ALL=(ALL:ALL) ALL
+
+按ESC然後:wq離開vi文字編輯器
+切換為用戶graphite
+# su graphite
+
+設定Graphite
+$ cd /opt; sudo mkdir graphite; sudo chown graphite graphite; sudo chgrp graphite graphite
+$ virtualenv graphite
+$ source graphite/bin/activate
+
+安裝graphite和其依賴，並將一些設定檔複製過來
+$ pip install carbon graphite-web whisper 'Twisted<12.0'  django==1.5 simplejson 'django-tagging<0.4' mysql-python
+$ cd /opt/graphite/conf/
+$ sudo mkdir examples
+$ sudo mv *.example examples
+$ sudo cp examples/storage-schemas.conf.example storage-schemas.conf
+$ sudo cp examples/storage-aggregation.conf.example storage-aggregation.conf
+$ sudo cp examples/carbon.conf.example carbon.conf
+$ sudo cp examples/graphite.wsgi.example wsgi.py
+$ sudo cp /opt/graphite/webapp/graphite/{local_settings.py.example,local_settings.py}
+
+設定local_settings.py
+$ sudo -i
+# cd /opt/graphite/webapp/graphite/
+# sed -i -- "s|#SECRET_KEY = 'UNSAFE_DEFAULT'|SECRET_KEY = 'a1b2c3d4e5f6g7h8i9'|g" ./local_settings.py
+# sed -i -- "s|#TIME_ZONE = 'America/Los_Angeles'|TIME_ZONE = 'Asia/Taipei'|g" ./local_settings.py
+# sed -i -- "s|#USE_REMOTE_USER_AUTHENTICATION = True|USE_REMOTE_USER_AUTHENTICATION = True|g" ./local_settings.py
+# sed -i -- "s|#DEBUG = True|DEBUG = True|g" ./local_settings.py
+# sed -i -- "s|'NAME': '/opt/graphite/storage/graphite.db',|'NAME': 'graphite',|g" ./local_settings.py
+# sed -i -- "s|'ENGINE': 'django.db.backends.sqlite3',|'ENGINE': 'django.db.backends.mysql',|g" ./local_settings.py
+# sed -i -- "s|'USER': '',|'USER': 'graphite',|g" ./local_settings.py
+# sed -i -- "s|'PASSWORD': '',|'PASSWORD': 'graphitepassword',|g" ./local_settings.py
+# sed -i -- "s|'HOST': '',|'HOST': 'localhost',|g" ./local_settings.py
+# sed -i -- "s|'PORT': ''|'PORT': '3306'|g" ./local_settings.py
+
+結果sed置換後local_settings.py變成這樣(對厚…>  <)
+#DATABASES = {
+#    'default': {
+#        'NAME': 'graphite',
+#        'ENGINE': 'django.db.backends.mysql',
+#        'USER': 'graphite',
+#        'PASSWORD': 'graphitepassword',
+#        'HOST': 'localhost',
+#        'PORT': '3306'
+#    }
+#}
+#
+
+只好自已再用vi進去手動把前面的#注解都拿掉
+接下來產生graphite資料庫需要使用的資料表
+# /opt/graphite/bin/python /opt/graphite/webapp/graphite/manage.py syncdb
+
+終端機問你
+You just installed Django's auth system, which means you don't have any superusers defined.
+Would you like to create one now? (yes/no): 
+輸入yes之後按Enter，然後我設定了一個超級使用者admin密碼也是admin
+完成之後，稍早之前的graphite資料庫裡會產生許多django需要用到的資料表
+
+修改這兩個目錄的擁有人
+# chown -R www-data:www-data /opt/graphite/webapp/ /opt/graphite/storage/
+
+把這行寫到dist-packages.pth
+# echo "/usr/lib/python2.7/dist-packages" > /opt/graphite/lib/python2.7/site-packages/dist-packages.pth
+
+從這裡clone一個carbon-cache的init script，並將carbon-cache設定為開機後自動啟動的服務
+# cd /tmp
+# git clone https://gist.github.com/1492384.git
+# cd ./1492384/
+# cp ./gistfile1.sh /etc/init.d/carbon-cache
+# chmod 755 /etc/init.d/carbon-cache
+# chown root:root /etc/init.d/carbon-cache
+# update-rc.d carbon-cache defaults
+
+啟動所有服務
+# service carbon-cache start
+# service nginx restart
+
+啟動uwsgi之前請先修改
+# vi /opt/graphite/conf/wsgi.py
+
+在第9行
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'graphite.settings')  # noqa
+的下面加上這一行
+sys.path.append('/opt/graphite/webapp')
+不然你會在/var/log/uwsgi/app/graphite.log看到
+Mon Nov 23 15:52:16 2015 - *** Operational MODE: preforking ***
+Traceback (most recent call last):
+  File "./wsgi.py", line 13, in <module>
+    from graphite.logger import log
+ImportError: No module named graphite.logger
+Mon Nov 23 15:52:16 2015 - unable to load app 0 (mountpoint='') (callable not found or import error)
+Mon Nov 23 15:52:16 2015 - *** no app loaded. going in full dynamic mode ***
+
+這個bug可以在這裡查閱到詳細訊息
+https://github.com/graphite-project/graphite-web/issues/1388
+
+搜尋關鍵字
+"ImportError: No module named graphite.logger"
+
+# service uwsgi start
+
+如果順利的話，可以在
+http://localhost:9222
+看到graphite-web的操作畫面
+
+餵它吃metrics
+確認你的
+/usr/local/icinga2/etc/icinga2/features-available/graphite.conf
+
+內容如下
+library "perfdata"
+
+object GraphiteWriter "graphite" {
+  host = "127.0.0.1"
+  port = 2003
+}
+
+啟動Icinga2的GraphiteWriter功能
+# icinga2 feature enable graphite
+# service icinga2 restart
+
+
+問題：進去graphite-web之後，可以看到metrics的名稱，但是畫不出圖
+搜尋關鍵字：graphite-web broken image
+參考資料
+http://kinoshita.eti.br/2013/04/17/graphite-broken-images.html
+http://mirabedini.com/blog/?p=530
+https://answers.launchpad.net/graphite/+question/208654
+https://github.com/graphite-project/graphite-web/issues/1019
+http://www.franklinangulo.com/blog/2014/5/17/graphite-series-4-graphite-webapp
+
+試著
+# cd /opt/graphite/webapp/graphite
+# vi ./local_settings.py
+
+把原來的這一行
+#REMOTE_RENDERING = True
+
+改成
+REMOTE_RENDERING = False
+
+重啟nginx和uwsgi服務
+# service uwsgi restart
+# service nginx restart
+
+沒有用
+然後剛才上面最後一個link講我pytz沒有安裝，那就裝吧
+# /opt/graphite/bin/easy_install --upgrade pytz

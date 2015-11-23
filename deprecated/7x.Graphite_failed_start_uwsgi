@@ -1,4 +1,4 @@
-7.x 安裝Graphite (on x86_64 laptop)
+7.x 安裝Graphite
 
 參考資料
 http://graphite.readthedocs.org/en/latest/install.html
@@ -7,13 +7,16 @@ https://www.digitalocean.com/community/tutorials/how-to-install-and-use-graphite
 https://gist.github.com/jgeurts/6142051
 http://alfredocambera.blogspot.tw/2014/06/graphite-on-nginxuwsgi-debian-wheezy.html
 http://stackoverflow.com/questions/15236237/using-sed-to-replace-text-with-spaces-with-a-defined-variable-with-slashs
+https://gist.github.com/hmmbug/11378689
+http://tfeng.org/?p=6375
+http://www.roblayton.com/2014/12/graphite-installation-with-uwsgi-nginx.html
 
 搜尋關鍵字
 graphite mysql ubuntu
-graphite nginx config
+graphite nginx config ubuntu
 
 安裝
-# apt-get install graphite-carbon graphite-web python-mysqldb
+# apt-get install graphite-carbon graphite-web python-mysqldb uwsgi-plugin-python uwsgi
 
 途中會彈出一個視窗，選NO即可
 DigitalOcean原文如下
@@ -45,4 +48,45 @@ Sync the Database
 此時會被要求建立一個superuser，輸入yes按Enter之後，我建立了一個帳號admin密碼也是admin
 
 設定Carbon
+首先設定讓Carbon開機後自動執行
+# sed -i -- "s|CARBON_CACHE_ENABLED=false|CARBON_CACHE_ENABLED=true|g" /etc/default/graphite-carbon
+
+修改Carbon設定檔
+# sed -i -- "s|ENABLE_LOGROTATION = False|ENABLE_LOGROTATION = True|g" /etc/carbon/carbon.conf
+
+把這個檔案cp過去，放著就好
+# cp /usr/share/doc/graphite-carbon/examples/storage-aggregation.conf.example /etc/carbon/storage-aggregation.conf
+
+啟動Carbon
+# service carbon-cache start
+
+設定uwsgi，首先產生graphite.ini
+# cat >> /etc/uwsgi/apps-available/graphite.ini << EOF
+[uwsgi]
+
+vacuum = true
+master = true
+processes = 4
+pidfile = /tmp/uwsgi.pid
+socket = /tmp/uwsgi.sock
+chmod-socket = 666
+gid = _graphite
+uid = _graphite
+chdir = /usr/share/graphite-web
+wsgi-file = graphite.wsgi
+pymodule-alias = graphite.local_settings=/etc/graphite/local_settings.py
+buffer-size = 65536
+plugin = python
+EOF
+
+作一個Symbolic Link指向剛才產生的graphite.ini
+# ln -s /etc/uwsgi/apps-available/graphite.ini /etc/uwsgi/apps-enabled/
+
+產生一個/etc/default/uwsgi-graphite
+cat >> /etc/default/uwsgi-graphite << EOF
+PYTHONPATH=/usr/share/graphite-web
+MODULE=graphite.wsgi
+EOF
+
+設定nginx
 

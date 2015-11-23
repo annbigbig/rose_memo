@@ -1,0 +1,87 @@
+graphite@rose01:/opt$ source graphite/bin/activate
+(graphite)graphite@rose01:/opt$ pip install carbon graphite-web whisper 'Twisted<12.0'  django==1.5 simplejson psycopg2 django-tagging
+Downloading/unpacking carbon
+  Downloading carbon-0.9.14.tar.gz (50kB): 50kB downloaded
+  Running setup.py (path:/opt/graphite/build/carbon/setup.py) egg_info for package carbon
+    
+    package init file 'lib/twisted/plugins/__init__.py' not found (or not a regular file)
+    warning: no files found matching '*' under directory 'conf/'
+    warning: no files found matching '*' under directory 'distro/'
+    warning: no previously-included files found matching 'conf/*.conf'
+Downloading/unpacking graphite-web
+  Downloading graphite-web-0.9.14.zip (2.5MB): 2.5MB downloaded
+  Running setup.py (path:/opt/graphite/build/graphite-web/setup.py) egg_info for package graphite-web
+    
+    warning: no files found matching '*' under directory 'distro/'
+    warning: no files found matching '*.html' under directory 'webapp/graphite/'
+    warning: no files found matching '*' under directory 'webapp/content/'
+    warning: no previously-included files found matching 'webapp/graphite/local_settings.py'
+    warning: no previously-included files found matching 'conf/*.conf'
+Downloading/unpacking whisper
+  Downloading whisper-0.9.14.tar.gz
+  Running setup.py (path:/opt/graphite/build/whisper/setup.py) egg_info for package whisper
+    
+Downloading/unpacking Twisted<12.0
+  Downloading Twisted-11.1.0.tar.bz2 (2.8MB): 2.8MB downloaded
+  Running setup.py (path:/opt/graphite/build/Twisted/setup.py) egg_info for package Twisted
+    
+Downloading/unpacking django==1.5
+  Downloading Django-1.5.tar.gz (8.0MB): 8.0MB downloaded
+  Running setup.py (path:/opt/graphite/build/django/setup.py) egg_info for package django
+    
+    warning: no previously-included files matching '__pycache__' found under directory '*'
+    warning: no previously-included files matching '*.py[co]' found under directory '*'
+Downloading/unpacking simplejson
+  Downloading simplejson-3.8.1.tar.gz (76kB): 76kB downloaded
+  Running setup.py (path:/opt/graphite/build/simplejson/setup.py) egg_info for package simplejson
+    
+Downloading/unpacking psycopg2
+  Downloading psycopg2-2.6.1.tar.gz (371kB): 371kB downloaded
+  Running setup.py (path:/opt/graphite/build/psycopg2/setup.py) egg_info for package psycopg2
+    
+    Error: pg_config executable not found.
+    
+    Please add the directory containing pg_config to the PATH
+    or specify the full executable path with the option:
+    
+        python setup.py build_ext --pg-config /path/to/pg_config build ...
+    
+    or with the pg_config option in 'setup.cfg'.
+    Complete output from command python setup.py egg_info:
+    running egg_info
+
+creating pip-egg-info/psycopg2.egg-info
+
+writing dependency_links to pip-egg-info/psycopg2.egg-info/dependency_links.txt
+
+writing pip-egg-info/psycopg2.egg-info/PKG-INFO
+
+writing top-level names to pip-egg-info/psycopg2.egg-info/top_level.txt
+
+writing manifest file 'pip-egg-info/psycopg2.egg-info/SOURCES.txt'
+
+warning: manifest_maker: standard file '-c' not found
+
+
+
+Error: pg_config executable not found.
+
+
+
+Please add the directory containing pg_config to the PATH
+
+or specify the full executable path with the option:
+
+
+
+    python setup.py build_ext --pg-config /path/to/pg_config build ...
+
+
+
+or with the pg_config option in 'setup.cfg'.
+
+----------------------------------------
+Cleaning up...
+Command python setup.py egg_info failed with error code 1 in /opt/graphite/build/psycopg2
+Storing debug log for failure in /home/graphite/.pip/pip.log
+(graphite)graphite@rose01:/opt$
