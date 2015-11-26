@@ -99,6 +99,8 @@ $ sudo cp examples/storage-schemas.conf.example storage-schemas.conf
 $ sudo cp examples/storage-aggregation.conf.example storage-aggregation.conf
 $ sudo cp examples/carbon.conf.example carbon.conf
 $ sudo cp examples/graphite.wsgi.example wsgi.py
+$ sudo cp examples/dashboard.conf.example dashboard.conf
+$ sudo cp examples/graphTemplates.conf.example graphTemplates.conf
 $ sudo cp /opt/graphite/webapp/graphite/{local_settings.py.example,local_settings.py}
 
 設定local_settings.py
@@ -129,6 +131,13 @@ $ sudo -i
 #
 
 只好自已再用vi進去手動把前面的#注解都拿掉
+
+設定dashboard和graph template
+# cd /opt/graphite/conf
+# sed -i -- "s|default_graph_width = 400|default_graph_width = 500|g" ./dashboard.conf
+# sed -i -- "s|default_graph_height = 250|default_graph_height = 400|g" ./dashboard.conf
+# sed -i -- "s|fontSize = 10|fontSize = 14|g" ./graphTemplates.conf
+
 接下來產生graphite資料庫需要使用的資料表
 # /opt/graphite/bin/python /opt/graphite/webapp/graphite/manage.py syncdb
 
@@ -228,3 +237,275 @@ REMOTE_RENDERING = False
 沒有用
 然後剛才上面最後一個link講我pytz沒有安裝，那就裝吧
 # /opt/graphite/bin/easy_install --upgrade pytz
+
+pytz安裝完成之後，把左邊panel的樹狀結構點開，開始有圖出現
+
+搜尋關鍵字
+Dashboards for Graphite
+
+
+
+自訂你的Dashboard
+瀏覽器打開
+http://localhost:9222
+
+按下右上角的Dashboard，或是直接連
+http://localhost:9222/dashboard/
+
+在下面的Dashboard > Edit Dashboard貼上這一段文字
+
+[
+  {
+    "target": [
+      "icinga2.localhost.services.mysql.mysql.perfdata.Connections.value"
+    ],
+    "title": "MySQL Connections.value"
+  },
+  {
+    "target": [
+      "icinga2.localhost.services.mysql.mysql.perfdata.Open_files.value"
+    ],
+    "title": "MySQL Open_files value"
+  },
+  {
+    "target": [
+      "icinga2.localhost.services.mysql.mysql.perfdata.Open_tables.value"
+    ],
+    "title": "MySQL Open_tables value"
+  },
+  {
+    "target": [
+      "icinga2.localhost.services.mysql.mysql.perfdata.Queries.value"
+    ],
+    "title": "MySQL Queries value"
+  },
+  {
+    "target": [
+      "icinga2.localhost.services.mysql.mysql.perfdata.Questions.value"
+    ],
+    "title": "MySQL Questions value"
+  },
+  {
+    "target": [
+      "icinga2.localhost.services.mysql.mysql.perfdata.Table_locks_waited.value"
+    ],
+    "title": "MySQL Table_locks_waited value"
+  },
+  {
+    "target": [
+      "icinga2.localhost.services.mysql.mysql.perfdata.Threads_connected.value"
+    ],
+    "title": "MySQL Threads_connected value"
+  },
+  {
+    "target": [
+      "icinga2.localhost.services.mysql.mysql.perfdata.Threads_running.value"
+    ],
+    "title": "MySQL Threads_running value"
+  },
+  {
+    "target": [
+      "icinga2.localhost.services.mysql.mysql.perfdata.Uptime.value"
+    ],
+    "title": "MySQL Uptime value"
+  }
+]
+
+按下對話框下方的[ Update (doesn't save) ]，這不會存為Dashboard，只是更新畫面而已
+然後可以看到這個Dashboard裡，出現了localhost這台主機的mysql服務的各項指標的圖表
+確定要這個Dashboard存檔，就執行Dashboard > Save As
+跳出來了一個Save Dashboard對話框，輸入你為這個Dashboard取的名字，例如Ann-MySQL-statistical
+按下OK就存入這個Dashboard，稍後要叫出它，可以在Dashboard > Finder把它找出來
+其它的Service像是SSH或是Disk如果要搞一個Dashboard，也是照這上面的寫法，不再重複寫一次了
+如果要查閱更久以前的資料，可以按下[ Relative Time Range ]設定你要的時間區段
+
+上面Dashboard定義更好的一個寫法也許會是
+[
+  {
+    "target": [
+      "aliasByNode(icinga2.*.services.mysql.mysql.perfdata.Connections.value,1)"
+    ],
+    "title": "MySQL Connections.value"
+  },
+  {
+    "target": [
+      "aliasByNode(icinga2.*.services.mysql.mysql.perfdata.Open_files.value,1)"
+    ],
+    "title": "MySQL Open_files value"
+  },
+  {
+    "target": [
+      "aliasByNode(icinga2.*.services.mysql.mysql.perfdata.Open_tables.value,1)"
+    ],
+    "title": "MySQL Open_tables value"
+  },
+  {
+    "target": [
+      "aliasByNode(icinga2.*.services.mysql.mysql.perfdata.Queries.value,1)"
+    ],
+    "title": "MySQL Queries value"
+  },
+  {
+    "target": [
+      "aliasByNode(icinga2.*.services.mysql.mysql.perfdata.Questions.value,1)"
+    ],
+    "title": "MySQL Questions value"
+  },
+  {
+    "target": [
+      "aliasByNode(icinga2.*.services.mysql.mysql.perfdata.Table_locks_waited.value,1)"
+    ],
+    "title": "MySQL Table_locks_waited value"
+  },
+  {
+    "target": [
+      "aliasByNode(icinga2.*.services.mysql.mysql.perfdata.Threads_connected.value,1)"
+    ],
+    "title": "MySQL Threads_connected value"
+  },
+  {
+    "target": [
+      "aliasByNode(icinga2.*.services.mysql.mysql.perfdata.Threads_running.value,1)"
+    ],
+    "title": "MySQL Threads_running value"
+  },
+  {
+    "target": [
+      "aliasByNode(icinga2.*.services.mysql.mysql.perfdata.Uptime.value,1)"
+    ],
+    "title": "MySQL Uptime value"
+  }
+]
+
+這樣一次可以應用到多台主機都有安裝mysql服務的情況
+
+我還想監測ReqPerSec所以我使用了關鍵字
+Icinga2 ReqPerSec
+
+找到這個
+https://github.com/Icinga/icinga2/blob/master/itl/plugins-contrib.d/web.conf
+
+可是它就是已經存在我Icinga2的安裝目錄
+在這裡
+/usr/local/icinga2/share/icinga2/include/plugins-contrib.d/web.conf
+
+關鍵字
+icinga2 nginx_status services.conf
+
+又搜到 (Monitoring remote systems with Icinga 2)這個以後再看
+http://www.olindata.com/blog/2015/03/monitoring-remote-systems-icinga-2
+
+搜到關於nginx需要有一個/status的配置
+而且nginx需要重新編譯，指定--with-http_stub_status_module
+https://support.serverdensity.com/hc/en-us/articles/201253373-nginx-monitoring-Linux-Mac-and-FreeBSD
+
+重新編譯nginx，我寫了一個Shell script
+# cd /root
+# touch ./nginx_install_part1.sh
+# chmod 755 ./nginx_install_part1.sh
+
+內容如下
+#!/bin/sh
+cd /usr/local/src
+wget http://nginx.org/download/nginx-1.9.7.tar.gz
+tar -zxvf ./nginx-1.9.7.tar.gz
+chown -R root:root ./nginx-1.9.7
+cd ./nginx-1.9.7
+./configure --prefix=/usr/local/nginx-1.9.7 \
+ --user=www-data \
+ --group=www-data \
+ --with-http_ssl_module \
+ --with-pcre=/usr/local/src/pcre-8.37 \
+ --with-zlib=/usr/local/src/zlib-1.2.8 \
+ --with-openssl=/usr/local/src/openssl-1.0.2d \
+ --with-http_stub_status_module
+
+make
+make install
+
+chown -R root:www-data /usr/local/nginx-1.9.7
+chmod -R g+w /usr/local/nginx-1.9.7
+
+執行它的時候就
+# ./nginx_install_part1.sh 2>&1 | tee /tmp/nginx_install_output
+
+參考資料
+http://stackoverflow.com/questions/6674327/redirect-all-output-to-file
+
+剛才nginx_install_part1.sh只是把nginx-1.9.7編譯完並安裝到/usr/local
+現在下面的動作要把舊的設定還有網站根目錄從1.9.5舊版本的目錄拷貝過去
+產生第二個Shell Script
+# cd /root
+# touch ./nginx_restore_old_settings_and_files.sh
+# chmod 755 ./nginx_restore_old_settings_and_files.sh
+
+內容如下
+#!/bin/sh
+OLD_VERSION_NUM=1.9.5
+NEW_VERSION_NUM=1.9.7
+
+# stop nginx service first
+echo "ready to stop nginx service ......"
+service nginx status
+service nginx stop
+service nginx status
+echo "done.\n"
+
+# override configuration file with old one
+echo "coping nginx.conf from /usr/local/$OLD_VERSION_NUM/conf/nginx.conf ......"
+cd /usr/local/nginx-$NEW_VERSION_NUM/conf/
+cp -fp /usr/local/nginx-$OLD_VERSION_NUM/conf/nginx.conf .
+echo "done.\n"
+
+# copy all of the config of virtualhost
+echo "copying *.conf from /usr/local/$OLD_VERSION_NUM/conf/vhosts/ ......"
+mkdir vhosts
+cd ./vhosts
+cp -fp /usr/local/nginx-$OLD_VERSION_NUM/conf/vhosts/*.conf .
+echo "done.\n"
+
+# test if any syntax error appear in nginx.conf ?
+echo "nginx configuration syntax test ......"
+cd /usr/local/nginx-$NEW_VERSION_NUM/
+sbin/nginx -t -c conf/nginx.conf
+echo "done.\n"
+
+# copy root directories of websites from old installation path
+cd /usr/local/nginx-$NEW_VERSION_NUM/
+echo "copying whole phpMyAdmin dir ......"
+cp -rp /usr/local/nginx-$OLD_VERSION_NUM/phpMyAdmin-4.5.0.2/ .
+ln -s ./phpMyAdmin-4.5.0.2 ./phpmyadmin
+echo "done.\n"
+
+echo "copying whole icingaweb2 dir ......"
+cp -rp /usr/local/nginx-$OLD_VERSION_NUM/icingaweb2/ .
+echo "done.\n"
+
+echo "copying whole zabbix dir ......"
+cp -rp /usr/local/nginx-$OLD_VERSION_NUM/zabbix/ .
+echo "done.\n"
+
+# copy ssl directory from old installation path
+sleep 1
+echo "coping whole ssl dir ......"
+cp -rp /usr/local/nginx-$OLD_VERSION_NUM/ssl/ .
+echo "done.\n"
+
+剛才新編譯的nginx-1.9.7真的有支援with-http_stub_status_module嗎？這樣檢查
+# cd /usr/local/nginx-1.9.7
+# sbin/nginx -V 2>&1 | grep -o with-http_stub_status_module
+如果終端機有回應這個
+with-http_stub_status_module
+就表示安裝成功了
+
+刪除舊的指向1.9.5的Symbolic Link，改指向1.9.7
+# cd /usr/local
+# rm -rf ./nginx
+# ln -s ./nginx-1.9.7 ./nginx
+
+接著就啟動nginx服務器
+# service nginx start
+
+剛才完成了nginx-1.9.7的昇級(因為要支援with-http_stub_status_module)
+現在來作Icinga2的services.conf的設定
+
