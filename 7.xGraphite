@@ -507,5 +507,123 @@ with-http_stub_status_module
 # service nginx start
 
 剛才完成了nginx-1.9.7的昇級(因為要支援with-http_stub_status_module)
-現在來作Icinga2的services.conf的設定
+為了使用Icinga2的nginx_status
+(把/usr/local/icinga2/share/icinga2/include/plugins-contrib.d/web.conf這個檔打開來看)
 
+把這個區塊加到/usr/local/nginx/conf/nginx.conf裡面
+
+location /nginx_status {
+  stub_status on;
+  access_log off;
+  allow 127.0.0.1;
+  deny all;
+}
+
+重新啟動nginx服務器
+# service nginx restart
+
+現在來作Icinga2的services.conf的設定
+先找到check_nginx_status.pl
+它的repo在這裡
+https://github.com/regilero/check_nginx_status
+
+拉下它，把check_nginx_status.pl複製到/usr/lib/nagios/plugins/目錄裡
+# cd /tmp
+# git clone https://github.com/regilero/check_nginx_status.git
+# cd ./check_nginx_status/
+# cp ./check_nginx_status.pl /usr/lib/nagios/plugins/
+# chmod +x /usr/lib/nagios/plugins/check_nginx_status.pl
+
+在終端機下，試著使用check_nginx_status.pl，方法是
+# ./check_nginx_status.pl -H 127.0.0.1 -u /nginx_status -s localhost -t 10 -w 10000,100,200 -c 20000,200,300
+
+終端機回應了
+NGINX OK -  0.253 sec. response time, Active: 3 (Writing: 1 Reading: 0 Waiting: 2) ReqPerSec: 0.440 ConnPerSec: 0.133 ReqPerConn: 3.858|Writing=1;;;; Reading=0;;;; Waiting=2;;;; Active=3;;;; ReqPerSec=0.440000;;;; ConnPerSec=0.133333;;;; ReqPerConn=3.858068;;;;
+
+
+/usr/local/icinga2/share/icinga2/include/plugins-contrib.d
+
+臨時插入，又找到一個參考資料
+https://blog.serverdensity.com/monitor-nginx/
+
+搜尋關鍵字how to monitor nginx
+
+這是plugins相關的
+其中有一句To add the plugin, just copy it to /usr/local/nagios/libexec and chmod +x / chown nagios:nagios it.
+https://www.opsview.com/resources/forums/basic-monitoring/how-do-i/nginx-http-service-check
+
+開始設定監視nginx服務
+首先修改/usr/local/icinga2/etc/icinga2/icinga2.conf
+裡面有一行
+//include <plugins-contrib>
+把前面的注解//去掉，變成
+include <plugins-contrib>
+
+把這個區塊加到/usr/local/icinga2/etc/icinga2/conf.d/services.conf的最後面
+apply Service "nginx" {
+  import "generic-service"
+
+  check_command = "nginx_status"
+
+  vars.nginx_status_host_address = host.address
+  vars.nginx_status_port = "80"
+  vars.nginx_status_servername = host.name
+
+  assign where host.name == "localhost"
+}
+
+重新啟動icinga2
+# service icinga2 restart
+
+然後一樣進入graphite web，直接到dashboard那一頁
+http://127.0.0.1:9222/dashboard/
+
+選下面的Dashboard > Edit Dashboard
+
+把這一坨貼進去
+[
+  {
+    "target": [
+      "aliasByNode(icinga2.*.services.nginx.nginx_status.perfdata.Active.value,1)"
+    ],
+    "title": "Nginx Active.value"
+  },
+  {
+    "target": [
+      "aliasByNode(icinga2.*.services.nginx.nginx_status.perfdata.ConnPerSec.value,1)"
+    ],
+    "title": "Nginx ConnPerSec.value"
+  },
+  {
+    "target": [
+      "aliasByNode(icinga2.*.services.nginx.nginx_status.perfdata.Reading.value,1)"
+    ],
+    "title": "Nginx Reading.value"
+  },
+  {
+    "target": [
+      "aliasByNode(icinga2.*.services.nginx.nginx_status.perfdata.ReqPerConn.value,1)"
+    ],
+    "title": "Nginx ReqPerConn.value"
+  },
+  {
+    "target": [
+      "aliasByNode(icinga2.*.services.nginx.nginx_status.perfdata.ReqPerSec.value,1)"
+    ],
+    "title": "Nginx ReqPerSec.value"
+  },
+  {
+    "target": [
+      "aliasByNode(icinga2.*.services.nginx.nginx_status.perfdata.Waiting.value,1)"
+    ],
+    "title": "Nginx Waiting.value"
+  },
+  {
+    "target": [
+      "aliasByNode(icinga2.*.services.nginx.nginx_status.perfdata.Writing.value,1)"
+    ],
+    "title": "Nginx Writing.value"
+  }
+]
+
+按下[ Update (doesn't save)]，就會看到圖表了，然後要記得再按Dashboard > Save as把它存起來
