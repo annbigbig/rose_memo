@@ -81,6 +81,9 @@ EOF
 root    ALL=(ALL:ALL) ALL
 graphite    ALL=(ALL:ALL) ALL
 
+順便一提，如果用指令來作，請參考這裡
+http://askubuntu.com/questions/7477/how-can-i-add-a-new-user-as-sudoer-using-the-command-line
+
 按ESC然後:wq離開vi文字編輯器
 切換為用戶graphite
 # su graphite
@@ -627,3 +630,59 @@ http://127.0.0.1:9222/dashboard/
 ]
 
 按下[ Update (doesn't save)]，就會看到圖表了，然後要記得再按Dashboard > Save as把它存起來
+
+
+加入一個Service，使用CheckCommand snmp-interface
+(snmp_interface定義可以在/usr/local/icinga2/share/icinga2/include/command-plugins-manubulon.conf裡面找到)
+檢查的實際指令在/usr/lib/nagios/plugins/check_snmp_int.pl
+修改/usr/local/icinga2/share/icinga2/include/command-plugins-manubulon.conf
+在
+arguments += {
+這一行下面加入一個區塊
+"-2" = {
+                        set_if = "$snmp_v2$"
+                }
+然後最後面
+vars.snmp_perf = true
+的下面再加一行
+vars.snmp_v2 = true
+
+主機設定檔/usr/local/icinga2/etc/icinga2/conf.d/hosts.conf
+在localhost區塊
+object Host "localhost" {
+……這裡略…
+  /* Define newtork interfaces for service apply rules in `services.conf`. */
+  vars.interfaces["lo"] = {
+    snmp_interface = "lo"
+  }
+
+  vars.interfaces["eth0"] = {
+    snmp_interface = "eth0"
+  }
+……這裡略…
+}
+
+服務設定檔/usr/local/icinga2/etc/icinga2/conf.d/services.conf
+加入這個區塊
+apply Service for (interface => config in host.vars.interfaces) {
+  import "generic-service"
+
+  check_command = "snmp-interface"
+
+  vars += config
+}
+
+重啟icinga2服務
+# service icinga2 restart
+
+然後到graphite web
+可以看到網路接口eth0和lo的指標進來了
+icinga2.localhost.services.eth0.snmp-interface.perfdata.eth0_in_bps
+icinga2.localhost.services.eth0.snmp-interface.perfdata.eth0_in_discard
+icinga2.localhost.services.eth0.snmp-interface.perfdata.eth0_in_error
+icinga2.localhost.services.eth0.snmp-interface.perfdata.eth0_out_bps
+icinga2.localhost.services.eth0.snmp-interface.perfdata.eth0_out_discard
+icinga2.localhost.services.eth0.snmp-interface.perfdata.eth0_out_error
+
+照例給它弄個Dashboard
+
